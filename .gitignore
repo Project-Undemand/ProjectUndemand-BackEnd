@@ -38,5 +38,3 @@ out/
 
 ### gradlew.bat ###
 gradlew.bat
-.gitattributes
-.gitignore
