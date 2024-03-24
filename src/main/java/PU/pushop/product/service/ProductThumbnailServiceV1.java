@@ -22,6 +22,11 @@ public class ProductThumbnailServiceV1 {
     private final ProductThumbnailRepositoryV1 productThumbnailRepository;
     private final ProductServiceV1 productService;
 
+    /**
+     * 썸네일 등록
+     * @param productId
+     * @param images
+     */
     public void uploadThumbnail(Long productId, List<MultipartFile> images) {
         try {
             // Product 엔티티 가져오기
@@ -53,7 +58,6 @@ public class ProductThumbnailServiceV1 {
             e.printStackTrace();
         }
     }
-
     // 이미지 파일을 저장하는 메서드
     private void saveImage(MultipartFile image, String filePath) throws IOException {
         Path path = Paths.get(filePath);
@@ -61,11 +65,33 @@ public class ProductThumbnailServiceV1 {
         Files.write(path, image.getBytes());
     }
 
-    // 삭제
+    /**
+     * 썸네일 삭제
+     * @param thumbnailId
+     */
     public void deleteThumbnail(Long thumbnailId) {
-        ProductThumbnail thumbnail = productThumbnailRepository.findByThumbnailId(thumbnailId)
+        // 썸네일 엔티티 조회
+        ProductThumbnail thumbnail = productThumbnailRepository.findById(thumbnailId)
                 .orElseThrow(() -> new RuntimeException("해당 사진을 찾을 수 없습니다."));
+
+        // 썸네일 파일 경로 가져오기
+        String imagePath = thumbnail.getImagePath();
+
+        // 썸네일 데이터베이스에서 삭제
         productThumbnailRepository.delete(thumbnail);
+
+        // 파일 삭제
+        deleteImageFile(imagePath);
+    }
+    // 파일 삭제 메서드
+    private void deleteImageFile(String imagePath) {
+        try {
+            Path path = Paths.get(imagePath);
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            // 파일 삭제 중 오류 발생 시 예외 처리
+            e.printStackTrace();
+        }
     }
 
     //썸네일 조회
