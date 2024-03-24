@@ -18,7 +18,6 @@ public class ProductDto {
     private String productName;
     private Integer price;
     private String productInfo;
-    private Integer productStock;
     private LocalDate createdAt;
     private LocalDate updatedAt;
     private String manufacturer;
@@ -34,7 +33,6 @@ public class ProductDto {
                 product.getProductName(),
                 product.getPrice(),
                 product.getProductInfo(),
-                product.getProductStock(),
                 product.getCreatedAt(),
                 product.getUpdatedAt(),
                 product.getManufacturer(),

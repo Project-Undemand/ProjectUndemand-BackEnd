@@ -28,7 +28,6 @@ public class ProductApiControllerV1 {
         private ProductType productType;
         private Integer price;
         private String productInfo;
-        private Integer productStock;
         private String manufacturer;
     }
     private Product ProductFromRequest(ProductRequest request) {
@@ -37,7 +36,6 @@ public class ProductApiControllerV1 {
         product.setProductType(request.getProductType());
         product.setPrice(request.getPrice());
         product.setProductInfo(request.getProductInfo());
-        product.setProductStock(request.getProductStock());
         product.setManufacturer(request.getManufacturer());
         return product;
     }

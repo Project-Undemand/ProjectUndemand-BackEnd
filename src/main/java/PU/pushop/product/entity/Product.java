@@ -36,9 +36,6 @@ public class Product {
     @Column(name = "product_info")
     private String productInfo;
 
-    @Column(name = "productStock")
-    private Integer productStock;
-
     @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate createdAt;
 
@@ -66,10 +63,6 @@ public class Product {
 
     public void setProductInfo(String productInfo) {
         this.productInfo = productInfo;
-    }
-
-    public void setProductStock(Integer productStock) {
-        this.productStock = productStock;
     }
 
     public void setManufacturer(String manufacturer) {

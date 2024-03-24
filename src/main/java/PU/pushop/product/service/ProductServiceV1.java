@@ -15,6 +15,10 @@ import java.util.List;
 public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepositoryV1;
 
+    public Product findProductById(Long productId) {
+        return productRepositoryV1.findByProductId(productId)
+                .orElse(null); // productId에 해당하는 Product가 없을 경우 null 반환
+    }
 
     /**
      * 상품 등록
@@ -58,7 +62,6 @@ public class ProductServiceV1 {
         existingProduct.setProductType(updatedProduct.getProductType());
         existingProduct.setPrice(updatedProduct.getPrice());
         existingProduct.setProductInfo(updatedProduct.getProductInfo());
-        existingProduct.setProductStock(updatedProduct.getProductStock());
         existingProduct.setManufacturer(updatedProduct.getManufacturer());
 
         // 수정된 상품 정보 저장 후 return
@@ -76,7 +79,5 @@ public class ProductServiceV1 {
 
         productRepositoryV1.delete(existingProduct);
     }
-
-
 
 }
