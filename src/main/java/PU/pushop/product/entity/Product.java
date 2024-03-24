@@ -20,7 +20,6 @@ public class Product {
             strategy = GenerationType.SEQUENCE,
             generator = "product_sequence"
     )
-
     @Column(name = "product_id")
     private Long productId;
 

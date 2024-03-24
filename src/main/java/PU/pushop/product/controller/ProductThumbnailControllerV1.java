@@ -25,9 +25,9 @@ public class ProductThumbnailControllerV1 {
     }
 
     // 썸네일 삭제
-    @DeleteMapping("/delete/{productId}")
-    public ResponseEntity<String> deleteThumbnail(@PathVariable Long productId) {
-        productThumbnailService.deleteThumbnail(productId);
+    @DeleteMapping("/delete/{thumbnailId}")
+    public ResponseEntity<String> deleteThumbnail(@PathVariable Long thumbnailId) {
+        productThumbnailService.deleteThumbnail(thumbnailId);
         return ResponseEntity.status(HttpStatus.OK).body("썸네일 삭제 완료");
     }
     

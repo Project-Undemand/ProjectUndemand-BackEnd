@@ -62,9 +62,9 @@ public class ProductThumbnailServiceV1 {
     }
 
     // 삭제
-    public void deleteThumbnail(Long productId) {
-        ProductThumbnail thumbnail = productThumbnailRepository.findByThumbnailId(productId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+    public void deleteThumbnail(Long thumbnailId) {
+        ProductThumbnail thumbnail = productThumbnailRepository.findByThumbnailId(thumbnailId)
+                .orElseThrow(() -> new RuntimeException("해당 사진을 찾을 수 없습니다."));
         productThumbnailRepository.delete(thumbnail);
     }
 

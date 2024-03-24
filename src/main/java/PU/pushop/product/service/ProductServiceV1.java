@@ -2,7 +2,13 @@ package PU.pushop.product.service;
 
 
 import PU.pushop.product.entity.Product;
+import PU.pushop.product.entity.ProductCategory;
+import PU.pushop.product.entity.ProductColor;
+import PU.pushop.product.entity.ProductSize;
+import PU.pushop.product.repository.ProductCategoryRepository;
+import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.product.repository.ProductSizeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +21,18 @@ import java.util.List;
 public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepositoryV1;
 
+    public final ProductCategoryRepository categoryRepository;
+    public final ProductColorRepository productColorRepository;
+    private final ProductSizeRepository productSizeRepository;
+
+
     public Product findProductById(Long productId) {
         return productRepositoryV1.findByProductId(productId)
                 .orElse(null); // productId에 해당하는 Product가 없을 경우 null 반환
     }
+
+
+
 
     /**
      * 상품 등록
@@ -78,6 +92,25 @@ public class ProductServiceV1 {
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
 
         productRepositoryV1.delete(existingProduct);
+    }
+
+
+    @Transactional
+    public Long createCategory(ProductCategory category) {
+        categoryRepository.save(category);
+        return category.getCategoryId();
+    }
+
+    @Transactional
+    public Long createColor(ProductColor color) {
+        productColorRepository.save(color);
+        return color.getColorId();
+    }
+
+    @Transactional
+    public Long createSize(ProductSize size) {
+        productSizeRepository.save(size);
+        return size.getSizeId();
     }
 
 }
