@@ -1,5 +1,6 @@
 package PU.pushop.product.controller;
 
+import PU.pushop.product.entity.ProductThumbnail;
 import PU.pushop.product.service.ProductThumbnailServiceV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,21 +8,40 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/v1/thumbnail")
 @RequiredArgsConstructor
 public class ProductThumbnailControllerV1 {
     private final ProductThumbnailServiceV1 productThumbnailService;
 
+    // 썸네일 업로드
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadThumbnail(@RequestParam("productId") Long productId, @RequestParam("image") MultipartFile image) {
-        productThumbnailService.uploadThumbnail(productId, image);
+    public ResponseEntity<String> uploadThumbnail(@RequestParam("productId") Long productId, @RequestParam("image") List<MultipartFile> images) {
+        productThumbnailService.uploadThumbnail(productId, images);
         return ResponseEntity.status(HttpStatus.CREATED).body("썸네일 업로드 완료");
     }
 
+    // 썸네일 삭제
     @DeleteMapping("/delete/{productId}")
     public ResponseEntity<String> deleteThumbnail(@PathVariable Long productId) {
         productThumbnailService.deleteThumbnail(productId);
         return ResponseEntity.status(HttpStatus.OK).body("썸네일 삭제 완료");
+    }
+    
+    // 상품 id로 썸네일 조회 (경로 리스트)
+    @GetMapping("/{productId}")
+    public ResponseEntity<List<String>> getProductThumbnails(@PathVariable Long productId) {
+        List<ProductThumbnail> thumbnails = productThumbnailService.getProductThumbnails(productId);
+        if (!thumbnails.isEmpty()) {
+            List<String> thumbnailPaths = thumbnails.stream()
+                    .map(ProductThumbnail::getImagePath)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok().body(thumbnailPaths);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
