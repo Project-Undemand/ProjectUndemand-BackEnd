@@ -1,12 +1,8 @@
 package PU.pushop.product.controller;
 
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.ProductCategory;
 import PU.pushop.product.entity.ProductColor;
-import PU.pushop.product.entity.ProductSize;
 import PU.pushop.product.entity.enums.ProductType;
-import PU.pushop.product.entity.enums.Size;
-import PU.pushop.product.model.ProductCategoryDto;
 import PU.pushop.product.model.ProductDto;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
@@ -160,30 +156,4 @@ public class ProductApiControllerV1 {
         }
     }
 
-    /**
-     * 사이즈 생성
-     */
-    @Data
-    static class SizeRequest {
-        private Size size;
-    }
-
-    private ProductSize SizeFormRequest(SizeRequest request) {
-        ProductSize productSize = new ProductSize();
-        productSize.setSize(request.getSize());
-        return productSize;
-    }
-
-    @PostMapping("/size/new")
-    public ResponseEntity<?> createSize(@Valid @RequestBody SizeRequest request) {
-        ProductSize size = SizeFormRequest(request);
-
-        try {
-            Long createdSizeId = productServiceV1.createSize(size);
-            return ResponseEntity.status(HttpStatus.CREATED).body("사이즈 등록 완료" + createdSizeId);
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("중복된 사이즈입니다.");
-        }
-    }
-    // 사이즈는 XSMALL, SMALL, MEDIUM, LARGE, XLARGE, FREE 을 enum으로 받아오고 있는데, 다른 것들(카테고리, 컬러)와 달리 더 추가될 것이 없다고 판단되므로 아예 product 또는 인벤토리 테이블에서 enum 컬럼으로 사용하는 것이 어떨지 의논이 필요함.
 }

@@ -2,22 +2,14 @@ package PU.pushop.product.service;
 
 
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.ProductCategory;
 import PU.pushop.product.entity.ProductColor;
-import PU.pushop.product.entity.ProductSize;
-import PU.pushop.product.model.ProductCategoryDto;
-import PU.pushop.product.repository.ProductCategoryRepository;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.product.repository.ProductSizeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -26,7 +18,6 @@ public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepositoryV1;
 
     public final ProductColorRepository productColorRepository;
-    private final ProductSizeRepository productSizeRepository;
 
 
     public Product findProductById(Long productId) {
@@ -98,12 +89,6 @@ public class ProductServiceV1 {
     public Long createColor(ProductColor color) {
         productColorRepository.save(color);
         return color.getColorId();
-    }
-
-    @Transactional
-    public Long createSize(ProductSize size) {
-        productSizeRepository.save(size);
-        return size.getSizeId();
     }
 
 }
