@@ -18,6 +18,7 @@ public class ProductThumbnailDto {
         this(
                 thumbnail.getThumbnailId(),
                 thumbnail.getImagePath(),
-                thumbnail.getProduct().getProductId());
+                thumbnail.getProduct().getProductId()
+        );
     }
 }
