@@ -6,6 +6,7 @@ import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.ProductSize;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.entity.enums.Size;
+import PU.pushop.product.model.ProductCategoryDto;
 import PU.pushop.product.model.ProductDto;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
@@ -134,9 +135,52 @@ public class ProductApiControllerV1 {
 
 
     /**
-     * 카테고리 생성
+     * 카테고리
      */
-    @Data
+
+    // 전체 카테고리 조회 - 자식 카테고리가 한번 더 나오는 문제 때문에 findall 사용하면 안 될 듯
+    /*@GetMapping("/categorys")
+    public ResponseEntity<?> getCategoryList() {
+        return ResponseEntity.ok(productServiceV1.getCategoryList());
+    }*/
+
+    @GetMapping("/categorys")
+    public ResponseEntity<?> getCategoryList() {
+        List<ProductCategory> topLevelCategories = productServiceV1.getTopLevelCategories(); // 최상위 부모 카테고리만 가져오는 메서드
+
+        // 부모 카테고리 리스트를 DTO로 변환
+        List<ProductCategoryDto> categoryDtoList = topLevelCategories.stream()
+                .map(ProductCategoryDto::of)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(categoryDtoList);
+    }
+
+    // 부모 카테고리 생성
+    @PostMapping("/categorys/parent")
+    public ResponseEntity<Long> createParentCategory(@RequestBody ProductCategory category) {
+        Long categoryId = productServiceV1.createCategory(category, null); // 부모 카테고리 생성 시 parentId를 null로 전달
+        return ResponseEntity.ok(categoryId);
+    }
+
+    // 부모 카테고리 id를 URL로 보냄
+    @PostMapping("/categorys/child/{parentId}")
+    public ResponseEntity<Long> createChildCategory(@RequestBody ProductCategory category, @PathVariable Long parentId) {
+        Long categoryId = productServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
+        return ResponseEntity.ok(categoryId);
+    }
+
+    // 부모 카테고리 id를 바디로 보냄
+    /*@PostMapping("/categorys/child")
+    public ResponseEntity<Long> createChildCategory(@RequestBody ProductCategory category) {
+        Long parentId = category.getParent().getCategoryId(); // 요청 바디에 있는 부모 카테고리의 ID를 가져옵니다.
+        Long categoryId = productServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
+        return ResponseEntity.ok(categoryId);
+    }*/
+
+
+
+    /*@Data
     static class CategoryRequest {
         private String category;
     }
@@ -158,7 +202,7 @@ public class ProductApiControllerV1 {
             // 중복된 이름에 대한 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("중복된 이름으로 카테고리를 등록할 수 없습니다.");
         }
-    }
+    }*/
 
     /**
      * 색상 등록
