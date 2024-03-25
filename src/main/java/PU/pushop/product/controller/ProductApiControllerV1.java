@@ -163,46 +163,27 @@ public class ProductApiControllerV1 {
         return ResponseEntity.ok(categoryId);
     }
 
-    // 부모 카테고리 id를 URL로 보냄
+    // 1. 부모 카테고리 id를 URL로 보냄
     @PostMapping("/categorys/child/{parentId}")
     public ResponseEntity<Long> createChildCategory(@RequestBody ProductCategory category, @PathVariable Long parentId) {
         Long categoryId = productServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
         return ResponseEntity.ok(categoryId);
     }
 
-    // 부모 카테고리 id를 바디로 보냄
-    /*@PostMapping("/categorys/child")
+    // 2. 부모 카테고리 id를 바디로 보냄
+    @PostMapping("/categorys/child")
     public ResponseEntity<Long> createChildCategory(@RequestBody ProductCategory category) {
         Long parentId = category.getParent().getCategoryId(); // 요청 바디에 있는 부모 카테고리의 ID를 가져옵니다.
         Long categoryId = productServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
         return ResponseEntity.ok(categoryId);
-    }*/
-
-
-
-    /*@Data
-    static class CategoryRequest {
-        private String category;
     }
 
-    private ProductCategory CategoryFormRequest(CategoryRequest request) {
-        ProductCategory productCategory = new ProductCategory();
-        productCategory.setCategory(request.getCategory());
-        return productCategory;
-    }
+    // 3. 부모 카테고리 이름을 바디로 보냄
 
-    @PostMapping("/category/new")
-    public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryRequest request) {
-        ProductCategory category = CategoryFormRequest(request);
 
-        try {
-            Long createCategoryId = productServiceV1.createCategory(category);
-            return ResponseEntity.status(HttpStatus.CREATED).body("카테고리 등록 완료 " + createCategoryId);
-        } catch (DataIntegrityViolationException e) {
-            // 중복된 이름에 대한 예외 처리
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("중복된 이름으로 카테고리를 등록할 수 없습니다.");
-        }
-    }*/
+
+
+
 
     /**
      * 색상 등록
