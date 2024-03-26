@@ -1,4 +1,7 @@
 package PU.pushop.product.repository;
 
-public interface ProductManagementRepository {
+import PU.pushop.product.entity.ProductManagement;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProductManagementRepository extends JpaRepository<ProductManagement, Long> {
 }

@@ -85,6 +85,11 @@ public class ProductServiceV1 {
         productRepositoryV1.delete(existingProduct);
     }
 
+    /**
+     * 색상 등록
+     * @param color
+     * @return
+     */
     @Transactional
     public Long createColor(ProductColor color) {
         productColorRepository.save(color);

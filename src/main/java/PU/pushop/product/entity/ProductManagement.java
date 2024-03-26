@@ -12,27 +12,27 @@ import lombok.Setter;
 public class ProductManagement {
     @Id
     @SequenceGenerator(
-            name = "color_sequence",
-            sequenceName = "color_sequence",
+            name = "inventory_sequence",
+            sequenceName = "inventory_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "color_sequence"
+            generator = "inventory_sequence"
     )
-    @Column(name = "inventory_id")
+    @Column(name = "inventory_id" )
     private Long inventoryId; // ProductManagement 테이블의 pk
 
     @OneToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @OneToOne
-    @JoinColumn(name = "color_id")
+    @ManyToOne
+    @JoinColumn(name = "color_id", unique = false)
     private ProductColor color;
 
-    @OneToOne
-    @JoinColumn(name = "category_id")
+    @ManyToOne
+    @JoinColumn(name = "category_id", unique = false)
     private ProductCategory category;
 
     @Enumerated(EnumType.STRING)

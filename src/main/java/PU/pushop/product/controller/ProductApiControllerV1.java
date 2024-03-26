@@ -119,7 +119,6 @@ public class ProductApiControllerV1 {
 
     /**
      * 상품 정보 삭제
-     *
      * @param productId
      * @return
      */
@@ -129,14 +128,16 @@ public class ProductApiControllerV1 {
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * 색상 등록
-     */
     @Data
     static class ColorRequest {
         private String color;
     }
 
+    /**
+     * 색상 등록
+     * @param request
+     * @return
+     */
     private ProductColor ColorFormRequest(ColorRequest request) {
         ProductColor productColor = new ProductColor();
         productColor.setColor(request.getColor());

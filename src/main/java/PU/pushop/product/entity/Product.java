@@ -48,6 +48,9 @@ public class Product {
 
     private Boolean isRecommend = false;
 
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
     public void setProductName(String productName) {
         this.productName = productName;
     }
