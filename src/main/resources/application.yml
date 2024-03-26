@@ -9,6 +9,7 @@ spring:
     host: localhost
     port: 995
 
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -22,4 +23,5 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+  org.springframework.security: debug
 #  org.hibernate.type: trace
