@@ -3,9 +3,11 @@ package PU.pushop.members.service;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 @Service
@@ -25,16 +27,23 @@ public class JoinService {
                 bCryptPasswordEncoder.encode(member.getPassword()),
                 member.getUsername(),
                 member.getNickname(),
-                member.getRole());
+                member.getMemberRole());
 
         memberRepositoryV1.save(newMember);
         return newMember.getId();
     }
 
     private void validateExistedMember(Member member) {
-        Boolean isExistMember = memberRepositoryV1.existsByEmail(member.getEmail());
+        boolean isExistMember = memberRepositoryV1.existsByEmail(member.getEmail());
         if (isExistMember) {
-            throw new IllegalStateException("이미 존재하는 회원입니다.");
+            throw new ExistingMemberException();
+        }
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public class ExistingMemberException extends IllegalStateException {
+        public ExistingMemberException() {
+            super("이미 존재하는 회원입니다.");
         }
     }
 }

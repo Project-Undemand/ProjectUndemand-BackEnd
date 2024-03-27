@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
@@ -49,7 +50,7 @@ public class JoinApiController {
 
     private void validatePasswordMatch(String password, String passwordCertify) {
         if (!Objects.equals(password, passwordCertify)) {
-            throw new IllegalArgumentException("Password and password confirmation do not match");
+            throw new PasswordMismatchException();
         }
     }
 
@@ -80,5 +81,10 @@ public class JoinApiController {
         }
     }
 
-
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public class PasswordMismatchException extends IllegalArgumentException {
+        public PasswordMismatchException() {
+            super("Password and password confirmation do not match");
+        }
+    }
 }
