@@ -49,4 +49,9 @@ public class CustomOAuth2User implements OAuth2User {
         // 로그인 이용자의 가상 네임
         return oAuthUserDTO.getNickname();
     }
+
+    public String getSocialType() {
+        // 로그인 이용자의 가상 네임
+        return oAuthUserDTO.getSocialType().toString();
+    }
 }

@@ -20,20 +20,21 @@ public class JoinService {
     @Transactional
     public Long joinMember(Member member) {
 
-        validateExistedMember(member);
+        validateExistedMemberByEmail(member);
 
-        Member newMember = Member.createNewMember(
+        Member newMember = Member.createGeneralMember(
                 member.getEmail(),
-                bCryptPasswordEncoder.encode(member.getPassword()),
                 member.getUsername(),
                 member.getNickname(),
-                member.getMemberRole());
+                bCryptPasswordEncoder.encode(member.getPassword())
+        );
+
 
         memberRepositoryV1.save(newMember);
         return newMember.getId();
     }
 
-    private void validateExistedMember(Member member) {
+    private void validateExistedMemberByEmail(Member member) {
         boolean isExistMember = memberRepositoryV1.existsByEmail(member.getEmail());
         if (isExistMember) {
             throw new ExistingMemberException();

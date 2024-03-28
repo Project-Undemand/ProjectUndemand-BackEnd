@@ -54,30 +54,56 @@ public class Member {
     @Column(name = "SOCIAL_TYPE")
     private SocialType socialType;
 
+    @Column(name = "SOCIAL_ID")
+    private String socialId;
+
+    public static Member createNewMember(String email, String username, String nickname, MemberRole memberRole, String socialId) {
+        Member member = new Member();
+        member.setEmail(email);
+        member.setUsername(username);
+        member.setNickname(nickname);
+        member.setMemberRole(memberRole);
+        member.setSocialId(socialId);
+        return member;
+    }
+
+    public static Member createSocialMember(String email, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId) {
+        Member member = new Member();
+        member.setEmail(email);
+        member.setUsername(username);
+        member.setNickname(nickname);
+        member.setMemberRole(memberRole);
+        member.setSocialType(socialType);
+        member.setSocialId(socialId);
+        return member;
+    }
+
+
     public static Member createNewMember(String email, String username, String nickname, MemberRole memberRole) {
         Member member = new Member();
         member.setEmail(email);
-        member.setUsername(username);
         member.setNickname(nickname);
         member.setMemberRole(memberRole);
         return member;
     }
 
-    public static Member createNewMember(String email, String password, String username, String nickname,  MemberRole memberRole) {
+    public static Member createGeneralMember(String email, String username, String nickname, String password) {
         Member member = new Member();
         member.setEmail(email);
         member.setPassword(password);
         member.setUsername(username);
         member.setNickname(nickname);
-        member.setMemberRole(memberRole);
+        member.setMemberRole(MemberRole.USER);
+        member.setSocialType(SocialType.GENERAL);
         return member;
     }
 
-    public static Member createNewMember(String email, String password, MemberRole memberRole) {
+    public static Member createAdminMember(String email, String password) {
         Member member = new Member();
         member.setEmail(email);
         member.setPassword(password);
-        member.setMemberRole(memberRole);
+        member.setMemberRole(MemberRole.ADMIN);
+        member.setSocialType(SocialType.GENERAL);
         return member;
     }
 

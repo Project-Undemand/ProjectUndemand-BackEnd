@@ -1,4 +1,4 @@
-package PU.pushop.global.authentication.jwt.login.handler;
+package PU.pushop.global.authentication.oauth2.handler;
 
 
 import PU.pushop.global.authentication.jwt.util.JWTUtil;
@@ -20,7 +20,7 @@ import java.util.Iterator;
 
 @Component
 @RequiredArgsConstructor
-public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
 
@@ -29,7 +29,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         //OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
-        // 실제 이름이 아닌, oauth2 jwt에서 만드는 가상 네임이 반환된다.
+        // 로그인 유저의 SocialId << 식별자값을 nickname으로 둠.
         String nickname = customUserDetails.getUsername();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -38,10 +38,19 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt("refresh", nickname, role, 60*60*60L);
+        // 액세스 토큰을 생성합니다.
+        String accessToken = jwtUtil.createAccessToken("access", nickname, role);
+        // 리프레시 토큰을 생성합니다.
+        String refreshToken = jwtUtil.createRefreshToken("refresh", nickname, role);
+        System.out.println("refreshToken = " + refreshToken);
+        System.out.println("accessToken = " + accessToken);
 
-        response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:3000/");
+        // 액세스 토큰을 HTTP 응답 헤더에 추가합니다.
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        // 리프레시 토큰은 쿠키에 저장합니다.
+        response.addCookie(createCookie("RefreshToken", refreshToken));
+
+        response.sendRedirect("http://localhost:8080/");
     }
 
     private Cookie createCookie(String key, String value) {

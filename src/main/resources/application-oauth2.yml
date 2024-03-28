@@ -12,7 +12,7 @@ spring:
             authorization-grant-type: authorization_code
             scope: name,email
           kakao:
-            client-name: Kakao
+            client-name: kakao
             client-id: ${KAKAO_CLIENT_ID}
             client-authentication-method: ${KAKAO_AUTHENTICATION_METHOD}
             redirect-uri: "http://localhost:8080/login/oauth2/code/kakao"

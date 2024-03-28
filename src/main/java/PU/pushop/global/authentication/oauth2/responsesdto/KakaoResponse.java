@@ -34,4 +34,5 @@ public class KakaoResponse implements OAuth2Response {
 
         return attribute.get("name").toString();
     }
+
 }

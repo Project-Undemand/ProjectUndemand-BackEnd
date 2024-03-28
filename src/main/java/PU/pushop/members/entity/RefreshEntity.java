@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -19,5 +21,7 @@ public class RefreshEntity {
 
     private String refresh;
 
-    private String expiration;
+//    @Column(columnDefinition = "TIMESTAMP") // MySQL의 경우
+    @Column(columnDefinition = "DATETIME") // H2Database의 경우
+    private LocalDateTime expiration;
 }

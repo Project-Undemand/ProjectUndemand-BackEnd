@@ -2,6 +2,7 @@ package PU.pushop.global.authentication.jwt.login.filters;
 
 import PU.pushop.global.authentication.jwt.util.JWTUtil;
 import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
 import PU.pushop.members.model.OAuthUserDTO;
 import jakarta.servlet.FilterChain;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -65,7 +67,7 @@ public class JWTFilter extends OncePerRequestFilter {
         //토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(token);
         // enum 타입의 Role 형식으로 반환해줄지가 의문. - 테스트 코드 작성해봐야.
-        SocialType role = jwtUtil.getRole(token);
+        MemberRole role = jwtUtil.getRole(token);
 
         //userDTO를 생성하여 값 set
         OAuthUserDTO userDTO = new OAuthUserDTO();

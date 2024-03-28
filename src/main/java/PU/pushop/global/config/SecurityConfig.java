@@ -1,10 +1,13 @@
 package PU.pushop.global.config;
 
 import PU.pushop.global.authentication.jwt.login.CustomUserDetailsService;
+import PU.pushop.global.authentication.jwt.login.filters.CustomLogoutFilter;
+import PU.pushop.global.authentication.jwt.login.filters.JWTFilter;
 import PU.pushop.global.authentication.jwt.util.JWTUtil;
 import PU.pushop.global.authentication.jwt.login.filters.CustomJsonUsernamePasswordAuthenticationFilter;
 import PU.pushop.global.authentication.jwt.login.filters.LoginFilter;
-import PU.pushop.global.authentication.jwt.login.handler.LoginSuccessHandler;
+import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
+import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserService;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
@@ -20,6 +23,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -36,12 +41,17 @@ public class SecurityConfig {
     private final RefreshRepository refreshRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-    public SecurityConfig(MemberRepositoryV1 memberRepositoryV1, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper, CustomOAuth2UserService customOAuth2UserService) {
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final CustomLoginFailureHandler customLoginFailureHandler;
+
+    public SecurityConfig(MemberRepositoryV1 memberRepositoryV1, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper, CustomOAuth2UserService customOAuth2UserService, CustomLoginSuccessHandler customLoginSuccessHandler, CustomLoginFailureHandler customLoginFailureHandler) {
         this.memberRepositoryV1 = memberRepositoryV1;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
         this.objectMapper = objectMapper;
         this.customOAuth2UserService = customOAuth2UserService;
+        this.customLoginSuccessHandler = customLoginSuccessHandler;
+        this.customLoginFailureHandler = customLoginFailureHandler;
     }
 
 
@@ -58,8 +68,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LoginSuccessHandler loginSuccessHandler() {
-        return new LoginSuccessHandler(jwtUtil);
+    public AuthenticationSuccessHandler loginSuccessHandler() {
+        return customLoginSuccessHandler;
+    }
+    @Bean
+    public AuthenticationFailureHandler loginFailureHandler() {
+        return customLoginFailureHandler;
     }
 
     @Bean
@@ -127,16 +141,19 @@ public class SecurityConfig {
                 // 나머지 페이지 권한: 로그인 멤버
                 .anyRequest().authenticated());
 
-        //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-//        http.addFilterAt(
-//                new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository)
-//                , CustomJsonUsernamePasswordAuthenticationFilter.class
-//        );
-        // 원래 스프링 시큐리티 필터 순서가 LogoutFilter 이후에 로그인 필터 동작 addFilterBefore addFilterAfter
-        // 따라서, LogoutFilter 이후에 우리가 만든 필터 동작하도록 설정
-        // 순서 : LogoutFilter -> JwtAuthenticationProcessingFilter -> CustomJsonUsernamePasswordAuthenticationFilter
-        http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
-        http.addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository), CustomJsonUsernamePasswordAuthenticationFilter.class);
+
+        // CustomLogoutFilter우선 -> LogoutFilter
+        // JWTFilter우선 -> LoginFilter
+        // LoginFilter우선 -> UsernamePasswordAuthenticationFilter
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+        http
+                .addFilterBefore(new JWTFilter(jwtUtil), CustomLogoutFilter.class);
+
+        http
+                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilter.class);
+        http
+                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository, objectMapper), CustomJsonUsernamePasswordAuthenticationFilter.class);
 
 
         // oauth2 에서 우리가 원하는 customOAuth2UserService 를 등록하는 것. 구글, 네이버. 각각 response 방법이 다르다.
@@ -147,7 +164,8 @@ public class SecurityConfig {
                                         .userService(customOAuth2UserService)
                                 )
                         )
-                        .successHandler(loginSuccessHandler()) // 쿠키에 토큰을 저장한다.
+                        .successHandler(loginSuccessHandler()) // 쿠키에 refresh 토큰을 저장한다.
+                        .failureHandler(loginFailureHandler())
                 );
 
         //세션 설정 : STATELESS

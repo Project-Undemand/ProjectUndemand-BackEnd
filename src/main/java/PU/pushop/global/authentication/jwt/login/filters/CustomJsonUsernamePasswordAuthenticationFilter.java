@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 
-@Order(1)
 public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "email";
@@ -70,7 +69,6 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
         if(request.getContentType() == null || !request.getContentType().equals(CONTENT_TYPE)  ) {
-            System.out.println("CustomJsonUsernamePasswordAuthenticationFilter : attemptAuthentication 에서 문제 발생.");
             throw new AuthenticationServiceException("Authentication Content-Type not supported: " + request.getContentType());
         }
 

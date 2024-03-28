@@ -29,19 +29,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        System.out.println("=================== oAuth2User 출력 ================== 개발단계 ====");
-        System.out.println(oAuth2User);
+//        System.out.println("=================== oAuth2User 출력 ================== 개발단계 ====");
+//        System.out.println(oAuth2User);
 
         String registrationType = userRequest.getClientRegistration().getRegistrationId();
+//        System.out.println("registrationType = " + registrationType);
+        System.out.println("=================== getAttributes() 시작 ================== 개발단계 ====");
+        System.out.println(oAuth2User.getAttributes());
+        System.out.println("=================== getAttributes() 끝   ================== 개발단계 ====");
         OAuth2Response oAuth2Response = createOAuth2Response(registrationType, oAuth2User.getAttributes());
+//        System.out.println("=================== oAuth2Response 시작 ================== 개발단계 ====");
+//        System.out.println(oAuth2Response.getGender());
+//        System.out.println("=================== oAuth2Response 끝 ================== 개발단계 ====");
         if (oAuth2Response == null) {
             return null;
         }
-        // OAuth2 로그인 시, 닉네임을 임의로 정해줌 ex) naver + " " + 1209381094832034
-        String nickname = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
-        Member memberEntity = getOrCreateMember(oAuth2Response, nickname);
+        // registrationType을 SocialType으로 매핑
+        SocialType socialType = mapRegistrationTypeToSocialType(oAuth2Response.getProvider());
 
-        return createOAuth2User(memberEntity, oAuth2Response);
+        Member memberEntity = getOrCreateMember(oAuth2Response);
+
+        return createOAuth2User(memberEntity, oAuth2Response, socialType);
     }
 
     private OAuth2Response createOAuth2Response(String registrationType, Map<String, Object> attributes) {
@@ -57,24 +65,47 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
-    private Member getOrCreateMember(OAuth2Response oAuth2Response, String nickname) {
-        Member existMember = memberRepositoryV1.findByNickname(nickname);
+    private Member getOrCreateMember(OAuth2Response oAuth2Response) {
+        String providerId = oAuth2Response.getProviderId();
+        String socialId = oAuth2Response.getProvider() + "-" + providerId;
+        String nickname = providerId;
+
+        Member existMember = memberRepositoryV1.findBySocialId(socialId);
+        // registrationType을 SocialType으로 매핑
+        SocialType socialType = mapRegistrationTypeToSocialType(oAuth2Response.getProvider());
         if (existMember == null) {
-            Member memberEntity = Member.createNewMember(oAuth2Response.getEmail(), oAuth2Response.getName(), nickname, MemberRole.USER);
+            Member memberEntity = Member.createSocialMember(oAuth2Response.getEmail(), oAuth2Response.getName(), nickname, MemberRole.USER, socialType, socialId);
             memberRepositoryV1.save(memberEntity);
             return memberEntity;
         } else {
             existMember.setEmail(oAuth2Response.getEmail());
             existMember.setUsername(oAuth2Response.getName());
+            existMember.setNickname(nickname);
+            existMember.setSocialType(socialType); // socialType 설정
+            existMember.setSocialId(socialId);
             memberRepositoryV1.save(existMember);
             return existMember;
         }
     }
 
-    private OAuth2User createOAuth2User(Member memberEntity, OAuth2Response oAuth2Response) {
-        OAuthUserDTO userDTO = OAuthUserDTO.createOAuthUserDTO(oAuth2Response.getName(), memberEntity.getSocialType());
+
+
+    private OAuth2User createOAuth2User(Member memberEntity, OAuth2Response oAuth2Response, SocialType socialType) {
+
+        OAuthUserDTO userDTO = OAuthUserDTO.createOAuthUserDTO(oAuth2Response.getName(), memberEntity.getMemberRole(), socialType);
         return new CustomOAuth2User(userDTO);
     }
 
-
+    private SocialType mapRegistrationTypeToSocialType(String registrationType) {
+        switch (registrationType) {
+            case "naver":
+                return SocialType.NAVER;
+            case "google":
+                return SocialType.GOOGLE;
+            case "kakao":
+                return SocialType.KAKAO;
+            default:
+                return SocialType.GENERAL;
+        }
+    }
 }
