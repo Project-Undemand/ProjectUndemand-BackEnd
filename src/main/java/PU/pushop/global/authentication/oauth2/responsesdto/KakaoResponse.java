@@ -8,7 +8,8 @@ public class KakaoResponse implements OAuth2Response {
 
     public KakaoResponse(Map<String, Object> attribute) {
 
-        this.attribute = attribute;
+        this.attribute = (Map<String, Object>) attribute.get("id");
+//        this.attribute = attribute;
     }
 
     @Override

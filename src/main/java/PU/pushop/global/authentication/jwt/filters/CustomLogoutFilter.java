@@ -1,4 +1,4 @@
-package PU.pushop.global.authentication.jwt.login.filters;
+package PU.pushop.global.authentication.jwt.filters;
 
 import PU.pushop.global.authentication.jwt.util.JWTUtil;
 import PU.pushop.members.repository.RefreshRepository;
@@ -23,8 +23,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        doFilter((HttpServletRequest) request, (HttpServletResponse) response, filterChain);
     }
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {

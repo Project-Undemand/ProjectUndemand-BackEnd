@@ -56,34 +56,15 @@ public class Member {
 
     @Column(name = "SOCIAL_ID")
     private String socialId;
+    // Provider + prividerId 형식
 
-    public static Member createNewMember(String email, String username, String nickname, MemberRole memberRole, String socialId) {
+    public static Member createSocialMember(String email, String username, MemberRole memberRole, SocialType socialType, String socialId) {
         Member member = new Member();
         member.setEmail(email);
         member.setUsername(username);
-        member.setNickname(nickname);
-        member.setMemberRole(memberRole);
-        member.setSocialId(socialId);
-        return member;
-    }
-
-    public static Member createSocialMember(String email, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId) {
-        Member member = new Member();
-        member.setEmail(email);
-        member.setUsername(username);
-        member.setNickname(nickname);
         member.setMemberRole(memberRole);
         member.setSocialType(socialType);
         member.setSocialId(socialId);
-        return member;
-    }
-
-
-    public static Member createNewMember(String email, String username, String nickname, MemberRole memberRole) {
-        Member member = new Member();
-        member.setEmail(email);
-        member.setNickname(nickname);
-        member.setMemberRole(memberRole);
         return member;
     }
 
@@ -104,6 +85,13 @@ public class Member {
         member.setPassword(password);
         member.setMemberRole(MemberRole.ADMIN);
         member.setSocialType(SocialType.GENERAL);
+        return member;
+    }
+
+    public static Member createTokenMember(String username, MemberRole role) {
+        Member member = new Member();
+        member.setUsername(username);
+        member.setMemberRole(MemberRole.USER);
         return member;
     }
 

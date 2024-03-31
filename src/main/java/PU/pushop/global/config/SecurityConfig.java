@@ -1,11 +1,8 @@
 package PU.pushop.global.config;
 
+import PU.pushop.global.authentication.jwt.filters.*;
 import PU.pushop.global.authentication.jwt.login.CustomUserDetailsService;
-import PU.pushop.global.authentication.jwt.login.filters.CustomLogoutFilter;
-import PU.pushop.global.authentication.jwt.login.filters.JWTFilter;
 import PU.pushop.global.authentication.jwt.util.JWTUtil;
-import PU.pushop.global.authentication.jwt.login.filters.CustomJsonUsernamePasswordAuthenticationFilter;
-import PU.pushop.global.authentication.jwt.login.filters.LoginFilter;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserService;
@@ -13,6 +10,7 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -33,6 +31,7 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
@@ -43,19 +42,19 @@ public class SecurityConfig {
 
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
+//    @RequiredArgsConstructor 로 대체합니다. (2024.03.31)
+//    public SecurityConfig(MemberRepositoryV1 memberRepositoryV1, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper, CustomOAuth2UserService customOAuth2UserService, CustomLoginSuccessHandler customLoginSuccessHandler, CustomLoginFailureHandler customLoginFailureHandler) {
+//        this.memberRepositoryV1 = memberRepositoryV1;
+//        this.jwtUtil = jwtUtil;
+//        this.refreshRepository = refreshRepository;
+//        this.objectMapper = objectMapper;
+//        this.customOAuth2UserService = customOAuth2UserService;
+//        this.customLoginSuccessHandler = customLoginSuccessHandler;
+//        this.customLoginFailureHandler = customLoginFailureHandler;
+//    }
 
-    public SecurityConfig(MemberRepositoryV1 memberRepositoryV1, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper, CustomOAuth2UserService customOAuth2UserService, CustomLoginSuccessHandler customLoginSuccessHandler, CustomLoginFailureHandler customLoginFailureHandler) {
-        this.memberRepositoryV1 = memberRepositoryV1;
-        this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
-        this.objectMapper = objectMapper;
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.customLoginSuccessHandler = customLoginSuccessHandler;
-        this.customLoginFailureHandler = customLoginFailureHandler;
-    }
 
-
-    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
+    // AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     @Bean
     @Primary
     public AuthenticationConfiguration authenticationConfiguration() {
@@ -118,19 +117,19 @@ public class SecurityConfig {
                     }
                 }));
 
-        //csrf disable
+        // csrf disable
         http
                 .csrf((auth) -> auth.disable());
 
-        //From 로그인 방식 disable
+        // From 로그인 방식 disable
         http
                 .formLogin((auth) -> auth.disable());
 
-        //HTTP Basic 인증 방식 disable
+        // HTTP Basic 인증 방식 disable
         http
                 .httpBasic((auth) -> auth.disable());
 
-        //경로별 인가 작업
+        // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
                 // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
                 .requestMatchers("/login", "/", "/join").permitAll()
@@ -148,10 +147,10 @@ public class SecurityConfig {
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), CustomLogoutFilter.class);
+                .addFilterBefore(new JWTFilterV1(jwtUtil), CustomLogoutFilter.class);
 
         http
-                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilter.class);
+                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilterV1.class);
         http
                 .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository, objectMapper), CustomJsonUsernamePasswordAuthenticationFilter.class);
 

@@ -1,7 +1,9 @@
 package PU.pushop.global.authentication.jwt.util;
 
 import PU.pushop.members.entity.enums.MemberRole;
-import io.jsonwebtoken.Jwts;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,7 @@ import java.time.ZoneId;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JWTUtil {
 
     private SecretKey secretKey;
@@ -36,8 +39,8 @@ public class JWTUtil {
     }
 
     public MemberRole getRole(String token) {
-
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", MemberRole.class);
+        Claims claims = parseToken(token);
+        return MemberRole.valueOf(claims.get("role", String.class));
     }
 
     public Boolean isExpired(String token) {
@@ -80,5 +83,42 @@ public class JWTUtil {
     public String getCategory(String token) {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
 
+    }
+
+    private Claims parseToken(String token) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (JwtException e) {
+            // Handle parsing errors here
+            throw new RuntimeException("Failed to parse JWT token", e);
+        }
+    }
+
+    /**
+     * 토큰 유효성 체크
+     *
+     * @param token
+     * @return
+     */
+    public boolean validateToken(String token) {
+        try {
+            Claims claims = Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("잘못된 JWT 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.info("지원되지 않는 JWT 토큰 입니다.");
+        } catch (IllegalArgumentException e) {
+            log.info("JWT 토큰이 잘못되었습니다.");
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

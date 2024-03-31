@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -20,6 +21,7 @@ import java.util.Iterator;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
@@ -27,30 +29,40 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, Authentication authentication) throws IOException, ServletException {
 
-        //OAuth2User
-        CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
-        // 로그인 유저의 SocialId << 식별자값을 nickname으로 둠.
-        String nickname = customUserDetails.getUsername();
+//        401 에러 및 모든 페이지가 나오지 않는 상황 -> JWT필터 및 JWT유틸 문제 가능성 -> 시도 (2024.03.31)
+//        Object principal = authentication.getPrincipal();
+//        log.info("------------------------------------------");
+//        log.info("principal = " + principal);
+//        log.info("------------------------------------------");
+//        CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
+//        log.info("------------------------------------------");
+//        log.info("customUserDetails = " + customUserDetails);
+//        log.info("------------------------------------------");
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-
-        String role = auth.getAuthority();
+//        String username = customUserDetails.getName();
+        String username = authentication.getName();
+        String role = extractOAuthRole(authentication);
 
         // 액세스 토큰을 생성합니다.
-        String accessToken = jwtUtil.createAccessToken("access", nickname, role);
+        String accessToken = jwtUtil.createAccessToken("access", username, role);
         // 리프레시 토큰을 생성합니다.
-        String refreshToken = jwtUtil.createRefreshToken("refresh", nickname, role);
-        System.out.println("refreshToken = " + refreshToken);
-        System.out.println("accessToken = " + accessToken);
+        String refreshToken = jwtUtil.createRefreshToken("refresh", username, role);
 
         // 액세스 토큰을 HTTP 응답 헤더에 추가합니다.
         response.addHeader("Authorization", "Bearer " + accessToken);
         // 리프레시 토큰은 쿠키에 저장합니다.
         response.addCookie(createCookie("RefreshToken", refreshToken));
 
-        response.sendRedirect("http://localhost:8080/");
+        response.sendRedirect("http://localhost:3000/");
+    }
+
+    private static String extractOAuthRole(Authentication authentication) {
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+
+        String role = auth.getAuthority();
+        return role;
     }
 
     private Cookie createCookie(String key, String value) {

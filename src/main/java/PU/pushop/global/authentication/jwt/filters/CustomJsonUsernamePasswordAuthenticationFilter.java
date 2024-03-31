@@ -1,4 +1,4 @@
-package PU.pushop.global.authentication.jwt.login.filters;
+package PU.pushop.global.authentication.jwt.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

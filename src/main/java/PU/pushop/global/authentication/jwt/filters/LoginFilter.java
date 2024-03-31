@@ -1,4 +1,4 @@
-package PU.pushop.global.authentication.jwt.login.filters;
+package PU.pushop.global.authentication.jwt.filters;
 
 import PU.pushop.global.authentication.jwt.login.CustomUserDetails;
 import PU.pushop.global.authentication.jwt.util.JWTUtil;
@@ -10,8 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -24,9 +23,11 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
+@Slf4j
 public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
 
     private Long accessTokenExpirationPeriod = 3600000L;
@@ -63,12 +64,9 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
         String email = usernamePasswordMap.get("email");
         String password = usernamePasswordMap.get("password");
 
-        //스프링 시큐리티에서 email과 password를 검증하기 위해서는 token에 담아야 함
+        // Principal(인증-유저이메일), Credentials(권한), Authenticated 등의 정보
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
-        System.out.println("========================================");
-        System.out.println(authToken);
-        System.out.println("========================================");
-        //token에 담은 검증을 위한 AuthenticationManager로 전달
+        //token검증을 위한 AuthenticationManager로 전달
         return this.authenticationManager.authenticate(authToken);
     }
 
@@ -76,21 +74,17 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
     @Override
     // 로그인 성공 시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
-        System.out.println("로그인에 성공했습니다. ");
+        log.info("로그인에 성공했습니다. ");
         // 사용자명을 가져옴
-
-//        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
-
+        String username = authentication.getName();
         // 권한을 문자열로 변환
         String role = extractAuthority(authentication);
-        // JWT 토큰 생성
+        // 토큰 종류(카테고리), 유저이름, 역할 등을 페이로드에 담는다.
         String access = jwtUtil.createAccessToken("access", username, role);
         String refresh = jwtUtil.createRefreshToken("refresh", username, role);
 
-        //Refresh 토큰 저장
-        addRefreshEntity(username, refresh);
+        // Refresh 토큰 저장
+        saveRefreshEntity(username, refresh);
         // 응답 헤더에 JWT 토큰 추가
         setTokenResponse(response, access, refresh);
     }
@@ -103,13 +97,14 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
                 .orElse("USER"); // 기본 권한 설정
     }
 
-    private void setTokenResponse(HttpServletResponse response, String access, String refresh) {
-        response.setHeader("Authorization", "Bearer " + access);
-        response.addCookie(createCookie("Refresh-Token", refresh));
+    private void setTokenResponse(HttpServletResponse response, String accessToken, String refreshToken) {
+        // 액세스 토큰 - 헤더, 리프레시 토큰 - 쿠키
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        response.addCookie(createCookie("RefreshToken", refreshToken));
         response.setStatus(HttpStatus.OK.value());
     }
 
-    private void addRefreshEntity(String username, String refresh) {
+    private void saveRefreshEntity(String username, String refresh) {
         // 현재 시간에 refreshTokenExpirationPeriod을 더한 후 LocalDateTime으로 변환
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
 
@@ -133,7 +128,7 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 
-        System.out.println("로그인에 실패했습니다. ");
+        log.info("로그인에 실패했습니다. ");
         //로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
         super.unsuccessfulAuthentication(request, response, failed);

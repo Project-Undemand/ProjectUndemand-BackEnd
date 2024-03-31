@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,10 +47,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         // registrationType을 SocialType으로 매핑
         SocialType socialType = mapRegistrationTypeToSocialType(oAuth2Response.getProvider());
+        String socialId = oAuth2Response.getProvider() + "-" + oAuth2Response.getProviderId();
 
         Member memberEntity = getOrCreateMember(oAuth2Response);
 
-        return createOAuth2User(memberEntity, oAuth2Response, socialType);
+        return createOAuth2User(memberEntity, oAuth2Response, socialType, socialId);
     }
 
     private OAuth2Response createOAuth2Response(String registrationType, Map<String, Object> attributes) {
@@ -68,31 +70,30 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private Member getOrCreateMember(OAuth2Response oAuth2Response) {
         String providerId = oAuth2Response.getProviderId();
         String socialId = oAuth2Response.getProvider() + "-" + providerId;
-        String nickname = providerId;
 
-        Member existMember = memberRepositoryV1.findBySocialId(socialId);
-        // registrationType을 SocialType으로 매핑
+        Optional<Member> existMember = memberRepositoryV1.findBySocialId(socialId);
+        // registrationType 을 SocialType 으로 변환
         SocialType socialType = mapRegistrationTypeToSocialType(oAuth2Response.getProvider());
-        if (existMember == null) {
-            Member memberEntity = Member.createSocialMember(oAuth2Response.getEmail(), oAuth2Response.getName(), nickname, MemberRole.USER, socialType, socialId);
+        if (existMember.isPresent()) {
+            Member memberEntity = existMember.get();
+            memberEntity.setEmail(oAuth2Response.getEmail());
+            memberEntity.setUsername(oAuth2Response.getName());
+            memberEntity.setSocialType(socialType);
+            memberEntity.setSocialId(socialId);
             memberRepositoryV1.save(memberEntity);
             return memberEntity;
         } else {
-            existMember.setEmail(oAuth2Response.getEmail());
-            existMember.setUsername(oAuth2Response.getName());
-            existMember.setNickname(nickname);
-            existMember.setSocialType(socialType); // socialType 설정
-            existMember.setSocialId(socialId);
-            memberRepositoryV1.save(existMember);
-            return existMember;
+            Member memberEntity = Member.createSocialMember(oAuth2Response.getEmail(), oAuth2Response.getName(), MemberRole.USER, socialType, socialId);
+            memberRepositoryV1.save(memberEntity);
+            return memberEntity;
         }
     }
 
 
 
-    private OAuth2User createOAuth2User(Member memberEntity, OAuth2Response oAuth2Response, SocialType socialType) {
+    private OAuth2User createOAuth2User(Member memberEntity, OAuth2Response oAuth2Response, SocialType socialType, String socialId) {
 
-        OAuthUserDTO userDTO = OAuthUserDTO.createOAuthUserDTO(oAuth2Response.getName(), memberEntity.getMemberRole(), socialType);
+        OAuthUserDTO userDTO = OAuthUserDTO.createOAuthUserDTO(oAuth2Response.getName(), memberEntity.getMemberRole(), socialType, socialId);
         return new CustomOAuth2User(userDTO);
     }
 
