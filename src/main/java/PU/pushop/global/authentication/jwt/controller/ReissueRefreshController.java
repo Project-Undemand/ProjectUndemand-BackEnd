@@ -26,12 +26,13 @@ public class ReissueRefreshController {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
-    private Long accessTokenExpirationPeriod = 3600000L;
+    private Long accessTokenExpirationPeriod = 3600L; // 1일
 
-    private Long refreshTokenExpirationPeriod = 1209600000L;
+    private Long refreshTokenExpirationPeriod = 1209600L; // 14일
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+        // 쿠키로부터 RefreshToken Value 값을 가져옵니다.
         String refreshCookieValue = getRefreshCookieValue(request);
         if (refreshCookieValue == null || refreshCookieValue.isEmpty()) {
             throw new BadRequestException("Refresh token is missing or empty");
@@ -47,11 +48,11 @@ public class ReissueRefreshController {
 
         String category = jwtUtil.getCategory(refresh);
         if (!category.equals("refresh")) {
-            return ResponseEntity.badRequest().body("invalid refresh token");
+            return ResponseEntity.badRequest().body("invalid refresh token. token의 category가 refresh가 아닙니다.");
         }
 
         if (!refreshRepository.existsByRefresh(refresh)) {
-            return ResponseEntity.badRequest().body("invalid refresh token");
+            return ResponseEntity.badRequest().body("invalid refresh token. not exist refresh token");
         }
 
         String username = jwtUtil.getUsername(refresh);
@@ -63,8 +64,8 @@ public class ReissueRefreshController {
         refreshRepository.deleteByRefresh(refresh);
         saveRefreshEntity(username, newRefresh);
 
-        response.setHeader("access", newAccess);
-        response.addCookie(createCookie("refresh", newRefresh));
+        response.setHeader("Authorization", "Bearer " + newAccess);
+        response.addCookie(createCookie("RefreshToken", newRefresh));
 
         return ResponseEntity.ok().build();
     }
@@ -73,7 +74,7 @@ public class ReissueRefreshController {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refresh")) {
+                if (cookie.getName().equals("RefreshToken")) {
                     return cookie.getValue();
                 }
             }
