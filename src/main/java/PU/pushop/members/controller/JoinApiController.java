@@ -81,7 +81,7 @@ public class JoinApiController {
     }
 
     private Member createAdminFromRequest(JoinMemberRequest request) {
-        Member member = Member.createAdminMember(request.email, request.password);
+        Member member = Member.createAdminMember(request.email, request.username, request.nickname, request.password);
         return member;
     }
 
@@ -104,8 +104,6 @@ public class JoinApiController {
             this.id = id;
         }
     }
-
-
 
 //    @ResponseStatus(HttpStatus.BAD_REQUEST)
 //    public class PasswordMismatchException extends IllegalArgumentException {

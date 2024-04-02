@@ -76,10 +76,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         SocialType socialType = mapRegistrationTypeToSocialType(oAuth2Response.getProvider());
         if (existMember.isPresent()) {
             Member memberEntity = existMember.get();
-            memberEntity.setEmail(oAuth2Response.getEmail());
-            memberEntity.setUsername(oAuth2Response.getName());
-            memberEntity.setSocialType(socialType);
-            memberEntity.setSocialId(socialId);
+            Member newOAuth2Member = Member.createOAuth2Member(oAuth2Response.getEmail(), oAuth2Response.getName(), socialType, socialId);
+            memberEntity.updateOAuth2Member(newOAuth2Member);
             memberRepositoryV1.save(memberEntity);
             return memberEntity;
         } else {
