@@ -28,7 +28,7 @@ public class ProductServiceV1 {
     /**
      * 상품 등록
      * @param product
-     * @return productID
+     * @return productId
      */
     @Transactional
     public Long createProduct(Product product) {
