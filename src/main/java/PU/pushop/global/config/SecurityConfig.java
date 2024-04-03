@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +29,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
+
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -133,8 +136,24 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                 // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
                 .requestMatchers("/login", "/", "/join").permitAll()
+                // 상품 카테고리, 상품
+                .requestMatchers("/api/v1/categorys/**", "/api/v1/products/**", "/api/v1/thumbnail/**").permitAll()
+                .requestMatchers(antMatcher(
+                        HttpMethod.POST, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
+                .requestMatchers(antMatcher(
+                        HttpMethod.PUT, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
+                .requestMatchers(antMatcher(
+                        HttpMethod.DELETE, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
+                // 상품 썸네일 이미지
+                .requestMatchers("/api/v1/thumbnail/**").permitAll()
+                .requestMatchers(antMatcher(
+                        HttpMethod.POST, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
+                .requestMatchers(antMatcher(
+                        HttpMethod.PUT, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
+                .requestMatchers(antMatcher(
+                        HttpMethod.DELETE, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
                 // 관리자 페이지 권한: 관리자
-                .requestMatchers("/admin").hasRole("ADMIN")
+                .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
                 // access, refresh token 만료시 재발행: ALL
                 .requestMatchers("/reissue").permitAll()
                 // 나머지 페이지 권한: 로그인 멤버

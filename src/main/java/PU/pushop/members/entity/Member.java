@@ -11,10 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Table(name = "MEMBER")
 public class Member {
 
@@ -35,19 +32,16 @@ public class Member {
     private String phone;
 
     @Column(name = "JOINED_AT")
-    @Builder.Default
     private LocalDateTime joinedAt = LocalDateTime.now();
 
     @Column(name = "IS_ACTIVE")
-    @Builder.Default
     private boolean isActive = true;
 
     @Column(name = "IS_ADMIN")
-    @Builder.Default
     private boolean isAdmin = false;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "LOGIN_TYPE")
+    @Column(name = "MEMBER_ROLE")
     private MemberRole memberRole;
 
     @Enumerated(value = EnumType.STRING)
@@ -58,46 +52,58 @@ public class Member {
     private String socialId;
     // Provider + prividerId 형식
 
+    // 생성자를 통해 멤버 생성
+    public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.nickname = nickname;
+        this.memberRole = memberRole;
+        this.socialType = socialType;
+        this.socialId = socialId;
+    }
+
+    // Social Member 생성
     public static Member createSocialMember(String email, String username, MemberRole memberRole, SocialType socialType, String socialId) {
-        Member member = new Member();
-        member.setEmail(email);
-        member.setUsername(username);
-        member.setMemberRole(memberRole);
-        member.setSocialType(socialType);
-        member.setSocialId(socialId);
-        return member;
+        return new Member(email, null, username, null, memberRole, socialType, socialId);
     }
 
+    // General Member 생성
     public static Member createGeneralMember(String email, String username, String nickname, String password) {
-        Member member = new Member();
-        member.setEmail(email);
-        member.setPassword(password);
-        member.setUsername(username);
-        member.setNickname(nickname);
-        member.setMemberRole(MemberRole.USER);
-        member.setSocialType(SocialType.GENERAL);
-        return member;
+        return new Member(email, password, username, nickname, MemberRole.USER, SocialType.GENERAL, null);
     }
 
-    public static Member createAdminMember(String email, String password) {
-        Member member = new Member();
-        member.setEmail(email);
-        member.setPassword(password);
-        member.setMemberRole(MemberRole.ADMIN);
-        member.setSocialType(SocialType.GENERAL);
-        return member;
+    // Admin Member 생성
+    public static Member createAdminMember(String email, String username, String nickname, String password) {
+        return new Member(email, password, username, nickname, MemberRole.ADMIN, SocialType.GENERAL, null);
     }
 
-    public static Member createTokenMember(String username, MemberRole role) {
-        Member member = new Member();
-        member.setUsername(username);
-        member.setMemberRole(MemberRole.USER);
-        return member;
+    // Token Member 생성
+    public static Member createTokenMember(String username, MemberRole memberRole) {
+        return new Member(username, null, null, null, memberRole, SocialType.GENERAL, null);
+    }
+
+    // 새로운 멤버 객체 생성하여 반환하는 메서드
+    public void updateOAuth2Member(Member newOAuth2Member) {
+        this.email = newOAuth2Member.getEmail();
+        this.username = newOAuth2Member.getUsername();
+        this.socialType = newOAuth2Member.getSocialType();
+        this.socialId = newOAuth2Member.getSocialId();
+        // 필요한 경우에 따라 다른 필드도 업데이트할 수 있습니다.
+    }
+
+    public static Member createOAuth2Member(String email, String name, SocialType socialType, String socialId) {
+        return new Member(email, null, name, null, MemberRole.USER, socialType, socialId);
     }
 
     // 유저 권한 설정 메소드
     public void authorizeUser() {
         this.memberRole = MemberRole.USER;
+    }
+
+    // 유저 권한 설정 메소드
+    public void authorizeAdmin() {
+        this.memberRole = MemberRole.ADMIN;
     }
 
     // 비밀번호 암호화 메소드
