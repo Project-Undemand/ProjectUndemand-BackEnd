@@ -4,6 +4,7 @@ package PU.pushop.members.controller;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
+import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.service.JoinService;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -23,6 +24,8 @@ public class JoinApiController {
 
     private final JoinService joinService;
 
+    private final MemberRepositoryV1 memberRepositoryV1;
+
     /**
      * 일반 회원에 대한 회원가입 진행. (default) MemberRole = USER, SocialType = GENERAL
      * @param request email, password, username, nickname
@@ -30,16 +33,27 @@ public class JoinApiController {
      */
     @PostMapping("/join")
     public ResponseEntity<?> joinMemberV1(@RequestBody @Valid JoinMemberRequest request) {
-        // password 와 password_certify 검증은 프론트에서 진행, 서버에서 검증하지 않음
-//        validatePasswordMatch(request.getPassword(), request.getPassword_certify());
-
         // request로부터 받은 데이터로 Member 객체 생성.
         Member member = createMemberFromRequest(request);
+        try {
+            // 동일한 이메일이 존재하는지 유효성 검사.
+            validateExistedMemberByEmail(member.getEmail());
+        } catch (JoinService.ExistingMemberException e) {
+            // 클라이언트에게 400 Bad Request 오류를 반환.
+            return ResponseEntity.badRequest().build();
+        }
         // 멤버 객체를 가지고 회원가입 Join 서비스 진행.
         Long memberId = joinService.joinMember(member);
         JoinMemberResponse response = new JoinMemberResponse(memberId);
         // 회원가입 진행한 멤버의 id만 return
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    private void validateExistedMemberByEmail(String email) {
+        boolean isExistMember = memberRepositoryV1.existsByEmail(email);
+        if (isExistMember) {
+            throw new JoinService.ExistingMemberException();
+        }
     }
 
     @PostMapping("/admin/join")
@@ -67,7 +81,7 @@ public class JoinApiController {
     }
 
     private Member createAdminFromRequest(JoinMemberRequest request) {
-        Member member = Member.createAdminMember(request.email, request.password);
+        Member member = Member.createAdminMember(request.email, request.username, request.nickname, request.password);
         return member;
     }
 
@@ -97,4 +111,6 @@ public class JoinApiController {
 //            super("Password and password confirmation do not match");
 //        }
 //    }
+
+
 }
