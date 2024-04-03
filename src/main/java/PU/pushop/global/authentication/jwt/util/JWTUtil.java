@@ -20,9 +20,9 @@ public class JWTUtil {
 
     private SecretKey secretKey;
 
-    private Long accessTokenExpirationPeriod = 3600000L;
+    private Long accessTokenExpirationPeriod = 3600L; // 1일
 
-    private Long refreshTokenExpirationPeriod = 1209600000L;
+    private Long refreshTokenExpirationPeriod = 1209600L; // 14일
 
     public JWTUtil(@Value("${spring.jwt.secret}")String secret) {
 

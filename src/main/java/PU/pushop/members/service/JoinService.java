@@ -20,8 +20,6 @@ public class JoinService {
     @Transactional
     public Long joinMember(Member member) {
 
-        validateExistedMemberByEmail(member);
-
         Member newMember = Member.createGeneralMember(
                 member.getEmail(),
                 member.getUsername(),
@@ -34,15 +32,10 @@ public class JoinService {
         return newMember.getId();
     }
 
-    private void validateExistedMemberByEmail(Member member) {
-        boolean isExistMember = memberRepositoryV1.existsByEmail(member.getEmail());
-        if (isExistMember) {
-            throw new ExistingMemberException();
-        }
-    }
+
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public class ExistingMemberException extends IllegalStateException {
+    public static class ExistingMemberException extends IllegalStateException {
         public ExistingMemberException() {
             super("이미 존재하는 회원입니다.");
         }
