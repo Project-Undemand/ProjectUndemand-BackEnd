@@ -156,8 +156,11 @@ public class SecurityConfig {
                 .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
                 // access, refresh token 만료시 재발행: ALL
                 .requestMatchers("/reissue").permitAll()
+                // 문의
+                .requestMatchers("/api/v1/inquiry/**").permitAll()
                 // 나머지 페이지 권한: 로그인 멤버
                 .anyRequest().authenticated());
+
 
 
         // CustomLogoutFilter우선 -> LogoutFilter
