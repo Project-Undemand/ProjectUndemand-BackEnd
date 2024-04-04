@@ -60,8 +60,6 @@ public class InquiryService {
                 .collect(Collectors.toList());
     }
 
-
-
     /**
      * 문의글 상세보기
      * @param inquiryId
