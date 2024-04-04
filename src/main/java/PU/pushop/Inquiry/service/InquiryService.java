@@ -1,15 +1,14 @@
-package PU.pushop.product.service;
+package PU.pushop.Inquiry.service;
 
-import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.product.entity.Inquiry;
+import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.repository.InquiryRepository;
+import PU.pushop.Inquiry.repository.InquiryRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import PU.pushop.product.model.InquiryDto;
+import PU.pushop.Inquiry.model.InquiryDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +29,11 @@ public class InquiryService {
      */
     @Transactional
     public Long createInquiry(Inquiry inquiry, Long productId) {
-//        Optional<Member> member = memberRepository.findById(memberId);
         Optional<Product> product = productRepository.findByProductId(productId);
-//        inquiry.setMember(member.orElse(null));
-        inquiry.setProduct(product.orElse(null));
+
+        inquiry.setProduct(product.
+                orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId))
+        );
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
     }
@@ -44,7 +44,7 @@ public class InquiryService {
      */
     public List<InquiryDto> allInquiryList() {
         return inquiryRepository.findAll().stream()
-                .map(this::mapInquiryToDto)
+                .map(inquiry -> mapInquiryToDto(inquiry, false))
                 .collect(Collectors.toList());
     }
 
@@ -55,11 +55,11 @@ public class InquiryService {
      */
     public List<InquiryDto> inquiryListByProductId(Long productId) {
         return inquiryRepository.findByProduct_ProductId(productId).stream()
-                .map(this::mapInquiryToDto)
+                .map(inquiry -> mapInquiryToDto(inquiry, false))
                 .collect(Collectors.toList());
     }
 
-    private InquiryDto mapInquiryToDto(Inquiry inquiry) {
+    private InquiryDto mapInquiryToDto(Inquiry inquiry, boolean includeContent) {
         InquiryDto inquiryDto = new InquiryDto();
         inquiryDto.setInquiryId(inquiry.getInquiryId());
         inquiryDto.setMemberId(inquiry.getMember() != null ? inquiry.getMember().getId() : null);
@@ -70,9 +70,16 @@ public class InquiryService {
         inquiryDto.setInquiryTitle(inquiry.getInquiryTitle());
         inquiryDto.setCreatedAt(inquiry.getCreatedAt());
         inquiryDto.setIsSecret(inquiry.getIsSecret());
-        inquiryDto.setIsAnswered(inquiry.getIsAnswered());
+        inquiryDto.setIsResponse(inquiry.getIsResponse());
+
+        if (includeContent) {
+            inquiryDto.setInquiryContent(inquiry.getInquiryContent());
+            inquiryDto.setPassword(inquiry.getPassword());
+        }
+
         return inquiryDto;
     }
+
 
     /**
      * 문의글 상세보기
@@ -80,27 +87,11 @@ public class InquiryService {
      * @return
      */
     public InquiryDto inquiryDetail(Long inquiryId) {
-        Inquiry inquiryDetail = inquiryRepository.findById(inquiryId).orElse(null);
+        Inquiry inquiryDetail = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
 
-        if (inquiryDetail == null) {
-            // 처리할 로직 추가
-            return null;
-        }
 
-        InquiryDto inquiryDto = new InquiryDto();
-        inquiryDto.setInquiryId(inquiryDetail.getInquiryId());
-        inquiryDto.setMemberId(inquiryDetail.getMember() != null ? inquiryDetail.getMember().getId() : null);
-        inquiryDto.setProductId(inquiryDetail.getProduct().getProductId());
-        inquiryDto.setName(inquiryDetail.getName());
-        inquiryDto.setEmail(inquiryDetail.getEmail());
-        inquiryDto.setInquiryType(inquiryDetail.getInquiryType());
-        inquiryDto.setInquiryTitle(inquiryDetail.getInquiryTitle());
-        inquiryDto.setInquiryContent(inquiryDetail.getInquiryContent());
-        inquiryDto.setPassword(inquiryDetail.getPassword());
-        inquiryDto.setCreatedAt(inquiryDetail.getCreatedAt());
-        inquiryDto.setIsSecret(inquiryDetail.getIsSecret());
-        inquiryDto.setIsAnswered(inquiryDetail.getIsAnswered());
-        return inquiryDto;
+        return mapInquiryToDto(inquiryDetail, true);
     }
 
     /**
@@ -144,11 +135,11 @@ public class InquiryService {
      */
     private Inquiry validatePasswordAndGetInquiry(Long inquiryId, String password) {
         Inquiry existingInquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new RuntimeException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
 
         // 비밀번호 검증
         if (!existingInquiry.getPassword().equals(password)) {
-            throw new RuntimeException("올바른 비밀번호가 아닙니다.");
+            throw new IllegalArgumentException("올바른 비밀번호가 아닙니다.");
         }
 
         return existingInquiry;

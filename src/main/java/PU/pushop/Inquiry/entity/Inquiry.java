@@ -1,12 +1,14 @@
-package PU.pushop.product.entity;
+package PU.pushop.Inquiry.entity;
 
 import PU.pushop.members.entity.Member;
+import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.InquiryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,22 +33,22 @@ public class Inquiry {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "writer_name")
+    @Column(name = "writer_name",nullable = false)
     private String name;
 
-    @Column(name = "writer_email")
+    @Column(name = "writer_email",nullable = false)
     private String email;
 
     @Enumerated(EnumType.STRING)
     private InquiryType inquiryType;
 
-    @Column(name = "inquiry_title")
+    @Column(name = "inquiry_title",nullable = false)
     private String inquiryTitle;
 
-    @Column(name = "inquiry_content")
+    @Column(name = "inquiry_content",nullable = false)
     private String inquiryContent;
 
     @Column(name = "password", nullable = false)
@@ -57,7 +59,7 @@ public class Inquiry {
 
     private Boolean isSecret = true;
 
-    private Boolean isAnswered = false;
+    private Boolean isResponse = false;
 
 
     public Inquiry() {

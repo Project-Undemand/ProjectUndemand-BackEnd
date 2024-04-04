@@ -1,8 +1,7 @@
-package PU.pushop.product.model;
+package PU.pushop.Inquiry.model;
 
-import PU.pushop.product.entity.Inquiry;
+import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.enums.InquiryType;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +23,7 @@ public class InquiryDto {
     private String password;
     private LocalDate createdAt;
     private Boolean isSecret;
-    private Boolean isAnswered;
+    private Boolean isResponse;
 
 
 
@@ -41,7 +40,7 @@ public class InquiryDto {
                 inquiry.getPassword(),
                 inquiry.getCreatedAt(),
                 inquiry.getIsSecret(),
-                inquiry.getIsAnswered()
+                inquiry.getIsResponse()
 
         );
 

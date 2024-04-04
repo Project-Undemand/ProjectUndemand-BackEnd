@@ -1,6 +1,6 @@
-package PU.pushop.product.repository;
+package PU.pushop.Inquiry.repository;
 
-import PU.pushop.product.entity.Inquiry;
+import PU.pushop.Inquiry.entity.Inquiry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

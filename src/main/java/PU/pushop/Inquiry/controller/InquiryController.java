@@ -1,18 +1,14 @@
-package PU.pushop.product.controller;
+package PU.pushop.Inquiry.controller;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.members.service.JoinService;
-import PU.pushop.product.entity.Inquiry;
-import PU.pushop.product.entity.Product;
+import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.enums.InquiryType;
-import PU.pushop.product.model.InquiryDto;
-import PU.pushop.product.service.InquiryService;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import PU.pushop.Inquiry.model.InquiryDto;
+import PU.pushop.Inquiry.service.InquiryService;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.sql.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -96,18 +92,13 @@ public class InquiryController {
      * @return
      */
     @GetMapping("/{inquiryId}")
-    public ResponseEntity<?> getInquiryById(@PathVariable Long inquiryId,@RequestParam(required = false) String password) {
-        InquiryDto inquiryDetail = inquiryService.inquiryDetail(inquiryId);
-
-
-    /*    // 비밀글인 경우에만 비밀번호 검증
-        if (inquiryDetail.getIsSecret()) {
-            if (password == null || !inquiryDetail.getPassword().equals(password)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호를 입력해야 합니다.");
-            }
-        }*/
-
-        return new ResponseEntity<>(inquiryDetail, HttpStatus.OK);
+    public ResponseEntity<?> getInquiryById(@PathVariable Long inquiryId, @RequestParam(required = false) String password) {
+        try {
+            InquiryDto inquiryDetail = inquiryService.inquiryDetail(inquiryId);
+            return new ResponseEntity<>(inquiryDetail, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     /**
@@ -117,23 +108,25 @@ public class InquiryController {
      * @return
      */
     @PutMapping("/{inquiryId}")
-    public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryRequest request, @RequestParam String password) {
+    public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryRequest request) {
         Inquiry updatedInquiry = InquiryFormRequest(request);
-        Inquiry updated = inquiryService.updateInquiry(inquiryId, updatedInquiry, password);
-
+        Inquiry updated = inquiryService.updateInquiry(inquiryId, updatedInquiry, request.getPassword());
         return ResponseEntity.ok(updated);
     }
 
+
     /**
      * 문의글 삭제
-     * @param inquiryId
+     * @param inquiryId // 삭제하려는 문의
+     * @param password //헤더에
      * @return
      */
     @DeleteMapping("/{inquiryId}")
-    public ResponseEntity<?> deleteInquiry(@PathVariable Long inquiryId, @RequestParam String password) {
-        inquiryService.deleteInquiry(inquiryId,password);
+    public ResponseEntity<?> deleteInquiry(@PathVariable Long inquiryId, @RequestHeader("password") String password) {
+        inquiryService.deleteInquiry(inquiryId, password);
         return ResponseEntity.ok().build();
     }
+
 
 
 }
