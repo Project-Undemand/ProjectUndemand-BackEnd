@@ -1,6 +1,7 @@
 spring:
+  profiles:
+    include: jwt, oauth2
   datasource:
-    #  최초 실행 url - jdbc:h2:~/pushop
     url: jdbc:h2:tcp://localhost/~/pushop
     username: pu
     password:
@@ -8,11 +9,20 @@ spring:
   redis:
     host: localhost
     port: 995
+#  main:
+#    allow-bean-definition-overriding: true
 
 
+  #  create	기존테이블을 삭제하고 다시 생성
+  #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
+  #  update	변경된 스키마 적용 (운영 DB 에서 사용X)
+  #  validate Entity 와 테이블이 정상 매핑 되었는지 확인
+  #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         #        show_sql: true
@@ -23,5 +33,5 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
-  org.springframework.security: debug
 #  org.hibernate.type: trace
+#  jdbc:h2:~/pushop
