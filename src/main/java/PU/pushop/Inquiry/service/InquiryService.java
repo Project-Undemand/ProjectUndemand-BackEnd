@@ -1,5 +1,6 @@
 package PU.pushop.Inquiry.service;
 
+import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
@@ -59,26 +60,6 @@ public class InquiryService {
                 .collect(Collectors.toList());
     }
 
-    private InquiryDto mapInquiryToDto(Inquiry inquiry, boolean includeContent) {
-        InquiryDto inquiryDto = new InquiryDto();
-        inquiryDto.setInquiryId(inquiry.getInquiryId());
-        inquiryDto.setMemberId(inquiry.getMember() != null ? inquiry.getMember().getId() : null);
-        inquiryDto.setProductId(inquiry.getProduct().getProductId());
-        inquiryDto.setName(inquiry.getName());
-        inquiryDto.setEmail(inquiry.getEmail());
-        inquiryDto.setInquiryType(inquiry.getInquiryType());
-        inquiryDto.setInquiryTitle(inquiry.getInquiryTitle());
-        inquiryDto.setCreatedAt(inquiry.getCreatedAt());
-        inquiryDto.setIsSecret(inquiry.getIsSecret());
-        inquiryDto.setIsResponse(inquiry.getIsResponse());
-
-        if (includeContent) {
-            inquiryDto.setInquiryContent(inquiry.getInquiryContent());
-            inquiryDto.setPassword(inquiry.getPassword());
-        }
-
-        return inquiryDto;
-    }
 
 
     /**
@@ -101,8 +82,6 @@ public class InquiryService {
      * @return
      */
     public Inquiry updateInquiry(Long inquiryId, Inquiry updatedInquiry, String password) {
-//        Inquiry existingInquiry = inquiryRepository.findById(inquiryId)
-//                .orElseThrow(() -> new RuntimeException("글을 찾을 수 없습니다."));
 
         Inquiry existingInquiry = validatePasswordAndGetInquiry(inquiryId, password);
 
@@ -119,8 +98,6 @@ public class InquiryService {
      * @param inquiryId
      */
     public void deleteInquiry(Long inquiryId, String password) {
-//        Inquiry existingInquiry = inquiryRepository.findById(inquiryId)
-//                .orElseThrow(() -> new RuntimeException("글을 찾을 수 없습니다."));
 
         Inquiry existingInquiry = validatePasswordAndGetInquiry(inquiryId, password);
 
@@ -144,5 +121,37 @@ public class InquiryService {
 
         return existingInquiry;
     }
+
+    /**
+     * 문의글 조회 시 Dto 변환해서 가져오기
+     * @param inquiry
+     * @param includeContent
+     * @return
+     */
+    private InquiryDto mapInquiryToDto(Inquiry inquiry, boolean includeContent) {
+        InquiryDto inquiryDto = new InquiryDto();
+
+        inquiryDto.setInquiryId(inquiry.getInquiryId());
+        inquiryDto.setMemberId(inquiry.getMember() != null ? inquiry.getMember().getId() : null);
+        inquiryDto.setProductId(inquiry.getProduct().getProductId());
+        inquiryDto.setName(inquiry.getName());
+        inquiryDto.setEmail(inquiry.getEmail());
+        inquiryDto.setInquiryType(inquiry.getInquiryType());
+        inquiryDto.setInquiryTitle(inquiry.getInquiryTitle());
+        inquiryDto.setCreatedAt(inquiry.getCreatedAt());
+        inquiryDto.setIsSecret(inquiry.getIsSecret());
+        inquiryDto.setIsResponse(inquiry.getIsResponse());
+        inquiryDto.setReplies(inquiry.getReplies().stream().map(InquiryReplyDto::new)
+                .collect(Collectors.toList()));
+
+        if (includeContent) {
+
+            inquiryDto.setInquiryContent(inquiry.getInquiryContent());
+            inquiryDto.setPassword(inquiry.getPassword());
+        }
+
+        return inquiryDto;
+    }
+
 
 }

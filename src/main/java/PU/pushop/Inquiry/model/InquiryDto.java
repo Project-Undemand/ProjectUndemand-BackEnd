@@ -1,12 +1,15 @@
 package PU.pushop.Inquiry.model;
 
 import PU.pushop.Inquiry.entity.Inquiry;
+import PU.pushop.Inquiry.entity.InquiryReply;
 import PU.pushop.product.entity.enums.InquiryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -24,6 +27,7 @@ public class InquiryDto {
     private LocalDate createdAt;
     private Boolean isSecret;
     private Boolean isResponse;
+    private List<InquiryReplyDto> replies;
 
 
 
@@ -40,7 +44,9 @@ public class InquiryDto {
                 inquiry.getPassword(),
                 inquiry.getCreatedAt(),
                 inquiry.getIsSecret(),
-                inquiry.getIsResponse()
+                inquiry.getIsResponse(),
+                inquiry.getReplies().stream().map(InquiryReplyDto::new)
+                        .collect(Collectors.toList())
 
         );
 

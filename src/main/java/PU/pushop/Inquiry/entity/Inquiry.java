@@ -61,6 +61,8 @@ public class Inquiry {
 
     private Boolean isResponse = false;
 
+    @OneToMany(mappedBy = "inquiry")
+    private List<InquiryReply> replies;
 
     public Inquiry() {
         this.createdAt = LocalDate.now();

@@ -92,7 +92,7 @@ public class InquiryController {
      * @return
      */
     @GetMapping("/{inquiryId}")
-    public ResponseEntity<?> getInquiryById(@PathVariable Long inquiryId, @RequestParam(required = false) String password) {
+    public ResponseEntity<?> getInquiryById(@PathVariable Long inquiryId) {
         try {
             InquiryDto inquiryDetail = inquiryService.inquiryDetail(inquiryId);
             return new ResponseEntity<>(inquiryDetail, HttpStatus.OK);
