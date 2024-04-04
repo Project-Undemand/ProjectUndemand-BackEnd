@@ -34,6 +34,12 @@ public class Order {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
+    @Column
+    private String ordererName;
+
+    @Column
+    private String productName;
+
     @Enumerated(EnumType.STRING)
     PayMethod payMethod;
 
@@ -55,10 +61,10 @@ public class Order {
     @Column(name = "phone_number")
     private Long phoneNumber;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    private LocalDate createdAt;
+    @Column(name = "order_day", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    private LocalDate orderDay;
 
     public Order() {
-        this.createdAt = LocalDate.now();
+        this.orderDay = LocalDate.now();
     }
 }
