@@ -60,6 +60,7 @@ public class ProductManagementController {
 
     }
 
+
     @Data
     private class UpdateResponse {
         private Long inventoryId;
