@@ -26,13 +26,19 @@ public class Inquiry {
     @Column(name = "inquiry_id")
     private Long inquiryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "member_id", nullable = true)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @Column(name = "writer_name")
+    private String name;
+
+    @Column(name = "writer_email")
+    private String email;
 
     @Enumerated(EnumType.STRING)
     private InquiryType inquiryType;
@@ -43,7 +49,7 @@ public class Inquiry {
     @Column(name = "inquiry_content")
     private String inquiryContent;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")

@@ -27,6 +27,9 @@ public class InquiryController {
     @Data
     static class InquiryRequest {
         private Long productId;
+        private Member memberId;
+        private String name;
+        private String email;
         private InquiryType inquiryType;
         private String inquiryTitle;
         private String inquiryContent;
@@ -37,6 +40,9 @@ public class InquiryController {
     private Inquiry InquiryFormRequest(InquiryRequest request) {
         Inquiry inquiry = new Inquiry();
 
+        inquiry.setMember(request.getMemberId());
+        inquiry.setName(request.getName());
+        inquiry.setEmail(request.getEmail());
         inquiry.setInquiryType(request.getInquiryType());
         inquiry.setInquiryTitle(request.getInquiryTitle());
         inquiry.setInquiryContent(request.getInquiryContent());
@@ -69,14 +75,13 @@ public class InquiryController {
     /**
      * 문의글 작성
      * @param request
-     * @param memberId
      * @param productId
      * @return
      */
-    @PostMapping("/new/{productId}/{memberId}")
-    public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryRequest request, @PathVariable Long memberId, @PathVariable Long productId) {
+    @PostMapping("/new/{productId}")
+    public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryRequest request, @PathVariable Long productId) {
         Inquiry inquiry = InquiryFormRequest(request);
-        Long createdId = inquiryService.createInquiry(inquiry, memberId,productId);
+        Long createdId = inquiryService.createInquiry(inquiry,productId);
         return ResponseEntity.ok(createdId);
     }
 
@@ -87,7 +92,8 @@ public class InquiryController {
      */
     @GetMapping("/{inquiryId}")
     public ResponseEntity<?> getInquiryById(@PathVariable Long inquiryId,@RequestParam(required = false) String password) {
-        Inquiry inquiryDetail = inquiryService.inquiryDetail(inquiryId);
+        InquiryDto inquiryDetail = inquiryService.inquiryDetail(inquiryId);
+
 
     /*    // 비밀글인 경우에만 비밀번호 검증
         if (inquiryDetail.getIsSecret()) {
@@ -96,8 +102,7 @@ public class InquiryController {
             }
         }*/
 
-        InquiryDto inquiryDto = new InquiryDto(inquiryDetail);
-        return new ResponseEntity<>(inquiryDto, HttpStatus.OK);
+        return new ResponseEntity<>(inquiryDetail, HttpStatus.OK);
     }
 
     /**

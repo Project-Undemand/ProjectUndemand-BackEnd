@@ -29,10 +29,10 @@ public class InquiryService {
      * @return inquiryId
      */
     @Transactional
-    public Long createInquiry(Inquiry inquiry, Long memberId, Long productId) {
-        Optional<Member> member = memberRepository.findById(memberId);
+    public Long createInquiry(Inquiry inquiry, Long productId) {
+//        Optional<Member> member = memberRepository.findById(memberId);
         Optional<Product> product = productRepository.findByProductId(productId);
-        inquiry.setMember(member.orElse(null));
+//        inquiry.setMember(member.orElse(null));
         inquiry.setProduct(product.orElse(null));
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
@@ -44,20 +44,7 @@ public class InquiryService {
      */
     public List<InquiryDto> allInquiryList() {
         return inquiryRepository.findAll().stream()
-                .map(InquiryDto::new) // InquiryDto로 변환
-                .map(inquiryDto -> {
-                    // 필요한 필드만 설정
-                    InquiryDto modifiedDto = new InquiryDto();
-                    modifiedDto.setInquiryId(inquiryDto.getInquiryId());
-                    modifiedDto.setMemberId(inquiryDto.getMemberId());
-                    modifiedDto.setProductId(inquiryDto.getProductId());
-                    modifiedDto.setInquiryType(inquiryDto.getInquiryType());
-                    modifiedDto.setInquiryTitle(inquiryDto.getInquiryTitle());
-                    modifiedDto.setCreatedAt(inquiryDto.getCreatedAt());
-                    modifiedDto.setIsSecret(inquiryDto.getIsSecret());
-                    modifiedDto.setIsAnswered(inquiryDto.getIsAnswered());
-                    return modifiedDto;
-                })
+                .map(this::mapInquiryToDto)
                 .collect(Collectors.toList());
     }
 
@@ -68,21 +55,23 @@ public class InquiryService {
      */
     public List<InquiryDto> inquiryListByProductId(Long productId) {
         return inquiryRepository.findByProduct_ProductId(productId).stream()
-                .map(InquiryDto::new) // InquiryDto로 변환
-                .map(inquiryDto -> {
-                    // 필요한 필드만 설정
-                    InquiryDto modifiedDto = new InquiryDto();
-                    modifiedDto.setInquiryId(inquiryDto.getInquiryId());
-                    modifiedDto.setMemberId(inquiryDto.getMemberId());
-                    modifiedDto.setProductId(inquiryDto.getProductId());
-                    modifiedDto.setInquiryType(inquiryDto.getInquiryType());
-                    modifiedDto.setInquiryTitle(inquiryDto.getInquiryTitle());
-                    modifiedDto.setCreatedAt(inquiryDto.getCreatedAt());
-                    modifiedDto.setIsSecret(inquiryDto.getIsSecret());
-                    modifiedDto.setIsAnswered(inquiryDto.getIsAnswered());
-                    return modifiedDto;
-                })
+                .map(this::mapInquiryToDto)
                 .collect(Collectors.toList());
+    }
+
+    private InquiryDto mapInquiryToDto(Inquiry inquiry) {
+        InquiryDto inquiryDto = new InquiryDto();
+        inquiryDto.setInquiryId(inquiry.getInquiryId());
+        inquiryDto.setMemberId(inquiry.getMember() != null ? inquiry.getMember().getId() : null);
+        inquiryDto.setProductId(inquiry.getProduct().getProductId());
+        inquiryDto.setName(inquiry.getName());
+        inquiryDto.setEmail(inquiry.getEmail());
+        inquiryDto.setInquiryType(inquiry.getInquiryType());
+        inquiryDto.setInquiryTitle(inquiry.getInquiryTitle());
+        inquiryDto.setCreatedAt(inquiry.getCreatedAt());
+        inquiryDto.setIsSecret(inquiry.getIsSecret());
+        inquiryDto.setIsAnswered(inquiry.getIsAnswered());
+        return inquiryDto;
     }
 
     /**
@@ -90,8 +79,28 @@ public class InquiryService {
      * @param inquiryId
      * @return
      */
-    public Inquiry inquiryDetail(Long inquiryId) {
-        return inquiryRepository.findById(inquiryId).get();
+    public InquiryDto inquiryDetail(Long inquiryId) {
+        Inquiry inquiryDetail = inquiryRepository.findById(inquiryId).orElse(null);
+
+        if (inquiryDetail == null) {
+            // 처리할 로직 추가
+            return null;
+        }
+
+        InquiryDto inquiryDto = new InquiryDto();
+        inquiryDto.setInquiryId(inquiryDetail.getInquiryId());
+        inquiryDto.setMemberId(inquiryDetail.getMember() != null ? inquiryDetail.getMember().getId() : null);
+        inquiryDto.setProductId(inquiryDetail.getProduct().getProductId());
+        inquiryDto.setName(inquiryDetail.getName());
+        inquiryDto.setEmail(inquiryDetail.getEmail());
+        inquiryDto.setInquiryType(inquiryDetail.getInquiryType());
+        inquiryDto.setInquiryTitle(inquiryDetail.getInquiryTitle());
+        inquiryDto.setInquiryContent(inquiryDetail.getInquiryContent());
+        inquiryDto.setPassword(inquiryDetail.getPassword());
+        inquiryDto.setCreatedAt(inquiryDetail.getCreatedAt());
+        inquiryDto.setIsSecret(inquiryDetail.getIsSecret());
+        inquiryDto.setIsAnswered(inquiryDetail.getIsAnswered());
+        return inquiryDto;
     }
 
     /**
