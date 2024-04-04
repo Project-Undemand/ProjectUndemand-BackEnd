@@ -1,6 +1,8 @@
 package PU.pushop.product.controller;
 
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.service.JoinService;
 import PU.pushop.product.entity.Inquiry;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.InquiryType;
@@ -22,12 +24,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InquiryController {
     private final InquiryService inquiryService;
+    private final MemberRepositoryV1 memberRepository;
 
     // Request Data
     @Data
     static class InquiryRequest {
         private Long productId;
-        private Member memberId;
+        private Long memberId;
         private String name;
         private String email;
         private InquiryType inquiryType;
@@ -39,8 +42,9 @@ public class InquiryController {
 
     private Inquiry InquiryFormRequest(InquiryRequest request) {
         Inquiry inquiry = new Inquiry();
-
-        inquiry.setMember(request.getMemberId());
+        Member member = memberRepository.findById(request.getMemberId()).orElse(null);
+        inquiry.setMember(member);
+//        inquiry.setMember(request.getMemberId());
         inquiry.setName(request.getName());
         inquiry.setEmail(request.getEmail());
         inquiry.setInquiryType(request.getInquiryType());
@@ -81,6 +85,7 @@ public class InquiryController {
     @PostMapping("/new/{productId}")
     public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryRequest request, @PathVariable Long productId) {
         Inquiry inquiry = InquiryFormRequest(request);
+//        Member member = memberService.findById(request.getMemberId());
         Long createdId = inquiryService.createInquiry(inquiry,productId);
         return ResponseEntity.ok(createdId);
     }
