@@ -38,9 +38,11 @@ public class InquiryController {
 
     private Inquiry InquiryFormRequest(InquiryRequest request) {
         Inquiry inquiry = new Inquiry();
-        Member member = memberRepository.findById(request.getMemberId()).orElse(null);
+        Member member = null;
+        if (request.getMemberId() != null) {
+            member = memberRepository.findById(request.getMemberId()).orElse(null);
+        }
         inquiry.setMember(member);
-//        inquiry.setMember(request.getMemberId());
         inquiry.setName(request.getName());
         inquiry.setEmail(request.getEmail());
         inquiry.setInquiryType(request.getInquiryType());
