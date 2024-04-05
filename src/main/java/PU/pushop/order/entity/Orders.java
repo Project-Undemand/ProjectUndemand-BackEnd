@@ -6,12 +6,15 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Order {
     @Id
     @SequenceGenerator(
@@ -27,12 +30,11 @@ public class Order {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cart;
+    @OneToMany(mappedBy = "order")
+    private List<Cart> carts = new ArrayList<>();
 
     @Column
     private String ordererName;
@@ -49,20 +51,23 @@ public class Order {
     @Column(nullable = false, length = 100)
     private String merchantUid;
 
-    @Column(name = "total_price", nullable = false)
-    private Long totalPrice;
+    @Column(name = "total_price")
+    private BigDecimal totalPrice;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "address")
     private String address;
 
-    @Column(name = "post_code", nullable = false, length = 100)
+    @Column(name = "post_code", length = 100)
     private String postCode;
 
     @Column(name = "phone_number")
-    private Long phoneNumber;
+    private String phoneNumber;
 
-    @Column(name = "order_day", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @Column(name = "order_day", columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate orderDay;
+
+    @Column
+    private Boolean paymentStatus = false;
 
     public Order() {
         this.orderDay = LocalDate.now();

@@ -33,7 +33,6 @@ public class CartService {
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId))
         );
 
-
         cartRepository.save(cart);
         return cart.getCartId();
     }

@@ -38,6 +38,7 @@ public class CartController {
 
         Long price = product.getPrice() * request.getQuantity();
 
+
         cart.setMember(member);
         cart.setProduct(request.getProduct());
         cart.setQuantity(request.getQuantity());
