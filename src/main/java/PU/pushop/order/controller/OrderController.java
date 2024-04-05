@@ -19,22 +19,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
-    private HttpSession httpSession;
+    private final HttpSession httpSession;
 
     /**
      * 주문서에 나타낼 정보
-     * @param payload
+     * @param payload  "cartIds" : [1,2,3]
      * @return
      */
     @PostMapping("/create")
-    public ResponseEntity<Orders> createOrder(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> payload) {
         List<Long> cartIds = (List<Long>) payload.get("cartIds");
         Orders temporaryOrder = orderService.createOrder(cartIds);
 
         // 세션에 임시 주문 정보를 저장
         httpSession.setAttribute("temporaryOrder", temporaryOrder);
 
-        return ResponseEntity.ok(temporaryOrder);
+        return ResponseEntity.ok(httpSession.getAttribute("temporaryOrder"));
     }
 
     @Data
@@ -65,14 +65,14 @@ public class OrderController {
      * @return
      */
     @PostMapping("/done")
-    public ResponseEntity<Orders> completeOrder(@RequestBody OrderRequest request) {
+    public ResponseEntity<?> completeOrder(@RequestBody OrderRequest request) {
 
         Orders orders = RequestForm(request);
 
         // 세션에서 임시 주문 정보를 가져옴
         Orders temporaryOrder = (Orders) httpSession.getAttribute("temporaryOrder");
         if (temporaryOrder == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("임시 주문 정보를 찾을 수 없습니다.");
         }
 
         Orders completedOrder = orderService.orderConfirm(temporaryOrder, orders);
