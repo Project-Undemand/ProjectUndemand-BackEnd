@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Orders {
     @Id
     @SequenceGenerator(
             name = "order_sequence",
@@ -45,10 +45,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     PayMethod payMethod;
 
-    @Column(nullable = false, length = 100)
-    private String impUid; //포트원 거래고유번호
-
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String merchantUid;
 
     @Column(name = "total_price")
@@ -56,6 +53,9 @@ public class Order {
 
     @Column(name = "address")
     private String address;
+
+    @Column(name = "detail_address")
+    private String detailAddress;
 
     @Column(name = "post_code", length = 100)
     private String postCode;
@@ -69,7 +69,7 @@ public class Order {
     @Column
     private Boolean paymentStatus = false;
 
-    public Order() {
+    public Orders() {
         this.orderDay = LocalDate.now();
     }
 }
