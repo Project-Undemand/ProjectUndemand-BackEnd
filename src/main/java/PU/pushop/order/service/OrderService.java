@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -122,11 +124,12 @@ public class OrderService {
     // 주문번호 생성 메서드
     private String generateMerchantUid() {
         // 현재 날짜와 시간을 포함한 고유한 문자열 생성
-        String uniqueString = UUID.randomUUID().toString();
-        LocalDateTime currentTime = LocalDateTime.now();
-        String formattedDateTime = currentTime.toString().replace("-", "").replace(":", "").replace(".", "");
+        String uniqueString = UUID.randomUUID().toString().replace("-", "");
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDay = today.format(formatter).replace("-", "");
         // 무작위 문자열과 현재 날짜/시간을 조합하여 주문번호 생성
-        String merchantUid = uniqueString + formattedDateTime;
+        String merchantUid = formattedDay +'-'+ uniqueString;
         return merchantUid;
     }
 
