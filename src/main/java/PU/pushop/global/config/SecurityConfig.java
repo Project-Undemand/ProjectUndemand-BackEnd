@@ -161,7 +161,7 @@ public class SecurityConfig {
                 // 문의 답변
                 .requestMatchers("/api/v1/inquiry/reply/**").hasRole("ADMIN, SELLER")
                 // 나머지 페이지 권한: 로그인 멤버
-                .anyRequest().authenticated());
+                .anyRequest().permitAll());
 
 
 

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Entity
@@ -47,6 +48,9 @@ public class Product {
     private Boolean isSale = false;
 
     private Boolean isRecommend = false;
+
+    @OneToMany(mappedBy = "product")
+    private List<WishList> wishLists;
 
     public void setProductId(Long productId) {
         this.productId = productId;

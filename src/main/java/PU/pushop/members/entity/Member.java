@@ -2,12 +2,14 @@ package PU.pushop.members.entity;
 
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
+import PU.pushop.product.entity.WishList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -51,6 +53,10 @@ public class Member {
     @Column(name = "SOCIAL_ID")
     private String socialId;
     // Provider + prividerId 형식
+
+    @OneToMany
+    @JoinColumn(name = "wish_lsit")
+    private List<WishList> wishLists;
 
     // 생성자를 통해 멤버 생성
     public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId) {
