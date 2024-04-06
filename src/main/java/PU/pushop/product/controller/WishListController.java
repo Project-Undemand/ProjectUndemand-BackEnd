@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -22,6 +23,13 @@ public class WishListController {
     private final ProductRepositoryV1 productRepository;
     private final MemberRepositoryV1 memberRepository;
 
+    /**
+     * 찜하기
+     *
+     * @param productId
+     * @param memberId
+     * @return
+     */
     @PostMapping("/{productId}/{memberId}")
     public ResponseEntity<?> createWish(@Valid @PathVariable Long productId, @PathVariable Long memberId) {
         try {
@@ -38,6 +46,13 @@ public class WishListController {
         }
     }
 
+    /**
+     * 찜 삭제
+     *
+     * @param productId
+     * @param memberId
+     * @return
+     */
     @DeleteMapping("/{productId}/{memberId}")
     public String deleteWish(@Valid @PathVariable Long productId, @PathVariable Long memberId) {
         Product product = productRepository.findById(productId)
@@ -49,6 +64,14 @@ public class WishListController {
         return "삭제완료";
     }
 
+    @GetMapping("/{memberId}")
+    public List<WishList> myWishList(@Valid @PathVariable Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
 
+        return wishListService.myWishList(member);
+
+
+    }
 }
 

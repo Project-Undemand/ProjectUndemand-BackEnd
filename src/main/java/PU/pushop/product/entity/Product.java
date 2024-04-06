@@ -52,6 +52,8 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<WishList> wishLists;
 
+    private Long wishListCount;
+
     public void setProductId(Long productId) {
         this.productId = productId;
     }
@@ -73,6 +75,10 @@ public class Product {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+    public void setWishLists(List<WishList> wishLists) {
+        this. wishLists = wishLists;
     }
 
     public void setIsSale(Boolean isSale) {
