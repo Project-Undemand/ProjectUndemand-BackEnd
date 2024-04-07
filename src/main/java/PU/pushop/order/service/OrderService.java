@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,6 +42,14 @@ public class OrderService {
         Long memberId = carts.get(0).getMember().getId();
         Member member = memberRepository.findById(memberId).orElse(null);
 
+        List<Product> products = new ArrayList<>();
+        for (Cart cart : carts) {
+            Product product = cart.getProduct();
+            products.add(product);
+        }
+
+
+
         // 모든 카트의 회원 ID가 동일한지 확인
         boolean sameMember = carts.stream()
                 .allMatch(cart -> cart.getMember().getId().equals(memberId));
@@ -50,7 +59,8 @@ public class OrderService {
         }
 
         Orders order = new Orders();
-        order.setCarts(cartslist);
+//        order.setCarts(cartslist);
+        order.setProducts(products);
         order.setTotalPrice(calculateTotalPrice(carts));
         order.setProductName(getProductNames(carts));
         order.setPhoneNumber(getMemberPhoneNumber(carts));

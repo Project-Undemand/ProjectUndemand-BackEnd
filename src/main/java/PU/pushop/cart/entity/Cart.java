@@ -39,9 +39,9 @@ public class Cart {
 
     @Column(name = "price")
     private Long price;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Orders order;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "order_id")
+//    private Orders order;
 
 }

@@ -4,6 +4,7 @@ import PU.pushop.cart.entity.Cart;
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.enums.PayMethod;
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,10 +36,15 @@ public class Orders {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "order")
-    private List<Cart> carts = new ArrayList<>();
+/*    @OneToMany
+    @JoinColumn(name = "carts")
+    private List<Cart> carts = new ArrayList<>();*/
 
-    @Column(name = "orderer_name")
+    @OneToMany
+    @JoinColumn(name = "products")
+    private List<Product> products = new ArrayList<>();
+
+    @Column(name = "order_name")
     private String ordererName;
 
     @Column(name = "product_names")

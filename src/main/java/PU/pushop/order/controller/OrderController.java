@@ -33,9 +33,11 @@ public class OrderController {
 
         // 세션에 임시 주문 정보를 저장
         httpSession.setAttribute("temporaryOrder", temporaryOrder);
+        httpSession.setAttribute("cartIds", cartIds);
 
         return ResponseEntity.ok(httpSession.getAttribute("temporaryOrder"));
     }
+
 
     /**
      * 주문서에서 입력받아 최종 주문 테이블 생성
@@ -49,16 +51,16 @@ public class OrderController {
 
         // 세션에서 임시 주문 정보를 가져옴
         Orders temporaryOrder = (Orders) httpSession.getAttribute("temporaryOrder");
+        System.out.println("cartIds: " + httpSession.getAttribute("temporaryOrder"));
+
         if (temporaryOrder == null) {
             return ResponseEntity.badRequest().body("임시 주문 정보를 찾을 수 없습니다.");
         }
 
         Orders completedOrder = orderService.orderConfirm(temporaryOrder, orders);
 
-        // 세션에서 임시 주문 정보 삭제
-        httpSession.removeAttribute("temporaryOrder");
 
-        // 장바구니에서 삭제하는 로직 추가해야 함
+
 
         return ResponseEntity.ok(completedOrder);
     }

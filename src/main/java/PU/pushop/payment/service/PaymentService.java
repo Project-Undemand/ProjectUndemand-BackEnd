@@ -5,10 +5,10 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.order.repository.OrderRepository;
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.payment.model.PaymentRequestDto;
 import PU.pushop.payment.repository.PaymentRepository;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.product.service.ProductServiceV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,13 @@ public class PaymentService {
     private final MemberRepositoryV1 memberRepository;
     private final PaymentRepository paymentRepository;
     private final ProductRepositoryV1 productRepository;
-    public void processPaymentDone(Long memberId, Long orderId, Long totalPrice, List<Long> productIdList) {
+
+    public void processPaymentDone(PaymentRequestDto request) {
+
+        Long orderId = request.getOrderId();
+        Long memberId = request.getMemberId();
+        Long totalPrice = request.getPrice();
+        List<Long> productIdList = request.getProductIdList();
 
         //orders 테이블에서 해당 부분 결제true 처리
         Orders nowOrder = orderRepository.findById(orderId)
@@ -63,6 +69,7 @@ public class PaymentService {
             paymentHistory.setPrice(product.getPrice());
 
             paymentRepository.save(paymentHistory);
+
 
         }
 
