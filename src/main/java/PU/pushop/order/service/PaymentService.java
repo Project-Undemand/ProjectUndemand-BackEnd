@@ -1,14 +1,14 @@
 package PU.pushop.order.service;
 
-import com.siot.IamportRestClient.IamportClient;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
+@RequiredArgsConstructor
+@Transactional
 public class PaymentService {
-    private IamportClient api;
 
-
-    public PaymentService() {
-        this.api = new IamportClient("REST API KEY", "REST API SECRET");
-    }
 
 }
 

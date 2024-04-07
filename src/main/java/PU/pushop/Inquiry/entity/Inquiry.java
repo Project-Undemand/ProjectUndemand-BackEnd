@@ -57,8 +57,10 @@ public class Inquiry {
     @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate createdAt;
 
+    @Column(name = "is_secret")
     private Boolean isSecret = true;
 
+    @Column(name = "is_response")
     private Boolean isResponse = false;
 
     @OneToMany(mappedBy = "inquiry")

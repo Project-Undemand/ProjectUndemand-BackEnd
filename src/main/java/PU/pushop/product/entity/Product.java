@@ -25,9 +25,10 @@ public class Product {
     private Long productId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "product_type")
     private ProductType productType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "product_name")
     private String productName;
 
     @Column(name = "price")
@@ -45,13 +46,16 @@ public class Product {
     @Column(nullable = false)
     private String manufacturer;
 
+    @Column(name = "is_sale")
     private Boolean isSale = false;
 
+    @Column(name = "is_recomment")
     private Boolean isRecommend = false;
 
     @OneToMany(mappedBy = "product")
     private List<WishList> wishLists;
 
+    @Column(name = "wishlist_count")
     private Long wishListCount;
 
     public void setProductId(Long productId) {

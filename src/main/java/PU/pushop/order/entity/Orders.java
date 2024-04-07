@@ -36,16 +36,16 @@ public class Orders {
     @OneToMany(mappedBy = "order")
     private List<Cart> carts = new ArrayList<>();
 
-    @Column
+    @Column(name = "order_name")
     private String ordererName;
 
-    @Column
+    @Column(name = "product_names")
     private String productName;
 
     @Enumerated(EnumType.STRING)
     PayMethod payMethod;
 
-    @Column(length = 100)
+    @Column(length = 100, name = "merchant_uid")
     private String merchantUid;
 
     @Column(name = "total_price")
@@ -66,7 +66,7 @@ public class Orders {
     @Column(name = "order_day", columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate orderDay;
 
-    @Column
+    @Column(name = "payment_status")
     private Boolean paymentStatus = false;
 
     public Orders() {
