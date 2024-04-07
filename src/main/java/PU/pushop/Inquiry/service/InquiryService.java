@@ -1,12 +1,10 @@
 package PU.pushop.Inquiry.service;
 
-import PU.pushop.Inquiry.model.InquiryReplyDto;
-import PU.pushop.members.entity.Member;
+
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
 import PU.pushop.Inquiry.repository.InquiryRepository;
-import PU.pushop.product.entity.enums.InquiryType;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

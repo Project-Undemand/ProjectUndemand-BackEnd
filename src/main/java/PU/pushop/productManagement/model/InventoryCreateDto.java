@@ -3,7 +3,6 @@ package PU.pushop.productManagement.model;
 import PU.pushop.category.entity.Category;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
-import PU.pushop.productManagement.controller.ProductManagementController;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.entity.enums.Size;
 import lombok.AllArgsConstructor;

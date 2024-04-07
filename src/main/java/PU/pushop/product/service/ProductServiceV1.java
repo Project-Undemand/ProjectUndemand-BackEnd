@@ -21,6 +21,7 @@ public class ProductServiceV1 {
 
 
     public Product findProductById(Long productId) {
+        // TODO : null일경우 예외처리
         return productRepositoryV1.findByProductId(productId)
                 .orElse(null); // productId에 해당하는 Product가 없을 경우 null 반환
     }

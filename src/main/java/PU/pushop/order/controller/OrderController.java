@@ -37,19 +37,6 @@ public class OrderController {
         return ResponseEntity.ok(httpSession.getAttribute("temporaryOrder"));
     }
 
-  /*  private Orders RequestForm(OrderDto request){
-        Orders orders = new Orders();
-
-        orders.setPostCode(request.getPostCode());
-        orders.setAddress(request.getAddress());
-        orders.setDetailAddress(request.getDetailAddress());
-        orders.setOrdererName(request.getOrdererName());
-        orders.setPhoneNumber(request.getPhoneNumber());
-        orders.setPayMethod(request.getPayMethod());
-
-        return orders;
-    }
-*/
     /**
      * 주문서에서 입력받아 최종 주문 테이블 생성
      * @param request

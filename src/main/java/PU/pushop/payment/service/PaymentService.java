@@ -35,11 +35,14 @@ public class PaymentService {
         // PaymentHistory 테이블 생성
         Member member = null;
         if (memberId != null) {
+
+            // TODO : null일경우 예외처리
             member = memberRepository.findById(memberId)
                     .orElse(null);
         }
         Orders order = null;
         if (orderId != null) {
+            // TODO : null일경우 예외처리
             order = orderRepository.findById(orderId)
                     .orElse(null);
         }
@@ -49,6 +52,7 @@ public class PaymentService {
 
             Product product = null;
             if(productId != null){
+                // TODO : null일경우 예외처리
                 product = productRepository.findByProductId(productId)
                         .orElse(null);
             }

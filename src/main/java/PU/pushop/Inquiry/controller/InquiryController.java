@@ -53,6 +53,7 @@ public class InquiryController {
     public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryCreateDto request, @PathVariable Long productId) {
         Inquiry inquiry = InquiryCreateDto.requestForm(request);
         Member member = null;
+        // TODO : null일경우 예외처리
         if (request.getMemberId() != null) {
             member = memberRepository.findById(request.getMemberId()).orElse(null);
         }

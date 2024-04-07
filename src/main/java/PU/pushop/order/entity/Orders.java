@@ -38,7 +38,7 @@ public class Orders {
     @OneToMany(mappedBy = "order")
     private List<Cart> carts = new ArrayList<>();
 
-    @Column(name = "order_name")
+    @Column(name = "orderer_name")
     private String ordererName;
 
     @Column(name = "product_names")

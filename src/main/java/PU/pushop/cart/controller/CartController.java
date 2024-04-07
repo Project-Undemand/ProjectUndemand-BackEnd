@@ -32,7 +32,9 @@ public class CartController {
 
     private Cart RequestForm(Request request, Long productId) {
         Cart cart = new Cart();
+        // TODO : null일경우 예외처리
         Member member = memberRepository.findById(request.getMemberId()).orElse(null);
+        // TODO : null일경우 예외처리
         Product product = productRepository.findByProductId(productId).orElse(null);
 
         Long price = product.getPrice() * request.getQuantity();
