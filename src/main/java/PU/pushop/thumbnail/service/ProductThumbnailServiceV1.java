@@ -1,8 +1,9 @@
-package PU.pushop.product.service;
+package PU.pushop.thumbnail.service;
 
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.ProductThumbnail;
-import PU.pushop.product.repository.ProductThumbnailRepositoryV1;
+import PU.pushop.product.service.ProductServiceV1;
+import PU.pushop.thumbnail.entity.ProductThumbnail;
+import PU.pushop.thumbnail.repository.ProductThumbnailRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

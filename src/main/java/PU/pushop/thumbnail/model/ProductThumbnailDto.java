@@ -1,7 +1,7 @@
-package PU.pushop.product.model;
+package PU.pushop.thumbnail.model;
 
 
-import PU.pushop.product.entity.ProductThumbnail;
+import PU.pushop.thumbnail.entity.ProductThumbnail;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

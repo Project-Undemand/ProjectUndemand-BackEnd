@@ -1,5 +1,6 @@
-package PU.pushop.product.entity;
+package PU.pushop.thumbnail.entity;
 
+import PU.pushop.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

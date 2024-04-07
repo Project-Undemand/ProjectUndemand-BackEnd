@@ -1,7 +1,7 @@
-package PU.pushop.product.controller;
+package PU.pushop.thumbnail.controller;
 
-import PU.pushop.product.entity.ProductThumbnail;
-import PU.pushop.product.service.ProductThumbnailServiceV1;
+import PU.pushop.thumbnail.entity.ProductThumbnail;
+import PU.pushop.thumbnail.service.ProductThumbnailServiceV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
