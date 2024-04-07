@@ -3,6 +3,7 @@ package PU.pushop.order.entity;
 import PU.pushop.cart.entity.Cart;
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.enums.PayMethod;
+import PU.pushop.payment.entity.PaymentHistory;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,6 +70,9 @@ public class Orders {
 
     @Column(name = "payment_status")
     private Boolean paymentStatus = false;
+
+    @OneToOne(mappedBy = "orders")
+    private PaymentHistory paymentHistory;
 
     public Orders() {
         this.orderDay = LocalDate.now();
