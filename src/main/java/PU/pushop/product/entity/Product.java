@@ -1,11 +1,13 @@
 package PU.pushop.product.entity;
 
+import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -58,6 +60,9 @@ public class Product {
 
     @Column(name = "wishlist_count")
     private Long wishListCount;
+
+    @OneToMany(mappedBy = "product")
+    private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
     public void setProductId(Long productId) {
         this.productId = productId;

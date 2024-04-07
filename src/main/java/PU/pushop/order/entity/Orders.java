@@ -71,8 +71,8 @@ public class Orders {
     @Column(name = "payment_status")
     private Boolean paymentStatus = false;
 
-    @OneToOne(mappedBy = "orders")
-    private PaymentHistory paymentHistory;
+    @OneToMany(mappedBy = "orders")
+    private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
     public Orders() {
         this.orderDay = LocalDate.now();

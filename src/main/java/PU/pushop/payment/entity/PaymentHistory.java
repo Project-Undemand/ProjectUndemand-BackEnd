@@ -2,6 +2,7 @@ package PU.pushop.payment.entity;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.Orders;
+import PU.pushop.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,12 +31,19 @@ public class PaymentHistory {
     @JoinColumn(name = "member")
     private Member member;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "orders")
     private Orders orders;
 
-    @Column
-    private Long price;
+    @ManyToOne
+    @JoinColumn(name = "product")
+    private Product product;
+
+    @Column(name = "product_price")
+    private Integer price;
+
+    @Column(name = "total_price")
+    private Long totalPrice;
 
     @Column(name = "paid_at")
     private LocalDate paidAt;
