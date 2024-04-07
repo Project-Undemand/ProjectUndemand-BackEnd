@@ -2,6 +2,8 @@ package PU.pushop.Inquiry.model;
 
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.Inquiry.entity.InquiryReply;
+import PU.pushop.members.entity.Member;
+import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.enums.InquiryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,6 +52,31 @@ public class InquiryDto {
 
         );
 
+    }
+
+    public static InquiryDto mapInquiryToDto(Inquiry inquiry, boolean includeContent) {
+        InquiryDto inquiryDto = new InquiryDto();
+
+        inquiryDto.setInquiryId(inquiry.getInquiryId());
+        inquiryDto.setMemberId(inquiry.getMember() != null ? inquiry.getMember().getId() : null);
+        inquiryDto.setProductId(inquiry.getProduct().getProductId());
+        inquiryDto.setName(inquiry.getName());
+        inquiryDto.setEmail(inquiry.getEmail());
+        inquiryDto.setInquiryType(inquiry.getInquiryType());
+        inquiryDto.setInquiryTitle(inquiry.getInquiryTitle());
+        inquiryDto.setCreatedAt(inquiry.getCreatedAt());
+        inquiryDto.setIsSecret(inquiry.getIsSecret());
+        inquiryDto.setIsResponse(inquiry.getIsResponse());
+        inquiryDto.setReplies(inquiry.getReplies().stream().map(InquiryReplyDto::new)
+                .collect(Collectors.toList()));
+
+        if (includeContent) {
+
+            inquiryDto.setInquiryContent(inquiry.getInquiryContent());
+            inquiryDto.setPassword(inquiry.getPassword());
+        }
+
+        return inquiryDto;
     }
 
 }

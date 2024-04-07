@@ -15,38 +15,35 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDto {
-    private Long orderId;
-    private Long memberId;
-    private List<Cart> carts;
-    private String ordererName;
-    private String productName;
-    PayMethod payMethod;
-    private String merchantUid;
-    private BigDecimal totalPrice;
+    private String postCode;
     private String address;
     private String detailAddress;
-    private String postCode;
+    private String ordererName;
     private String phoneNumber;
-    private LocalDate orderDay;
-    private Boolean paymentStatus;
+    PayMethod payMethod;
 
     public OrderDto(Orders order) {
         this(
-                order.getOrderId(),
-                order.getMember().getId(),
-                order.getCarts(),
-                order.getOrdererName(),
-                order.getProductName(),
-                order.getPayMethod(),
-                order.getMerchantUid(),
-                order.getTotalPrice(),
+                order.getPostCode(),
                 order.getAddress(),
                 order.getDetailAddress(),
-                order.getPostCode(),
+                order.getOrdererName(),
                 order.getPhoneNumber(),
-                order.getOrderDay(),
-                order.getPaymentStatus()
+                order.getPayMethod()
         );
+    }
+
+    public static Orders RequestForm(OrderDto request){
+        Orders orders = new Orders();
+
+        orders.setPostCode(request.getPostCode());
+        orders.setAddress(request.getAddress());
+        orders.setDetailAddress(request.getDetailAddress());
+        orders.setOrdererName(request.getOrdererName());
+        orders.setPhoneNumber(request.getPhoneNumber());
+        orders.setPayMethod(request.getPayMethod());
+
+        return orders;
     }
 
 }

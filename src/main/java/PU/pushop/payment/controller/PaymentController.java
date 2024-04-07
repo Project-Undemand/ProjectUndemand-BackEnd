@@ -46,28 +46,6 @@ public class PaymentController {
         this.iamportClient = new IamportClient(apiKey, secretKey);
     }
 
-/*    private PaymentHistory RequestForm(PaymentRequestDto request) {
-        PaymentHistory paymentHistory = new PaymentHistory();
-        Member member = null;
-        if (request.getMemberId() != null) {
-            Long memberId = request.getMemberId();
-            member = memberRepository.findById(memberId)
-                    .orElse(null);
-        }
-        Orders order = null;
-        if (request.getOrderId() != null) {
-            order = orderRepository.findById(request.getOrderId())
-                    .orElse(null);
-        }
-
-
-        paymentHistory.setOrder(order);
-        paymentHistory.setMember(member);
-        paymentHistory.setPrice(request.getPrice());
-
-        return paymentHistory;
-    }*/
-
     @PostMapping("/order/payment/{imp_uid}")
     public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid, @RequestBody PaymentRequestDto request) {
         IamportResponse<Payment> payment = null;

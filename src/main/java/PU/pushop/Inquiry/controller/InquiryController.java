@@ -1,5 +1,6 @@
 package PU.pushop.Inquiry.controller;
 
+import PU.pushop.Inquiry.model.InquiryCreateDto;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
@@ -22,37 +23,6 @@ public class InquiryController {
     private final InquiryService inquiryService;
     private final MemberRepositoryV1 memberRepository;
 
-    // Request Data
-    @Data
-    static class InquiryRequest {
-        private Long productId;
-        private Long memberId;
-        private String name;
-        private String email;
-        private InquiryType inquiryType;
-        private String inquiryTitle;
-        private String inquiryContent;
-        private String password;
-        private Boolean isSecret;
-    }
-
-    private Inquiry InquiryFormRequest(InquiryRequest request) {
-        Inquiry inquiry = new Inquiry();
-        Member member = null;
-        if (request.getMemberId() != null) {
-            member = memberRepository.findById(request.getMemberId()).orElse(null);
-        }
-        inquiry.setMember(member);
-        inquiry.setName(request.getName());
-        inquiry.setEmail(request.getEmail());
-        inquiry.setInquiryType(request.getInquiryType());
-        inquiry.setInquiryTitle(request.getInquiryTitle());
-        inquiry.setInquiryContent(request.getInquiryContent());
-        inquiry.setPassword(request.getPassword());
-        inquiry.setIsSecret(request.getIsSecret());
-
-        return inquiry;
-    }
 
     /**
      * 전체 문의글 보기
@@ -73,7 +43,6 @@ public class InquiryController {
         return inquiryService.inquiryListByProductId(productId);
     }
 
-
     /**
      * 문의글 작성
      * @param request
@@ -81,9 +50,13 @@ public class InquiryController {
      * @return
      */
     @PostMapping("/new/{productId}")
-    public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryRequest request, @PathVariable Long productId) {
-        Inquiry inquiry = InquiryFormRequest(request);
-//        Member member = memberService.findById(request.getMemberId());
+    public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryCreateDto request, @PathVariable Long productId) {
+        Inquiry inquiry = InquiryCreateDto.requestForm(request);
+        Member member = null;
+        if (request.getMemberId() != null) {
+            member = memberRepository.findById(request.getMemberId()).orElse(null);
+        }
+        inquiry.setMember(member);
         Long createdId = inquiryService.createInquiry(inquiry,productId);
         return ResponseEntity.ok(createdId);
     }
@@ -110,12 +83,11 @@ public class InquiryController {
      * @return
      */
     @PutMapping("/{inquiryId}")
-    public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryRequest request) {
-        Inquiry updatedInquiry = InquiryFormRequest(request);
+    public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryCreateDto request) {
+        Inquiry updatedInquiry = InquiryCreateDto.requestForm(request);
         Inquiry updated = inquiryService.updateInquiry(inquiryId, updatedInquiry, request.getPassword());
         return ResponseEntity.ok(updated);
     }
-
 
     /**
      * 문의글 삭제

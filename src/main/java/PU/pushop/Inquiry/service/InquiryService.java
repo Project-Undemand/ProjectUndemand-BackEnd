@@ -1,16 +1,19 @@
 package PU.pushop.Inquiry.service;
 
 import PU.pushop.Inquiry.model.InquiryReplyDto;
+import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
 import PU.pushop.Inquiry.repository.InquiryRepository;
+import PU.pushop.product.entity.enums.InquiryType;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import PU.pushop.Inquiry.model.InquiryDto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,9 +28,9 @@ public class InquiryService {
 
     /**
      * 문의 등록
-     * @param inquiry
-     * @return inquiryId
+     * @return
      */
+
     @Transactional
     public Long createInquiry(Inquiry inquiry, Long productId) {
         Optional<Product> product = productRepository.findByProductId(productId);
@@ -44,9 +47,14 @@ public class InquiryService {
      * @return
      */
     public List<InquiryDto> allInquiryList() {
-        return inquiryRepository.findAll().stream()
-                .map(inquiry -> mapInquiryToDto(inquiry, false))
-                .collect(Collectors.toList());
+        List<InquiryDto> inquiryDtoList = new ArrayList<>();
+        List<Inquiry> inquiryList = inquiryRepository.findAll();
+
+        for (Inquiry inquiry : inquiryList) {
+            inquiryDtoList.add(InquiryDto.mapInquiryToDto(inquiry, false));
+        }
+
+        return inquiryDtoList;
     }
 
     /**
@@ -56,7 +64,7 @@ public class InquiryService {
      */
     public List<InquiryDto> inquiryListByProductId(Long productId) {
         return inquiryRepository.findByProduct_ProductId(productId).stream()
-                .map(inquiry -> mapInquiryToDto(inquiry, false))
+                .map(inquiry -> InquiryDto.mapInquiryToDto(inquiry, false))
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +78,7 @@ public class InquiryService {
                 .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
 
 
-        return mapInquiryToDto(inquiryDetail, true);
+        return InquiryDto.mapInquiryToDto(inquiryDetail, true);
     }
 
     /**
@@ -126,30 +134,7 @@ public class InquiryService {
      * @param includeContent
      * @return
      */
-    private InquiryDto mapInquiryToDto(Inquiry inquiry, boolean includeContent) {
-        InquiryDto inquiryDto = new InquiryDto();
 
-        inquiryDto.setInquiryId(inquiry.getInquiryId());
-        inquiryDto.setMemberId(inquiry.getMember() != null ? inquiry.getMember().getId() : null);
-        inquiryDto.setProductId(inquiry.getProduct().getProductId());
-        inquiryDto.setName(inquiry.getName());
-        inquiryDto.setEmail(inquiry.getEmail());
-        inquiryDto.setInquiryType(inquiry.getInquiryType());
-        inquiryDto.setInquiryTitle(inquiry.getInquiryTitle());
-        inquiryDto.setCreatedAt(inquiry.getCreatedAt());
-        inquiryDto.setIsSecret(inquiry.getIsSecret());
-        inquiryDto.setIsResponse(inquiry.getIsResponse());
-        inquiryDto.setReplies(inquiry.getReplies().stream().map(InquiryReplyDto::new)
-                .collect(Collectors.toList()));
-
-        if (includeContent) {
-
-            inquiryDto.setInquiryContent(inquiry.getInquiryContent());
-            inquiryDto.setPassword(inquiry.getPassword());
-        }
-
-        return inquiryDto;
-    }
 
 
 }

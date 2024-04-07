@@ -5,6 +5,7 @@ import PU.pushop.category.entity.Category;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.entity.enums.Size;
+import PU.pushop.productManagement.model.InventoryCreateDto;
 import PU.pushop.productManagement.model.ProductManagementDto;
 import PU.pushop.productManagement.service.ProductManagementService;
 import jakarta.validation.Valid;
@@ -22,43 +23,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductManagementController {
     private final ProductManagementService managementService;
-
-    // Request Data
-    @Data
-    static class InventoryRequest {
-        private Long productId;
-        private Long colorId;
-        private Long categoryId;
-
-        private Size size;
-
-        private Long initialStock;
-        private Long additionalStock;
-        private Long productStock;
-    }
-
-    private ProductManagement InventoryFormRequest(InventoryRequest request) {
-        ProductManagement productManagement = new ProductManagement();
-        Product product = new Product();
-        product.setProductId(request.getProductId());
-        productManagement.setProduct(product);
-
-        ProductColor color = new ProductColor();
-        color.setColorId(request.getColorId());
-        productManagement.setColor(color);
-
-        Category category = new Category();
-        category.setCategoryId(request.getCategoryId());
-        productManagement.setCategory(category);
-
-        productManagement.setSize(request.getSize());
-        productManagement.setInitialStock(request.getInitialStock());
-        productManagement.setAdditionalStock(request.getAdditionalStock());
-        productManagement.setProductStock(request.getProductStock());
-
-        return productManagement;
-
-    }
 
 
     @Data
@@ -104,10 +68,10 @@ public class ProductManagementController {
      * @return
      */
     @PostMapping("/new")
-    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryRequest request) {
+    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryCreateDto request) {
 
 
-        ProductManagement productManagement = InventoryFormRequest(request);
+        ProductManagement productManagement = InventoryCreateDto.requestForm(request);
         Long createdId = managementService.createInventory(productManagement);
         return ResponseEntity.ok(createdId);
     }
@@ -119,8 +83,8 @@ public class ProductManagementController {
      * @return
      */
     @PutMapping("/{inventoryId}")
-    public ResponseEntity<?> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryRequest request) {
-        ProductManagement updatedInventory = InventoryFormRequest(request);
+    public ResponseEntity<?> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryCreateDto request) {
+        ProductManagement updatedInventory = InventoryCreateDto.requestForm(request);
         ProductManagement updated = managementService.updateInventory(inventoryId, updatedInventory);
         UpdateResponse response = new UpdateResponse(updated.getInventoryId(), updated.getProduct());
 

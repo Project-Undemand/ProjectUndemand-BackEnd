@@ -2,10 +2,12 @@ package PU.pushop.order.controller;
 
 import PU.pushop.order.entity.Orders;
 import PU.pushop.order.entity.enums.PayMethod;
+import PU.pushop.order.model.OrderDto;
 import PU.pushop.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,37 +37,28 @@ public class OrderController {
         return ResponseEntity.ok(httpSession.getAttribute("temporaryOrder"));
     }
 
-    @Data
-    static class OrderRequest{
-        private String postCode;
-        private String address;
-        private String detailAddress;
-        private String ordererName;
-        private String phoneNumber;
-        PayMethod payMethod;
-    }
-    private Orders RequestForm(OrderRequest request){
+  /*  private Orders RequestForm(OrderDto request){
         Orders orders = new Orders();
 
-        orders.setPostCode(request.postCode);
-        orders.setAddress(request.address);
-        orders.setDetailAddress(request.detailAddress);
-        orders.setOrdererName(request.ordererName);
-        orders.setPhoneNumber(request.phoneNumber);
-        orders.setPayMethod(request.payMethod);
+        orders.setPostCode(request.getPostCode());
+        orders.setAddress(request.getAddress());
+        orders.setDetailAddress(request.getDetailAddress());
+        orders.setOrdererName(request.getOrdererName());
+        orders.setPhoneNumber(request.getPhoneNumber());
+        orders.setPayMethod(request.getPayMethod());
 
         return orders;
     }
-
+*/
     /**
      * 주문서에서 입력받아 최종 주문 테이블 생성
      * @param request
      * @return
      */
     @PostMapping("/done")
-    public ResponseEntity<?> completeOrder(@RequestBody OrderRequest request) {
+    public ResponseEntity<?> completeOrder(@RequestBody OrderDto request) {
 
-        Orders orders = RequestForm(request);
+        Orders orders = OrderDto.RequestForm(request);
 
         // 세션에서 임시 주문 정보를 가져옴
         Orders temporaryOrder = (Orders) httpSession.getAttribute("temporaryOrder");
