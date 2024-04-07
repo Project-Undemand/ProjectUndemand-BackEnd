@@ -1,8 +1,7 @@
-package PU.pushop.order.service;
+package PU.pushop.cart.service;
 
-import PU.pushop.order.entity.Cart;
-import PU.pushop.order.model.CartDto;
-import PU.pushop.order.repository.CartRepository;
+import PU.pushop.cart.entity.Cart;
+import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;

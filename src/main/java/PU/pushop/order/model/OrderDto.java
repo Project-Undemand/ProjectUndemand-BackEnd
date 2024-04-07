@@ -1,6 +1,6 @@
 package PU.pushop.order.model;
 
-import PU.pushop.order.entity.Cart;
+import PU.pushop.cart.entity.Cart;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.order.entity.enums.PayMethod;
 import lombok.AllArgsConstructor;

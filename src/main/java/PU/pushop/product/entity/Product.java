@@ -1,6 +1,7 @@
 package PU.pushop.product.entity;
 
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
 import lombok.Getter;
 

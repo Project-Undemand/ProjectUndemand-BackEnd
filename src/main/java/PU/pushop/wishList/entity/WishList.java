@@ -1,4 +1,4 @@
-package PU.pushop.order.entity;
+package PU.pushop.wishList.entity;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.product.entity.Product;
@@ -6,24 +6,23 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "cart")
-public class Cart {
-
+@Entity
+@Table(name = "wish_list")
+public class WishList {
     @Id
     @SequenceGenerator(
-            name = "cart_sequence",
-            sequenceName = "cart_sequence",
+            name = "wishlist_sequence",
+            sequenceName = "wishlist_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "cart_sequence"
+            generator = "wishlist_sequence"
     )
-    @Column(name = "cart_id")
-    private Long cartId;
+    @Column(name = "wishlist_id")
+    private Long wishListId;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -32,15 +31,4 @@ public class Cart {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-
-    @Column(name = "quantity")
-    private Long quantity;
-
-    @Column(name = "price")
-    private Long price;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Orders order;
-
 }

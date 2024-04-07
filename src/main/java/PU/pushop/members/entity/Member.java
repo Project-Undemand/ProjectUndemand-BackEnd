@@ -2,7 +2,7 @@ package PU.pushop.members.entity;
 
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
-import PU.pushop.product.entity.WishList;
+import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

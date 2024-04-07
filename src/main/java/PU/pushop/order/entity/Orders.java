@@ -1,5 +1,6 @@
 package PU.pushop.order.entity;
 
+import PU.pushop.cart.entity.Cart;
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.enums.PayMethod;
 import jakarta.persistence.*;

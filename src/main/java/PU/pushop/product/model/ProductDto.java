@@ -1,9 +1,8 @@
 package PU.pushop.product.model;
 
-import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.WishList;
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.wishList.model.WishListDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

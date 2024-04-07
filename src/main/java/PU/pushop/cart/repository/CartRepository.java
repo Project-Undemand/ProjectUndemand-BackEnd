@@ -1,6 +1,6 @@
-package PU.pushop.order.repository;
+package PU.pushop.cart.repository;
 
-import PU.pushop.order.entity.Cart;
+import PU.pushop.cart.entity.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

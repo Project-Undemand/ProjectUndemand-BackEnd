@@ -1,6 +1,6 @@
-package PU.pushop.order.model;
+package PU.pushop.cart.model;
 
-import PU.pushop.order.entity.Cart;
+import PU.pushop.cart.entity.Cart;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

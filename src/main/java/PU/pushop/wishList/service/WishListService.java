@@ -1,11 +1,11 @@
-package PU.pushop.product.service;
+package PU.pushop.wishList.service;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.WishList;
+import PU.pushop.wishList.entity.WishList;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.product.repository.WishListRepository;
+import PU.pushop.wishList.repository.WishListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

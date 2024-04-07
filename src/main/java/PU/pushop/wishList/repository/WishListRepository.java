@@ -1,8 +1,8 @@
-package PU.pushop.product.repository;
+package PU.pushop.wishList.repository;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.WishList;
+import PU.pushop.wishList.entity.WishList;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

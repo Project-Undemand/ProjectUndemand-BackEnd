@@ -1,11 +1,11 @@
-package PU.pushop.product.controller;
+package PU.pushop.wishList.controller;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.WishList;
+import PU.pushop.wishList.entity.WishList;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.product.service.WishListService;
+import PU.pushop.wishList.service.WishListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

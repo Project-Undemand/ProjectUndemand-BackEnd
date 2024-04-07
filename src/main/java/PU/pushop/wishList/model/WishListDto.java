@@ -1,7 +1,6 @@
-package PU.pushop.product.model;
+package PU.pushop.wishList.model;
 
-import PU.pushop.members.entity.Member;
-import PU.pushop.product.entity.WishList;
+import PU.pushop.wishList.entity.WishList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
