@@ -1,6 +1,6 @@
-package PU.pushop.product.repository;
+package PU.pushop.productManagement.repository;
 
-import PU.pushop.product.entity.ProductManagement;
+import PU.pushop.productManagement.entity.ProductManagement;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

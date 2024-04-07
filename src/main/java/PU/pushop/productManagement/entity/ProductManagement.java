@@ -1,6 +1,9 @@
-package PU.pushop.product.entity;
+package PU.pushop.productManagement.entity;
 
-import PU.pushop.product.entity.enums.Size;
+import PU.pushop.product.entity.Product;
+import PU.pushop.category.entity.Category;
+import PU.pushop.product.entity.ProductColor;
+import PU.pushop.productManagement.entity.enums.Size;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +36,7 @@ public class ProductManagement {
 
     @ManyToOne
     @JoinColumn(name = "category_id", unique = false)
-    private ProductCategory category;
+    private Category category;
 
     @Enumerated(EnumType.STRING)
     private Size size;

@@ -1,12 +1,12 @@
-package PU.pushop.product.controller;
+package PU.pushop.productManagement.controller;
 
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.ProductCategory;
+import PU.pushop.category.entity.Category;
 import PU.pushop.product.entity.ProductColor;
-import PU.pushop.product.entity.ProductManagement;
-import PU.pushop.product.entity.enums.Size;
-import PU.pushop.product.model.ProductManagementDto;
-import PU.pushop.product.service.ProductManagementService;
+import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.entity.enums.Size;
+import PU.pushop.productManagement.model.ProductManagementDto;
+import PU.pushop.productManagement.service.ProductManagementService;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class ProductManagementController {
         color.setColorId(request.getColorId());
         productManagement.setColor(color);
 
-        ProductCategory category = new ProductCategory();
+        Category category = new Category();
         category.setCategoryId(request.getCategoryId());
         productManagement.setCategory(category);
 

@@ -1,9 +1,7 @@
-package PU.pushop.product.entity;
+package PU.pushop.category.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -14,7 +12,7 @@ import java.util.List;
 @Entity
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "category")
-public class ProductCategory {
+public class Category {
     @Id
     @SequenceGenerator(
             name = "category_sequence",
@@ -33,13 +31,13 @@ public class ProductCategory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent")
-    private ProductCategory parent;
+    private Category parent;
 
     @Column(name = "depth")
     private Long depth;
 
     @OneToMany(mappedBy = "parent")
-    private List<ProductCategory> children = new ArrayList<>();
+    private List<Category> children = new ArrayList<>();
 
 }
 

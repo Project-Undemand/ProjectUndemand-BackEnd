@@ -1,12 +1,10 @@
-package PU.pushop.product.model;
+package PU.pushop.productManagement.model;
 
-import PU.pushop.product.entity.ProductManagement;
-import PU.pushop.product.entity.enums.Size;
+import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.entity.enums.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import PU.pushop.product.entity.enums.ProductType;
-
-import lombok.EqualsAndHashCode;
 
 @Data
 @AllArgsConstructor

@@ -1,6 +1,6 @@
-package PU.pushop.product.model;
+package PU.pushop.category.model;
 
-import PU.pushop.product.entity.ProductCategory;
+import PU.pushop.category.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,18 +11,18 @@ import java.util.stream.Collectors;
 @Data
 @EqualsAndHashCode(of = "categoryId")
 @AllArgsConstructor
-public class ProductCategoryDto {
+public class CategoryDto {
     private Long categoryId;
     private String name;
     private Long depth;
-    private List<ProductCategoryDto> children;
+    private List<CategoryDto> children;
 
-    public static ProductCategoryDto of (ProductCategory category) {
-        return new ProductCategoryDto(
+    public static CategoryDto of (Category category) {
+        return new CategoryDto(
                 category.getCategoryId(),
                 category.getName(),
                 category.getDepth(),
-                category.getChildren().stream().map(ProductCategoryDto::of).collect(Collectors.toList())
+                category.getChildren().stream().map(CategoryDto::of).collect(Collectors.toList())
         );
 
     }

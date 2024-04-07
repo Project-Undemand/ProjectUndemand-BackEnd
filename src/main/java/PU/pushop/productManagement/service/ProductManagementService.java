@@ -1,7 +1,7 @@
-package PU.pushop.product.service;
+package PU.pushop.productManagement.service;
 
-import PU.pushop.product.entity.ProductManagement;
-import PU.pushop.product.repository.ProductManagementRepository;
+import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.repository.ProductManagementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

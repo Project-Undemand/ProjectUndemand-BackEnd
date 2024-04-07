@@ -1,8 +1,8 @@
-package PU.pushop.product.controller;
+package PU.pushop.category.controller;
 
-import PU.pushop.product.entity.ProductCategory;
-import PU.pushop.product.model.ProductCategoryDto;
-import PU.pushop.product.service.CategoryServiceV1;
+import PU.pushop.category.entity.Category;
+import PU.pushop.category.model.CategoryDto;
+import PU.pushop.category.service.CategoryServiceV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +25,11 @@ public class CategoryControllerV1 {
 
     @GetMapping("")
     public ResponseEntity<?> getCategoryList() {
-        List<ProductCategory> topLevelCategories = categoryServiceV1.getTopLevelCategories(); // 최상위 부모 카테고리만 가져오는 메서드
+        List<Category> topLevelCategories = categoryServiceV1.getTopLevelCategories(); // 최상위 부모 카테고리만 가져오는 메서드
 
         // 부모 카테고리 리스트를 DTO로 변환
-        List<ProductCategoryDto> categoryDtoList = topLevelCategories.stream()
-                .map(ProductCategoryDto::of)
+        List<CategoryDto> categoryDtoList = topLevelCategories.stream()
+                .map(CategoryDto::of)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(categoryDtoList);
@@ -37,21 +37,21 @@ public class CategoryControllerV1 {
 
     // 부모 카테고리 생성
     @PostMapping("/parent")
-    public ResponseEntity<Long> createParentCategory(@RequestBody ProductCategory category) {
+    public ResponseEntity<Long> createParentCategory(@RequestBody Category category) {
         Long categoryId = categoryServiceV1.createCategory(category, null); // 부모 카테고리 생성 시 parentId를 null로 전달
         return ResponseEntity.ok(categoryId);
     }
 
     // 1. 부모 카테고리 id를 URL로 보냄
     @PostMapping("/child/{parentId}")
-    public ResponseEntity<Long> createChildCategory(@RequestBody ProductCategory category, @PathVariable Long parentId) {
+    public ResponseEntity<Long> createChildCategory(@RequestBody Category category, @PathVariable Long parentId) {
         Long categoryId = categoryServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
         return ResponseEntity.ok(categoryId);
     }
 
     // 2. 부모 카테고리 id를 바디로 보냄
     @PostMapping("/child")
-    public ResponseEntity<Long> createChildCategory(@RequestBody ProductCategory category) {
+    public ResponseEntity<Long> createChildCategory(@RequestBody Category category) {
         Long parentId = category.getParent().getCategoryId(); // 요청 바디에 있는 부모 카테고리의 ID를 가져옵니다.
         Long categoryId = categoryServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
         return ResponseEntity.ok(categoryId);
