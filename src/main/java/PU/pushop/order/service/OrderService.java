@@ -48,18 +48,15 @@ public class OrderService {
             products.add(product);
         }
 
-
-
-        // 모든 카트의 회원 ID가 동일한지 확인
+        // 모든 장바구니의 memberID가 동일한지 확인
         boolean sameMember = carts.stream()
                 .allMatch(cart -> cart.getMember().getId().equals(memberId));
         if (!sameMember || member == null) {
-            // 모든 카트가 동일한 회원에 속하지 않거나 회원이 존재하지 않는 경우, 주문 생성 실패
+            // 동일하지 않거나 회원이 존재하지 않는 경우, 주문 생성 실패
             return null;
         }
 
         Orders order = new Orders();
-//        order.setCarts(cartslist);
         order.setProducts(products);
         order.setTotalPrice(calculateTotalPrice(carts));
         order.setProductName(getProductNames(carts));
@@ -140,9 +137,5 @@ public class OrderService {
         return merchantUid;
     }
 
-    public void deleteCart(List<Cart> carts) {
-        for (Cart cart : carts) {
-            cartRepository.delete(cart);
-        }
-    }
+
 }

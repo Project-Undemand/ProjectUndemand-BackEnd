@@ -61,11 +61,27 @@ public class CartService {
         return cartRepository.save(existingCart);
     }
 
+    /**
+     * 장바구니 삭제
+     * @param cartId
+     */
     public void deleteCart(Long cartId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
         cartRepository.delete(cart);
+    }
+
+    /**
+     * 여러 장바구니 한 번에 삭제
+     * @param cartIds - 여러 cart 의 cartId 를 리스트로
+     */
+    public void deleteCartList(List<Long> cartIds) {
+        for (Long cartId : cartIds) {
+            Cart cart = cartRepository.findById(cartId)
+                    .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+            cartRepository.delete(cart);
+        }
     }
 
 
