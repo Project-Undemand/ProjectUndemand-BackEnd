@@ -26,7 +26,7 @@ public class ProductManagement {
     @Column(name = "inventory_id" )
     private Long inventoryId; // ProductManagement 테이블의 pk
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 

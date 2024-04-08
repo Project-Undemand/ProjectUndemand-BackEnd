@@ -29,10 +29,10 @@ public class CartController {
      * @param productId
      * @return
      */
-    @PostMapping("/add/{productId}")
-    public ResponseEntity<?> addCart(@Valid @RequestBody CartRequestDto request, @PathVariable Long productId) {
+    @PostMapping("/add/{inventoryId}")
+    public ResponseEntity<?> addCart(@Valid @RequestBody CartRequestDto request, @PathVariable Long inventoryId) {
 
-        Long createdId = cartService.addCart(request, productId);
+        Long createdId = cartService.addCart(request, inventoryId);
 
         return ResponseEntity.ok("장바구니에 등록되었습니다. cart_id : " + createdId);
     }

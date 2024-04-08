@@ -44,7 +44,7 @@ public class OrderService {
 
         List<Product> products = new ArrayList<>();
         for (Cart cart : carts) {
-            Product product = cart.getProduct();
+            Product product = cart.getProductManagement().getProduct();
             products.add(product);
         }
 
@@ -72,7 +72,7 @@ public class OrderService {
     private String getProductNames(List<Cart> carts) {
         StringBuilder productNamesBuilder = new StringBuilder();
         for (Cart cart : carts) {
-            Long productId = cart.getProduct().getProductId();
+            Long productId = cart.getProductManagement().getProduct().getProductId();
             Product product = productRepository.findById(productId).orElse(null);
             if (product != null) {
                 if (productNamesBuilder.length() > 0) {

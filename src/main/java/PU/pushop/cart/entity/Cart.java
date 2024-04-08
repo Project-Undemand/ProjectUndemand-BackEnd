@@ -3,6 +3,7 @@ package PU.pushop.cart.entity;
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.product.entity.Product;
+import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,8 +32,8 @@ public class Cart {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "inventory_id")
+    private ProductManagement productManagement;
 
     @Column(name = "quantity")
     private Long quantity;

@@ -8,6 +8,8 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.repository.ProductManagementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,24 +25,26 @@ public class CartService {
     private final CartRepository cartRepository;
     public final ProductRepositoryV1 productRepository;
     public final MemberRepositoryV1 memberRepository;
+    public final ProductManagementRepository productManagementRepository;
 
 
     /**
      * 장바구니 담기
      * @param request
-     * @param productId
+     * @param inventoryId
      * @return
      */
-    public Long addCart(CartRequestDto request, Long productId) {
-        Product product = productRepository.findByProductId(productId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId));
+    public Long addCart(CartRequestDto request, Long inventoryId) { // 0408 수정 productId -> inventoryId
+
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
+        ProductManagement inventory = productManagementRepository.findById(inventoryId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. inventoryId: " + inventoryId));
 
-        Long price = product.getPrice() * request.getQuantity();
+        Long price = inventory.getProduct().getPrice() * request.getQuantity();
 
         Cart cart = new Cart();
-        cart.setProduct(product);
+        cart.setProductManagement(inventory);
         cart.setMember(member);
         cart.setQuantity(request.getQuantity());
         cart.setPrice(price);
@@ -72,7 +76,7 @@ public class CartService {
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
         existingCart.setQuantity(updatedCart.getQuantity());
-        Long price = existingCart.getProduct().getPrice() * updatedCart.getQuantity();
+        Long price = existingCart.getProductManagement().getProduct().getPrice() * updatedCart.getQuantity();
         existingCart.setPrice(price);
 
         return cartRepository.save(existingCart);
