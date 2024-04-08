@@ -2,6 +2,7 @@ package PU.pushop.global.authentication.oauth2.handler;
 
 
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import jakarta.servlet.FilterChain;
@@ -31,30 +32,33 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final MemberRepositoryV1 memberRepositoryV1;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        String email = authentication.getName();
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        String email = oAuth2User.getName();
         String role = extractOAuthRole(authentication);
         log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
         log.info("email = " + email);
         log.info("role = " + role);
         log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
+        log.info("============= memberId 를 가져오기 위해, DB 조회 시작 ==============");
         Member requestMember = memberRepositoryV1.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+        log.info("============= memberId 를 가져오기 위해, DB 조회 끝 ==============");
         log.info("requestMember = " + requestMember);
         // 액세스 토큰을 생성합니다.
         String accessToken = jwtUtil.createAccessToken("access", String.valueOf(requestMember.getId()), role);
         // 리프레시 토큰을 생성합니다.
         String refreshToken = jwtUtil.createRefreshToken("refresh", String.valueOf(requestMember.getId()), role);
-        log.info(accessToken);
-        log.info(refreshToken);
+        log.info("accessToken : " + accessToken);
+        log.info("refreshToken : " + refreshToken);
 
         // 액세스 토큰을 HTTP 응답 헤더에 추가합니다.
         response.addHeader("Authorization", "Bearer " + accessToken);
         // 리프레시 토큰은 쿠키에 저장합니다.
         response.addCookie(createCookie("RefreshToken", refreshToken));
 
-        response.sendRedirect("http://localhost:8080/");
+        response.sendRedirect("http://localhost:3000/");
     }
 
     private static String extractOAuthRole(Authentication authentication) {
