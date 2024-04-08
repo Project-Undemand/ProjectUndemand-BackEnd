@@ -140,14 +140,16 @@ public class SecurityConfig {
                 .requestMatchers(antMatcher(
                         HttpMethod.DELETE, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
                 // 관리자 페이지 권한: 관리자
-                .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
+//                .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
                 // access, refresh token 만료시 재발행: ALL
                 .requestMatchers("/reissue").permitAll()
-                .anyRequest().permitAll()
-        );
-
+                // 문의
+                .requestMatchers("/api/v1/inquiry/**").permitAll()
+                // 문의 답변
+                .requestMatchers("/api/v1/inquiry/reply/**").hasRole("ADMIN, SELLER")
                 // 나머지 페이지 권한: 로그인 멤버
-//                .anyRequest().permitAll());
+                .anyRequest().permitAll());
+
 
 
         http

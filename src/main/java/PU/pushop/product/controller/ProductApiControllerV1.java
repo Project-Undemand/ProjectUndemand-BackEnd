@@ -3,11 +3,13 @@ package PU.pushop.product.controller;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.product.model.ProductCreateDto;
 import PU.pushop.product.model.ProductDto;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,29 +21,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductApiControllerV1 {
 
     private final ProductServiceV1 productServiceV1;
-
-    // Request Data
-    @Data
-    static class ProductRequest {
-        private String productName;
-        private ProductType productType;
-        private Integer price;
-        private String productInfo;
-        private String manufacturer;
-    }
-
-    private Product ProductFromRequest(ProductRequest request) {
-        Product product = new Product();
-        product.setProductName(request.getProductName());
-        product.setProductType(request.getProductType());
-        product.setPrice(request.getPrice());
-        product.setProductInfo(request.getProductInfo());
-        product.setManufacturer(request.getManufacturer());
-        return product;
-    }
 
     // Response Data
     @Data
@@ -78,8 +61,8 @@ public class ProductApiControllerV1 {
      * @return productId, productName, price (테스트용)
      */
     @PostMapping("/products/new")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRequest request) {
-        Product product = ProductFromRequest(request);
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto request) {
+        Product product = ProductCreateDto.requestForm(request);
 
         Long createProductId = productServiceV1.createProduct(product);
 
@@ -108,8 +91,8 @@ public class ProductApiControllerV1 {
      * @return
      */
     @PutMapping("/products/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductRequest request) {
-        Product updatedProduct = ProductFromRequest(request);
+    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductCreateDto request) {
+        Product updatedProduct = ProductCreateDto.requestForm(request);
         Product updated = productServiceV1.updateProduct(productId, updatedProduct);
         ProductResponse response = new ProductResponse(updated.getProductId(), updated.getProductName(), updated.getPrice());
 

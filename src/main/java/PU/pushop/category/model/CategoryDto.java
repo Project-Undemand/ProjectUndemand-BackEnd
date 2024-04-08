@@ -1,0 +1,29 @@
+package PU.pushop.category.model;
+
+import PU.pushop.category.entity.Category;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Data
+@EqualsAndHashCode(of = "categoryId")
+@AllArgsConstructor
+public class CategoryDto {
+    private Long categoryId;
+    private String name;
+    private Long depth;
+    private List<CategoryDto> children;
+
+    public static CategoryDto of (Category category) {
+        return new CategoryDto(
+                category.getCategoryId(),
+                category.getName(),
+                category.getDepth(),
+                category.getChildren().stream().map(CategoryDto::of).collect(Collectors.toList())
+        );
+
+    }
+}

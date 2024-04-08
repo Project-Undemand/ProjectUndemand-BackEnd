@@ -30,7 +30,14 @@ spring:
         default_batch_fetch_size: 1000 #최적화 옵션
 #    open-in-view: false
 
+# iamport
+imp:
+  api:
+    key: ${IMP_API_KEY}
+    secretkey: ${IMP_SECRET_KEY}
+
 logging.level:
   org.hibernate.SQL: debug
 #  org.hibernate.type: trace
 #  jdbc:h2:~/pushop
+

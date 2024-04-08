@@ -19,6 +19,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' } //아임포트설정
 }
 
 dependencies {
@@ -64,6 +65,7 @@ dependencies {
 	testImplementation("org.junit.vintage:junit-vintage-engine") {
 		exclude group: "org.hamcrest", module: "hamcrest-core"
 	}
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21' // 아임포트 설정
 }
 
 tasks.named('test') {

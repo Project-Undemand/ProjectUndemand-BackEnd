@@ -3,12 +3,16 @@ package PU.pushop.members.entity;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -63,6 +67,13 @@ public class Member {
 
     @Column(name = "IS_CERTIFY")
     private boolean isCertifyByMail = false;
+
+    @OneToMany
+    @JoinColumn(name = "wish_lsit")
+    private List<WishList> wishLists;
+
+    @OneToMany(mappedBy = "member")
+    private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
     // 생성자를 통해 멤버 생성
     public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, String token, boolean isCertifyByMail) {
