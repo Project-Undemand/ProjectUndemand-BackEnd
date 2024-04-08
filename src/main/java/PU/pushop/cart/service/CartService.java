@@ -76,13 +76,16 @@ public class CartService {
      * 여러 장바구니 한 번에 삭제
      * @param cartIds - 여러 cart 의 cartId 를 리스트로
      */
-    public void deleteCartList(List<Long> cartIds) {
+/*    public void deleteCartList(List<Long> cartIds) {
+        System.out.println("Type of service cartIds: " + cartIds.getClass().getSimpleName()); // cartIds의 데이터 형식 출력
+
         for (Long cartId : cartIds) {
+
             Cart cart = cartRepository.findById(cartId)
                     .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
             cartRepository.delete(cart);
         }
-    }
+    }*/
 
 
 }

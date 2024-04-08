@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/cart")
@@ -107,4 +108,13 @@ public class CartController {
         cartService.deleteCart(cartId);
         return ResponseEntity.ok().build();
     }
+
+/*    @PostMapping("")
+    public ResponseEntity<?> deleteCartList(@RequestBody Map<String, Object> payload) {
+        List<Long> cartIds = (List<Long>) payload.get("cartIds");
+        cartService.deleteCartList(cartIds);
+        return ResponseEntity.ok().build();
+
+    }*/
+
 }
