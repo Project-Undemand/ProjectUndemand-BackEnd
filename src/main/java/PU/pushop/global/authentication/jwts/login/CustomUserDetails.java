@@ -1,6 +1,6 @@
-package PU.pushop.global.authentication.jwt.login;
+package PU.pushop.global.authentication.jwts.login;
 
-import PU.pushop.members.entity.Member;
+import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,42 +12,44 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final Member member;
+    private final CustomMemberDto customMemberDto;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add((GrantedAuthority) () -> member.getMemberRole().toString());
+        collection.add((GrantedAuthority) () -> customMemberDto.getMemberRole().toString());
         return collection;
     }
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return customMemberDto.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return member.getUsername();
+        return customMemberDto.getEmail();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return member.isActive();
+        return customMemberDto.isActive();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return customMemberDto.isActive();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return customMemberDto.isActive();
     }
 
     @Override
     public boolean isEnabled() {
-        return member.isActive();
+        return customMemberDto.isActive();
     }
+
+
 }

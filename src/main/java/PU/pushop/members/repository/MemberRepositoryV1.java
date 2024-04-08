@@ -19,4 +19,7 @@ public interface MemberRepositoryV1 extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
     Optional<Member> findBySocialId(String socialId);
+
+    Member findByToken(String token);
+
 }

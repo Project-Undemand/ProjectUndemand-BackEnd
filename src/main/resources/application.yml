@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: jwt, oauth2
+    include: jwt, oauth2, mailsender
   datasource:
     url: jdbc:h2:tcp://localhost/~/pushop
     username: pu
@@ -20,7 +20,7 @@ spring:
   #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
@@ -29,7 +29,6 @@ spring:
         format_sql: true
         default_batch_fetch_size: 1000 #최적화 옵션
 #    open-in-view: false
-
 
 logging.level:
   org.hibernate.SQL: debug

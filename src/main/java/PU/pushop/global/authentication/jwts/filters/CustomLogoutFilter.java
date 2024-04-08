@@ -1,6 +1,6 @@
-package PU.pushop.global.authentication.jwt.filters;
+package PU.pushop.global.authentication.jwts.filters;
 
-import PU.pushop.global.authentication.jwt.util.JWTUtil;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.repository.RefreshRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -11,11 +11,13 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
+@Slf4j
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JWTUtil jwtUtil;
@@ -29,35 +31,45 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
+        // 1.  /logout POST 요청
+        // 2.  회원의 엑세스 토큰(헤더)과 리프레쉬 토큰(쿠키)을 삭제한다.
+        // 3.  회원 테이블 X Refresh 테이블에 token 값을 삭제해준다.
+
         //path and method verify
         String requestUri = request.getRequestURI();
         if (!requestUri.matches("^\\/logout$")) {
-
             filterChain.doFilter(request, response);
             return;
         }
+
         String requestMethod = request.getMethod();
         if (!requestMethod.equals("POST")) {
-
             filterChain.doFilter(request, response);
             return;
         }
 
-        //get refresh token
+        // Remove Authorization Header
+        response.setHeader("Authorization", "");
+
+        // get refresh token from cookies
         String refresh = null;
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-
-            if (cookie.getName().equals("refresh")) {
-
-                refresh = cookie.getValue();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refresh")) {
+                    refresh = cookie.getValue();
+                    // Remove Refresh Token Cookie
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
             }
         }
 
         //refresh null check
         if (refresh == null) {
-
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            log.info("refresh is null");
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -65,41 +77,31 @@ public class CustomLogoutFilter extends GenericFilterBean {
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-
-            //response status code
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(refresh);
         if (!category.equals("refresh")) {
-
-            //response status code
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            filterChain.doFilter(request, response);
             return;
         }
 
         //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+        Boolean isExist = refreshRepository.existsByRefreshToken(refresh);
         if (!isExist) {
-
-            //response status code
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         //로그아웃 진행
         //Refresh 토큰 DB에서 제거
-        refreshRepository.deleteByRefresh(refresh);
+        refreshRepository.deleteByRefreshToken(refresh);
 
-        //Refresh 토큰 Cookie 값 0
-        Cookie cookie = new Cookie("refresh", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-
-        response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
+
+        //로그 출력 및 응답 메시지 추가
+        log.info("로그아웃에 성공했습니다.");
+        response.getWriter().write("로그아웃에 성공했습니다.");
     }
 
 }

@@ -1,5 +1,6 @@
-package PU.pushop.global.authentication.jwt.login;
+package PU.pushop.global.authentication.jwts.login;
 
+import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         Member member = memberRepositoryV1.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
 
-        return new CustomUserDetails(member);
+        CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(member);
+
+        return new CustomUserDetails(customMemberDto);
     }
 }

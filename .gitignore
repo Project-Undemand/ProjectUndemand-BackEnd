@@ -8,6 +8,7 @@ build/
 
 application-jwt.yml
 application-oauth2.yml
+application-mailsender.yml
 
 ### STS ###
 .apt_generated

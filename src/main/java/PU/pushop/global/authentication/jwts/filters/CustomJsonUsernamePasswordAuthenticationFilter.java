@@ -1,9 +1,9 @@
-package PU.pushop.global.authentication.jwt.filters;
+package PU.pushop.global.authentication.jwts.filters;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -74,17 +74,18 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
 
-        Map<String, String> usernamePasswordMap = objectMapper.readValue(messageBody, Map.class);
+//        Map<String, String> usernamePasswordMap = objectMapper.readValue(messageBody, Map.class);
+        // 제네릭 타입을 new TypeReference 선언해줌으로써 컴파일시 제네릭타입으로 검증.
+        Map<String, String> usernamePasswordMap = objectMapper.readValue(messageBody, new TypeReference<Map<String, String>>() {});
 
         String email = usernamePasswordMap.get(SPRING_SECURITY_FORM_USERNAME_KEY);
         String password = usernamePasswordMap.get(SPRING_SECURITY_FORM_PASSWORD_KEY);
 
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);//principal 과 credentials 전달
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);
+        //principal 과 credentials 전달
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
-
-
 
     /**
      * Enables subclasses to override the composition of the password, such as by

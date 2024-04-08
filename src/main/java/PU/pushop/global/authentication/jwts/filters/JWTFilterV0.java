@@ -1,7 +1,8 @@
-package PU.pushop.global.authentication.jwt.filters;
+package PU.pushop.global.authentication.jwts.filters;
 
-import PU.pushop.global.authentication.jwt.login.CustomUserDetails;
-import PU.pushop.global.authentication.jwt.util.JWTUtil;
+import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -46,14 +47,14 @@ public class JWTFilterV0 extends OncePerRequestFilter {
             }
 
             // accessToken 으로부터 username, role 값을 획득
-            String username = jwtUtil.getUsername(accessToken);
+            String memberId = jwtUtil.getMemberId(accessToken);
             MemberRole role = jwtUtil.getRole(accessToken);
 
             // 멤버 엔터티 생성
-            Member memberEntity = Member.createTokenMember(username, role);
+            CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), role, true);
 
             // 멤버 엔터티를 CustomUserDetails 로 변환
-            CustomUserDetails customUserDetails = new CustomUserDetails(memberEntity);
+            CustomUserDetails customUserDetails = new CustomUserDetails(customMemberDto);
 
             // 인증 토큰 생성 및 설정
             Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());

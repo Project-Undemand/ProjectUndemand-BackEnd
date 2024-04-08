@@ -1,8 +1,9 @@
 package PU.pushop.global.authentication.oauth2.handler;
 
 
-import PU.pushop.global.authentication.jwt.util.JWTUtil;
-import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.members.entity.Member;
+import PU.pushop.members.repository.MemberRepositoryV1;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -12,12 +13,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -25,35 +28,33 @@ import java.util.Iterator;
 public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
+    private final MemberRepositoryV1 memberRepositoryV1;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, Authentication authentication) throws IOException, ServletException {
 
-//        401 에러 및 모든 페이지가 나오지 않는 상황 -> JWT필터 및 JWT유틸 문제 가능성 -> 시도 (2024.03.31)
-//        Object principal = authentication.getPrincipal();
-//        log.info("------------------------------------------");
-//        log.info("principal = " + principal);
-//        log.info("------------------------------------------");
-//        CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
-//        log.info("------------------------------------------");
-//        log.info("customUserDetails = " + customUserDetails);
-//        log.info("------------------------------------------");
-
-//        String username = customUserDetails.getName();
-        String username = authentication.getName();
+        String email = authentication.getName();
         String role = extractOAuthRole(authentication);
-
+        log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
+        log.info("email = " + email);
+        log.info("role = " + role);
+        log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
+        Member requestMember = memberRepositoryV1.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+        log.info("requestMember = " + requestMember);
         // 액세스 토큰을 생성합니다.
-        String accessToken = jwtUtil.createAccessToken("access", username, role);
+        String accessToken = jwtUtil.createAccessToken("access", String.valueOf(requestMember.getId()), role);
         // 리프레시 토큰을 생성합니다.
-        String refreshToken = jwtUtil.createRefreshToken("refresh", username, role);
+        String refreshToken = jwtUtil.createRefreshToken("refresh", String.valueOf(requestMember.getId()), role);
+        log.info(accessToken);
+        log.info(refreshToken);
 
         // 액세스 토큰을 HTTP 응답 헤더에 추가합니다.
         response.addHeader("Authorization", "Bearer " + accessToken);
         // 리프레시 토큰은 쿠키에 저장합니다.
         response.addCookie(createCookie("RefreshToken", refreshToken));
 
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect("http://localhost:8080/");
     }
 
     private static String extractOAuthRole(Authentication authentication) {
