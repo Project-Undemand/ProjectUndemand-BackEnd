@@ -59,9 +59,6 @@ public class OrderController {
 
         Orders completedOrder = orderService.orderConfirm(temporaryOrder, orders);
 
-
-
-
         return ResponseEntity.ok(completedOrder);
     }
 

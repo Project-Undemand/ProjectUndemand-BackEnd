@@ -15,30 +15,33 @@ import java.util.Map;
 @NoArgsConstructor
 public class OAuthUserDTO {
 
+    private Long memberId;
     private String username;
-    private String nickname;
-    @Enumerated(value = EnumType.STRING)
+    private String email;
     private MemberRole role;
-    @Enumerated(value = EnumType.STRING)
     private SocialType socialType;
     private String socialId;
+    private boolean isCertify;
 
-    public static OAuthUserDTO createOAuthUserDTO(String username, MemberRole role, SocialType socialType, String socialId) {
+    public static OAuthUserDTO createOAuthUserDTO(String email, String username, MemberRole role, SocialType socialType, String socialId, boolean isCertifty) {
         OAuthUserDTO userDTO = new OAuthUserDTO();
+        userDTO.setEmail(email);
         userDTO.setUsername(username);
         userDTO.setRole(role);
         userDTO.setSocialType(socialType);
         userDTO.setSocialId(socialId);
+        userDTO.setCertify(isCertifty);
         return userDTO;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("username", this.username);
-        map.put("nickname", this.nickname);
+        map.put("nickname", this.email);
         map.put("role", this.role.toString());
         map.put("socialType", this.socialType.toString());
         map.put("socialId", this.socialId);
+        map.put("is_certify_by_email", this.isCertify);
         return map;
     }
 }

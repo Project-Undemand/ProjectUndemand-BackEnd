@@ -1,8 +1,8 @@
 package PU.pushop.global.config;
 
-import PU.pushop.global.authentication.jwt.filters.*;
-import PU.pushop.global.authentication.jwt.login.CustomUserDetailsService;
-import PU.pushop.global.authentication.jwt.util.JWTUtil;
+import PU.pushop.global.authentication.jwts.filters.*;
+import PU.pushop.global.authentication.jwts.login.CustomUserDetailsService;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserService;
@@ -42,22 +42,9 @@ public class SecurityConfig {
     private final MemberRepositoryV1 memberRepositoryV1;
     private final RefreshRepository refreshRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
-
     private final CustomLoginSuccessHandler customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
-//    @RequiredArgsConstructor 로 대체합니다. (2024.03.31)
-//    public SecurityConfig(MemberRepositoryV1 memberRepositoryV1, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper, CustomOAuth2UserService customOAuth2UserService, CustomLoginSuccessHandler customLoginSuccessHandler, CustomLoginFailureHandler customLoginFailureHandler) {
-//        this.memberRepositoryV1 = memberRepositoryV1;
-//        this.jwtUtil = jwtUtil;
-//        this.refreshRepository = refreshRepository;
-//        this.objectMapper = objectMapper;
-//        this.customOAuth2UserService = customOAuth2UserService;
-//        this.customLoginSuccessHandler = customLoginSuccessHandler;
-//        this.customLoginFailureHandler = customLoginFailureHandler;
-//    }
 
-
-    // AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     @Bean
     @Primary
     public AuthenticationConfiguration authenticationConfiguration() {
@@ -135,9 +122,9 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
                 // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
-                .requestMatchers("/login", "/", "/join").permitAll()
+                .requestMatchers("/login", "/logout",  "/", "/join", "/auth/**").permitAll()
                 // 상품 카테고리, 상품
-                .requestMatchers("/api/v1/categorys/**", "/api/v1/products/**", "/api/v1/thumbnail/**").permitAll()
+                .requestMatchers("/api/v1/categorys/**", "/api/v1/products/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
                 .requestMatchers(antMatcher(
                         HttpMethod.POST, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
                 .requestMatchers(antMatcher(
@@ -165,18 +152,15 @@ public class SecurityConfig {
 
 
 
-        // CustomLogoutFilter우선 -> LogoutFilter
-        // JWTFilter우선 -> LoginFilter
-        // LoginFilter우선 -> UsernamePasswordAuthenticationFilter
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         http
                 .addFilterBefore(new JWTFilterV1(jwtUtil), CustomLogoutFilter.class);
 
+//        http
+//                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilterV1.class);
         http
-                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilterV1.class);
-        http
-                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository, objectMapper), CustomJsonUsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository, objectMapper, memberRepositoryV1, passwordEncoder()), JWTFilterV1.class);
 
 
         // oauth2 에서 우리가 원하는 customOAuth2UserService 를 등록하는 것. 구글, 네이버. 각각 response 방법이 다르다.

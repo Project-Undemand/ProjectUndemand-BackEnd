@@ -1,4 +1,4 @@
-package PU.pushop.global.authentication.jwt.util;
+package PU.pushop.global.authentication.jwts.utils;
 
 import java.util.Random;
 

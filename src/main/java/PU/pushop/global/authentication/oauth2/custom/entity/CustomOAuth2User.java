@@ -39,7 +39,7 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
         // 로그인 이용자의 실제 이름
-        return oAuthUserDTO.getUsername();
+        return oAuthUserDTO.getEmail();
     }
 
     @Override
@@ -48,9 +48,10 @@ public class CustomOAuth2User implements OAuth2User {
     }
 
     public String getUsername() {
-        // 로그인 이용자의 가상 네임
-        return oAuthUserDTO.getNickname();
+        // 로그인 이용자의 Member PK
+        return oAuthUserDTO.getUsername();
     }
+
 
     public String getSocialType() {
         // 로그인 이용자의 가상 네임
