@@ -51,6 +51,14 @@ public class reviewService {
         return review;
     }
 
+    public List<ReviewDto> allReview() {
+        List<Review> reviews = reviewRepository.findAll();
+        if (reviews.isEmpty()) {
+            throw new IllegalStateException("리뷰가 없습니다.");
+        }
+        return reviews.stream().map(ReviewDto::new).collect(Collectors.toList());
+    }
+
     /**
      * 특정 상품의 리뷰 모아보기
      * @param productId

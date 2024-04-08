@@ -41,6 +41,11 @@ public class reviewController {
         return ResponseEntity.ok(createdReview);
     }
 
+    @GetMapping("/all")
+    public List<ReviewDto> allReview() {
+        return reviewService.allReview();
+    }
+
     /**
      * 특정 상품의 리뷰 모아보기
      *
