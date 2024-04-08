@@ -31,20 +31,20 @@ public class CartService {
     /**
      * 장바구니 담기
      * @param request
-     * @param inventoryId
+     * @param productMgtId
      * @return
      */
-    public Long addCart(CartRequestDto request, Long inventoryId) { // 0408 수정 productId -> inventoryId
+    public Long addCart(CartRequestDto request, Long productMgtId) { // 0408 수정 productId -> productMgtId
 
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
-        ProductManagement inventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. inventoryId: " + inventoryId));
+        ProductManagement productMgt = productManagementRepository.findById(productMgtId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productMgtId: " + productMgtId));
 
-        Long price = inventory.getProduct().getPrice() * request.getQuantity();
+        Long price = productMgt.getProduct().getPrice() * request.getQuantity();
 
         Cart cart = new Cart();
-        cart.setProductManagement(inventory);
+        cart.setProductManagement(productMgt);
         cart.setMember(member);
         cart.setQuantity(request.getQuantity());
         cart.setPrice(price);

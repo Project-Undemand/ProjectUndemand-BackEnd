@@ -9,6 +9,7 @@ import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.order.repository.OrderRepository;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.productManagement.entity.ProductManagement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,10 +43,10 @@ public class OrderService {
         Long memberId = carts.get(0).getMember().getId();
         Member member = memberRepository.findById(memberId).orElse(null);
 
-        List<Product> products = new ArrayList<>();
+        List<ProductManagement> productMgts = new ArrayList<>();
         for (Cart cart : carts) {
-            Product product = cart.getProductManagement().getProduct();
-            products.add(product);
+            ProductManagement productMgt = cart.getProductManagement();
+            productMgts.add(productMgt);
         }
 
         // 모든 장바구니의 memberID가 동일한지 확인
@@ -57,7 +58,7 @@ public class OrderService {
         }
 
         Orders order = new Orders();
-        order.setProducts(products);
+        order.setProductManagements(productMgts);
         order.setTotalPrice(calculateTotalPrice(carts));
         order.setProductName(getProductNames(carts));
         order.setPhoneNumber(getMemberPhoneNumber(carts));
@@ -72,8 +73,10 @@ public class OrderService {
     private String getProductNames(List<Cart> carts) {
         StringBuilder productNamesBuilder = new StringBuilder();
         for (Cart cart : carts) {
+
             Long productId = cart.getProductManagement().getProduct().getProductId();
             Product product = productRepository.findById(productId).orElse(null);
+
             if (product != null) {
                 if (productNamesBuilder.length() > 0) {
                     productNamesBuilder.append(", ");

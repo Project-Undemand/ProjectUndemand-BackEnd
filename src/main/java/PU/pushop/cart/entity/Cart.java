@@ -32,7 +32,7 @@ public class Cart {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "inventory_id")
+    @JoinColumn(name = "Product_Mgt_id")
     private ProductManagement productManagement;
 
     @Column(name = "quantity")

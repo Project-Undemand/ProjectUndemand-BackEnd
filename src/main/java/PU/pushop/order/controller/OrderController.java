@@ -3,6 +3,7 @@ package PU.pushop.order.controller;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.order.entity.enums.PayMethod;
 import PU.pushop.order.model.OrderDto;
+import PU.pushop.order.model.OrderResponseDto;
 import PU.pushop.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.Data;
@@ -35,7 +36,7 @@ public class OrderController {
         httpSession.setAttribute("temporaryOrder", temporaryOrder);
         httpSession.setAttribute("cartIds", cartIds);
 
-        return ResponseEntity.ok(httpSession.getAttribute("temporaryOrder"));
+        return ResponseEntity.ok("주문 임시 저장 완료");
     }
 
 
@@ -59,10 +60,9 @@ public class OrderController {
 
         Orders completedOrder = orderService.orderConfirm(temporaryOrder, orders);
 
+        OrderResponseDto orderResponseDto = new OrderResponseDto(completedOrder);
 
-
-
-        return ResponseEntity.ok(completedOrder);
+        return ResponseEntity.ok(orderResponseDto);
     }
 
 }
