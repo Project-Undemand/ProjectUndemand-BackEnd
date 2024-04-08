@@ -1,7 +1,11 @@
 package PU.pushop.cart.service;
 
 import PU.pushop.cart.entity.Cart;
+import PU.pushop.cart.model.CartDto;
+import PU.pushop.cart.model.CartRequestDto;
 import PU.pushop.cart.repository.CartRepository;
+import PU.pushop.members.entity.Member;
+import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -17,22 +22,31 @@ import java.util.Optional;
 public class CartService {
     private final CartRepository cartRepository;
     public final ProductRepositoryV1 productRepository;
+    public final MemberRepositoryV1 memberRepository;
 
 
     /**
      * 장바구니 담기
-     * @param cart
+     * @param request
      * @param productId
      * @return
      */
-    public Long addCart(Cart cart, Long productId) {
-        Optional<Product> product = productRepository.findByProductId(productId);
+    public Long addCart(CartRequestDto request, Long productId) {
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId));
+        Member member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
 
-        cart.setProduct(product
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId))
-        );
+        Long price = product.getPrice() * request.getQuantity();
+
+        Cart cart = new Cart();
+        cart.setProduct(product);
+        cart.setMember(member);
+        cart.setQuantity(request.getQuantity());
+        cart.setPrice(price);
 
         cartRepository.save(cart);
+
         return cart.getCartId();
     }
 
@@ -40,8 +54,11 @@ public class CartService {
      * 유저의 전체 장바구니 리스트 조회
      * @return
      */
-    public List<Cart> allCarts(Long memberId) {
-        return cartRepository.findByMemberId(memberId);
+    public List<CartDto> allCarts(Long memberId) {
+        List<Cart> carts = cartRepository.findByMemberId(memberId);
+        return carts.stream()
+                .map(CartDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
     /**
