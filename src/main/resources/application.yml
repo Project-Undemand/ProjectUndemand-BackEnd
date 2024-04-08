@@ -9,9 +9,14 @@ spring:
   redis:
     host: localhost
     port: 995
-#  main:
-#    allow-bean-definition-overriding: true
-
+  mail:
+    username: puemailsender@gmail.com
+    password: ${GOOGLE_PASSWORD}
+    host: smtp.gmail.com
+    port: 587
+    auth-code-expiration-millis: 1800000  # 30분
+  #  main:
+  #    allow-bean-definition-overriding: true
 
   #  create	기존테이블을 삭제하고 다시 생성
   #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
@@ -20,7 +25,7 @@ spring:
   #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
@@ -36,8 +41,8 @@ imp:
     key: ${IMP_API_KEY}
     secretkey: ${IMP_SECRET_KEY}
 
-logging.level:
-  org.hibernate.SQL: debug
+logging.level.org.hibernate:
+  SQL: debug
 #  org.hibernate.type: trace
 #  jdbc:h2:~/pushop
 
