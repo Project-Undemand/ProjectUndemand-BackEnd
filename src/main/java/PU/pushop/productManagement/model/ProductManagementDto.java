@@ -1,10 +1,14 @@
 package PU.pushop.productManagement.model;
 
+import PU.pushop.category.entity.Category;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.entity.enums.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import PU.pushop.product.entity.enums.ProductType;
+
+import java.awt.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -22,7 +26,9 @@ public class ProductManagementDto {
     private Long inventoryId;
     private Long productId; // Product 테이블의 pk 참조
     private Long colorId; // ProductColor 테이블의 pk 참조
+    private String color;
     private Long categoryId; // ProductCategory 테이블의 pk 참조
+    private String category;
     Size size; //enum
     private Long initialStock;
     private Long additionalStock;
@@ -46,7 +52,9 @@ public class ProductManagementDto {
                 productManagement.getInventoryId(),
                 productManagement.getProduct().getProductId(),
                 productManagement.getColor().getColorId(),
+                productManagement.getColor().getColor(),
                 productManagement.getCategory().getCategoryId(),
+                productManagement.getCategory().getName(),
                 productManagement.getSize(),
                 productManagement.getInitialStock(),
                 productManagement.getAdditionalStock(),
