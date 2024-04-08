@@ -46,8 +46,12 @@ public class Review {
     @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate createdAt;
 
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE ON UPDATE CURRENT_DATE")
+    private LocalDate updatedAt;
+
     public Review() {
         this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDate.now();
     }
 
 
