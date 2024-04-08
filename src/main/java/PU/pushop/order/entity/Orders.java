@@ -5,6 +5,7 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.enums.PayMethod;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.Product;
+import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,8 +42,14 @@ public class Orders {
     private List<Cart> carts = new ArrayList<>();*/
 
     @OneToMany
+    @JoinColumn(name = "product_management")
+    private List<ProductManagement> productManagements = new ArrayList<>();
+
+/*
+    @OneToMany
     @JoinColumn(name = "products")
     private List<Product> products = new ArrayList<>();
+*/
 
     @Column(name = "order_name")
     private String ordererName;

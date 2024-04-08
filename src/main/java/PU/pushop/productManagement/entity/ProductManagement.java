@@ -26,7 +26,7 @@ public class ProductManagement {
     @Column(name = "inventory_id" )
     private Long inventoryId; // ProductManagement 테이블의 pk
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
@@ -41,7 +41,7 @@ public class ProductManagement {
     @Enumerated(EnumType.STRING)
     private Size size;
 
-    @Column(name = "initail_stock")
+    @Column(name = "initial_stock")
     private Long initialStock;
 
     @Column(name = "additional_stock")
