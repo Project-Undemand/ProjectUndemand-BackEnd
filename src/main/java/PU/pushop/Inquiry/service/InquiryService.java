@@ -39,7 +39,7 @@ public class InquiryService {
         Optional<Product> product = productRepository.findByProductId(productId);
 
         inquiry.setProduct(product.
-                orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId))
+                orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다. productId: " + productId))
         );
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
@@ -78,7 +78,7 @@ public class InquiryService {
      */
     public InquiryDto inquiryDetail(Long inquiryId) {
         Inquiry inquiryDetail = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
 
 
         return InquiryDto.mapInquiryToDto(inquiryDetail, true);

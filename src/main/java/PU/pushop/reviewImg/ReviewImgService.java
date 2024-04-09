@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -32,7 +33,7 @@ public class ReviewImgService {
         try {
 
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 글을 찾을 수 없습니다."));
 
         String uploadsDir = "src/main/resources/static/uploads/thumbnails/";
 
@@ -63,7 +64,7 @@ public class ReviewImgService {
      */
     public void deleteReviewImg(Long reviewImgId) {
         ReviewImg reviewImg = reviewImgRepository.findById(reviewImgId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사진을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 사진을 찾을 수 없습니다."));
 
         String imagePath = reviewImg.getReviewImgPath();
 

@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -39,7 +40,8 @@ public class OrderService {
         List<Cart> carts = cartRepository.findByCartIdIn(cartIds);
 
         Long memberId = carts.get(0).getMember().getId();
-        Member member = memberRepository.findById(memberId).orElse(null);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
 
         List<ProductManagement> productMgts = new ArrayList<>();
         for (Cart cart : carts) {
@@ -88,7 +90,8 @@ public class OrderService {
     // 회원 전화번호를 가져오는 메서드
     private String getMemberPhoneNumber(List<Cart> carts) {
         Long memberId = carts.get(0).getMember().getId();
-        Member member = memberRepository.findById(memberId).orElse(null);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
         return (member != null && member.getPhone() != null) ? member.getPhone() : null;
     }
 

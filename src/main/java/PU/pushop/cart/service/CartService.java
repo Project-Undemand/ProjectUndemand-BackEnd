@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,9 +38,9 @@ public class CartService {
     public Long addCart(CartRequestDto request, Long productMgtId) { // 0408 수정 productId -> productMgtId
 
         Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
+                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다"));
         ProductManagement productMgt = productManagementRepository.findById(productMgtId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productMgtId: " + productMgtId));
+                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다. productMgtId: " + productMgtId));
 
         Long price = productMgt.getProduct().getPrice() * request.getQuantity();
 
@@ -73,7 +74,7 @@ public class CartService {
      */
     public Cart updateCart(Long cartId, Cart updatedCart) {
         Cart existingCart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
 
         existingCart.setQuantity(updatedCart.getQuantity());
         Long price = existingCart.getProductManagement().getProduct().getPrice() * updatedCart.getQuantity();
@@ -88,7 +89,7 @@ public class CartService {
      */
     public void deleteCart(Long cartId) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
 
         cartRepository.delete(cart);
     }

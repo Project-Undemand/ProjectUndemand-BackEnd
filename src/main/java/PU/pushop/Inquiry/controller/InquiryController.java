@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/v1/inquiry")
@@ -52,11 +53,9 @@ public class InquiryController {
     @PostMapping("/new/{productId}")
     public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryCreateDto request, @PathVariable Long productId) {
         Inquiry inquiry = InquiryCreateDto.requestForm(request);
-        Member member = null;
-        // TODO : null일경우 예외처리
-        if (request.getMemberId() != null) {
-            member = memberRepository.findById(request.getMemberId()).orElse(null);
-        }
+        Member member = memberRepository.findById(request.getMemberId())
+                    .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + request.getMemberId()));
+
         inquiry.setMember(member);
         Long createdId = inquiryService.createInquiry(inquiry,productId);
         return ResponseEntity.ok(createdId);

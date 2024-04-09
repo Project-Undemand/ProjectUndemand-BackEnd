@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -31,12 +32,12 @@ public class InquiryReplyService {
     public Long createReply(InquiryReplyDto replyDto, Long inquiryId) {
         // 답변할 문의글
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("문의글을 찾을 수 없습니다. inquiryId: " + inquiryId));
+                .orElseThrow(() -> new NoSuchElementException("문의글을 찾을 수 없습니다. inquiryId: " + inquiryId));
 
         InquiryReply reply = new InquiryReply();
 
         Member member = memberRepository.findById(replyDto.getReplyBy())
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다. memberId: " + replyDto.getReplyBy()));
+                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다. memberId: " + replyDto.getReplyBy()));
 
         reply.setInquiry(inquiry);
         reply.setReplyBy(member);
@@ -53,7 +54,7 @@ public class InquiryReplyService {
 
     public void deleteReply(Long replyId) {
         InquiryReply existingReply = inquiryReplyRepository.findById(replyId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
 
         inquiryReplyRepository.delete(existingReply);
 

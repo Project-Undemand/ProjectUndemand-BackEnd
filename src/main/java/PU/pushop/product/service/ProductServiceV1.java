@@ -58,7 +58,7 @@ public class ProductServiceV1 {
      */
     public Product updateProduct(Long productId, Product updatedProduct) {
         Product existingProduct = productRepositoryV1.findById(productId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
 
         // 기존 상품 정보 업데이트
         existingProduct.setProductName(updatedProduct.getProductName());

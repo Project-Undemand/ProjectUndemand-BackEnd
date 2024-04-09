@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
@@ -27,12 +29,12 @@ public class ReviewReplyService {
      */
     public Long createReply(ReviewReplyDto replyDto, Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다. reviewId: " + reviewId));
+                .orElseThrow(() -> new NoSuchElementException("해당 리뷰를 찾을 수 없습니다. reviewId: " + reviewId));
 
         ReviewReply reviewReply = new ReviewReply();
 
         Member member = memberRepository.findById(replyDto.getReplyBy())
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다. memberId: " + replyDto.getReplyBy()));
+                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다. memberId: " + replyDto.getReplyBy()));
 
         reviewReply.setReview(review);
         reviewReply.setReplyBy(member);
@@ -49,7 +51,7 @@ public class ReviewReplyService {
      */
     public void deleteReply(Long replyId) {
         ReviewReply currentReply = reviewReplyRepository.findById(replyId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 글을 찾을 수 없습니다. Id : " + replyId));
         reviewReplyRepository.delete(currentReply);
 
     }

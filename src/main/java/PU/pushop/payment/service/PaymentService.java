@@ -35,7 +35,7 @@ public class PaymentService {
 
         //orders 테이블에서 해당 부분 결제true 처리
         Orders nowOrder = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("주문 정보를 찾을 수 없습니다."));
 
         nowOrder.setPaymentStatus(true);
 
