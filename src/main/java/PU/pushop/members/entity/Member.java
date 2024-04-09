@@ -69,7 +69,7 @@ public class Member {
     private boolean isCertifyByMail = false;
 
     @OneToMany
-    @JoinColumn(name = "wish_lsit")
+    @JoinColumn(name = "wish_list")
     private List<WishList> wishLists;
 
     @OneToMany(mappedBy = "member")

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
-    private static final String ADMIN_ADDRESS = "gokorea1214@naver.com";
+    private static final String ADMIN_ADDRESS = "puemailsender@naver.com";
 
 
 }

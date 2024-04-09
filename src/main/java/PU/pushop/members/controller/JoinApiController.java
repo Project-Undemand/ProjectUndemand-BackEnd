@@ -58,7 +58,7 @@ public class JoinApiController {
 
     @GetMapping("/auth/verify")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
-        // queryParameter 로 전해진 token 값이 member 에 저장된 token 값과 같은지 진행.
+        // queryParameter 로 전해진 token 값에 대한 유효성검사 및 인증과정 진행.
         Member member = emailMemberService.updateByVerifyToken(token);
         if (member != null) {
             return ResponseEntity.ok("이메일 인증이 성공적으로 완료되었습니다.");

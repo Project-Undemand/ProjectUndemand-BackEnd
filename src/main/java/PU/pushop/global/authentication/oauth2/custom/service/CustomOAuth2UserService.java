@@ -28,6 +28,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        // OAuth2 정보를 가져옵니다.
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         String registrationType = userRequest.getClientRegistration().getRegistrationId();
@@ -43,10 +44,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // email, username, role, socialType, socialId 를 oAuth2Response 로부터 받아서 Member 객체로 반환
         Member memberByOAuth2Response = getOrCreateMember(oAuth2Response);
         // Member 객체 -> OAuth2User 로 변경
-        OAuth2User CustomOAuth2User = createOAuth2User(memberByOAuth2Response);
-        System.out.println("CustomOAuth2User = " + CustomOAuth2User.getAttributes().toString());
+        OAuth2User customOAuth2User = createOAuth2User(memberByOAuth2Response);
+        System.out.println("CustomOAuth2User = " + customOAuth2User.getAttributes().toString());
 
-        return CustomOAuth2User;
+        return customOAuth2User;
     }
 
     private OAuth2Response createOAuth2Response(String registrationType, Map<String, Object> attributes) {
