@@ -4,7 +4,10 @@ package PU.pushop.global.authentication.oauth2.handler;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.Refresh;
+import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,6 +22,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
@@ -30,6 +34,9 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JWTUtil jwtUtil;
     private final MemberRepositoryV1 memberRepositoryV1;
+    private final RefreshRepository refreshRepository;
+
+    private Long refreshTokenExpirationPeriod = 1209600L;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -53,12 +60,15 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         log.info("accessToken : " + accessToken);
         log.info("refreshToken : " + refreshToken);
 
+        // [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
+        saveOrUpdateRefreshEntity(requestMember, refreshToken);
+
         // 액세스 토큰을 HTTP 응답 헤더에 추가합니다.
         response.addHeader("Authorization", "Bearer " + accessToken);
         // 리프레시 토큰은 쿠키에 저장합니다.
         response.addCookie(createCookie("RefreshToken", refreshToken));
 
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect("http://localhost:3000");
     }
 
     private static String extractOAuthRole(Authentication authentication) {
@@ -79,5 +89,26 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         cookie.setHttpOnly(true);
 
         return cookie;
+    }
+
+    private void saveOrUpdateRefreshEntity(Member member, String newRefreshToken) {
+        // 멤버의 PK 식별자로, refresh 토큰을 가져옵니다.
+        Optional<Refresh> existedRefresh = refreshRepository.findById(member.getId());
+        LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
+        if (existedRefresh.isPresent()) {
+            // 로그인 이메일과 같은 이메일을 가지고 있는 Refresh 엔티티에 대해서, refresh 값을 새롭게 업데이트해줌
+            Refresh refreshEntity = existedRefresh.get();
+            // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
+            RefreshDto refreshDto = RefreshDto.createRefreshDto(member, newRefreshToken, expirationDateTime);
+            // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
+            refreshEntity.updateRefreshToken(refreshDto);
+            // 저장합니다.
+            refreshRepository.save(refreshEntity);
+        } else {
+            // 완전히 새로운 리프레시 토큰을 생성 후 저장
+            Refresh newRefreshEntity = new Refresh(member, newRefreshToken, expirationDateTime);
+            refreshRepository.save(newRefreshEntity);
+        }
+
     }
 }
