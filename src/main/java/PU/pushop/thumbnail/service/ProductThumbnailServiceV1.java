@@ -42,7 +42,7 @@ public class ProductThumbnailServiceV1 {
 
             // 각 이미지 파일에 대해 업로드 및 DB 저장 수행
             for (MultipartFile image : images) {
-                String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+                String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + image.getOriginalFilename();
                 String filePath = uploadsDir + fileName;
                 String dbFilePath = "/uploads/thumbnails/" + fileName;
 
