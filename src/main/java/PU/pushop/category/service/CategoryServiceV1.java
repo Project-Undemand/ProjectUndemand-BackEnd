@@ -64,12 +64,12 @@ public class CategoryServiceV1 {
      */
     public void deleteCategory(Long categoryId) {
         Category category = categoryRepository.findByCategoryId(categoryId)
-                .orElseThrow(() -> new RuntimeException("해당 카테고리를 찾을 수 없습니다. Id : " + categoryId));
+                .orElseThrow(() -> new NoSuchElementException("해당 카테고리를 찾을 수 없습니다. Id : " + categoryId));
 
         if (category.getChildren().isEmpty()) {
             categoryRepository.delete(category);
         } else {
-            throw new RuntimeException("삭제 실패 : 하위 카테고리가 존재합니다.");
+            throw new IllegalArgumentException("삭제 실패 : 하위 카테고리가 존재합니다.");
         }
     }
 

@@ -79,12 +79,8 @@ public class CategoryControllerV1 {
      */
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
-        try {
-            categoryServiceV1.deleteCategory(categoryId);
-            return ResponseEntity.ok("카테고리 삭제 완료");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        categoryServiceV1.deleteCategory(categoryId);
+        return ResponseEntity.ok("카테고리 삭제 완료");
     }
 
 }
