@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class JoinApiController {
     private final JoinService joinService;
     private final EmailMemberService emailMemberService;
     private final MemberRepositoryV1 memberRepositoryV1;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /**
      * 일반 회원에 대한 회원가입 진행. (default) MemberRole = USER, SocialType = GENERAL,
@@ -93,6 +95,7 @@ public class JoinApiController {
 
         // ADMIN 을 따로 생성하는 페이지를 따로 구성해서, 진행시킬 예정.
         Member member = createAdminFromRequest(request, token);
+        member.verifyAdminUser();
         // 동일한 이메일이 존재하는지 유효성 검사.
         try {
             validateExistedMemberByEmail(member.getEmail());
@@ -101,17 +104,11 @@ public class JoinApiController {
             return ResponseEntity.badRequest().build();
         }
         // 멤버 객체를 가지고 회원가입 Join 서비스 진행.
-        Long adminId = joinService.joinMember(member);
-        JoinMemberResponse response = new JoinMemberResponse(adminId);
+        Member newAdminMember = memberRepositoryV1.save(member);
+        JoinMemberResponse response = new JoinMemberResponse(newAdminMember.getId());
         // 회원가입 진행한 멤버의 id만 return
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-//    private void validatePasswordMatch(String password, String passwordCertify) {
-//        if (!Objects.equals(password, passwordCertify)) {
-//            throw new PasswordMismatchException();
-//        }
-//    }
 
     private Member createMemberFromRequest(JoinMemberRequest request, String token) {
         Member member = Member.createGeneralMember(
@@ -129,7 +126,7 @@ public class JoinApiController {
                 request.email,
                 request.username,
                 request.nickname,
-                request.password,
+                passwordEncoder.encode(request.password),
                 token
         );
         return member;

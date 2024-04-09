@@ -39,8 +39,6 @@ public class JoinService {
         return newMember.getId();
     }
 
-
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public static class ExistingMemberException extends IllegalStateException {
         public ExistingMemberException() {

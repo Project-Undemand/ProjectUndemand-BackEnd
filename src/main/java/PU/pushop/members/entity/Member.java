@@ -105,7 +105,7 @@ public class Member {
 
     // Admin Member 생성
     public static Member createAdminMember(String email, String username, String nickname, String password, String token) {
-        return new Member(email, password, username, nickname, MemberRole.ADMIN, SocialType.GENERAL, null, token, false);
+        return new Member(email, password, username, nickname, MemberRole.ADMIN, SocialType.GENERAL, null, token, true);
     }
 
     public static Member createTokenMember(Long memberId, MemberRole role) {
@@ -150,5 +150,9 @@ public class Member {
 
     public void updateMemberByToken(String token) {
         this.token = token;
+    }
+
+    public void verifyAdminUser() {
+        this.isAdmin = true;
     }
 }
