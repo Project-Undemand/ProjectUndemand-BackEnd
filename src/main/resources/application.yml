@@ -10,7 +10,7 @@ spring:
     host: localhost
     port: 995
   mail:
-    username: gokorea1214@gmail.com
+    username: puemailsender@gmail.com
     password: ${GOOGLE_PASSWORD}
     host: smtp.gmail.com
     port: 587
@@ -25,7 +25,7 @@ spring:
   #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
