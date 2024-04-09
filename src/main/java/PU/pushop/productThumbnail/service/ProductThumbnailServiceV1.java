@@ -1,9 +1,10 @@
-package PU.pushop.thumbnail.service;
+package PU.pushop.productThumbnail.service;
 
 import PU.pushop.product.entity.Product;
+import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.product.service.ProductServiceV1;
-import PU.pushop.thumbnail.entity.ProductThumbnail;
-import PU.pushop.thumbnail.repository.ProductThumbnailRepositoryV1;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
+import PU.pushop.productThumbnail.repository.ProductThumbnailRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProductThumbnailServiceV1 {
     private final ProductThumbnailRepositoryV1 productThumbnailRepository;
-    private final ProductServiceV1 productService;
+    private final ProductRepositoryV1 productRepository;
 
     /**
      * 썸네일 등록
@@ -31,19 +32,18 @@ public class ProductThumbnailServiceV1 {
     public void uploadThumbnail(Long productId, List<MultipartFile> images) {
         try {
             // Product 엔티티 가져오기
-            Product product = productService.findProductById(productId);
-            if (product == null) {
-                // productId에 해당하는 Product가 없는 경우 예외 처리
-                throw new IllegalArgumentException("상품을 찾을 수 없습니다.");
-            }
+//            Product product = productService.findProductById(productId);
 
+            Product product = productRepository.findByProductId(productId)
+                    .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
             // 이미지 파일 저장을 위한 경로 설정
-            String uploadsDir = "uploads/thumbnails/";
+            String uploadsDir = "src/main/resources/static/uploads/thumbnails/";
 
             // 각 이미지 파일에 대해 업로드 및 DB 저장 수행
             for (MultipartFile image : images) {
                 String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + image.getOriginalFilename();
                 String filePath = uploadsDir + fileName;
+                String dbFilePath = "/uploads/thumbnails/" + fileName;
 
                 // 저장된 이미지 파일 경로를 DB에 저장
                 saveImage(image, filePath);
@@ -51,7 +51,8 @@ public class ProductThumbnailServiceV1 {
                 // ProductThumbnail 엔티티 생성 및 저장
                 ProductThumbnail thumbnail = new ProductThumbnail(product, filePath);
                 thumbnail.setProduct(product);
-                thumbnail.setImagePath(filePath);
+//                thumbnail.setImagePath(filePath);
+                thumbnail.setImagePath(dbFilePath);
                 productThumbnailRepository.save(thumbnail);
             }
         } catch (IOException e) {

@@ -1,4 +1,4 @@
-package PU.pushop.thumbnail.entity;
+package PU.pushop.productThumbnail.entity;
 
 import PU.pushop.product.entity.Product;
 import jakarta.persistence.*;
