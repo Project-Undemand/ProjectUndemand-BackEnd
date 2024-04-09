@@ -54,7 +54,7 @@ public class ReviewImgService {
 
     public void deleteReviewImg(Long reviewImgId) {
         ReviewImg reviewImg = reviewImgRepository.findById(reviewImgId)
-                .orElseThrow(() -> new RuntimeException("해당 사진을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 사진을 찾을 수 없습니다."));
 
         String imagePath = reviewImg.getReviewImgPath();
 

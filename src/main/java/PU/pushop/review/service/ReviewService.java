@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class reviewService {
+public class ReviewService {
     public final PaymentRepository paymentRepository;
     public final ReviewRepository reviewRepository;
     public final ProductRepositoryV1 productRepository;
@@ -126,7 +126,6 @@ public class reviewService {
             throw new SecurityException("접근 권한이 없습니다.");
         }
 
-        currentReview.setReviewTitle(updatedReview.getReviewTitle());
         currentReview.setReviewContent(updatedReview.getReviewContent());
         currentReview.setRating(updatedReview.getRating());
 

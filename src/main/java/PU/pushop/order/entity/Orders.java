@@ -9,6 +9,7 @@ import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -78,7 +79,8 @@ public class Orders {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "order_day", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDate orderDay;
 
     @Column(name = "payment_status")

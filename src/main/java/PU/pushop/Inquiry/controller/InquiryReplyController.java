@@ -1,6 +1,7 @@
 package PU.pushop.Inquiry.controller;
 
 import PU.pushop.Inquiry.entity.InquiryReply;
+import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.service.InquiryReplyService;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
@@ -15,24 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InquiryReplyController {
     private final InquiryReplyService replyService;
-    private final MemberRepositoryV1 memberRepository;
-
-
-    @Data
-    static class ReplyRequest {
-        private Long replyBy;
-        private String content;
-
-    }
-
-    private InquiryReply ReplyFormRequest(ReplyRequest request) {
-        InquiryReply reply = new InquiryReply();
-        Member replyBy = memberRepository.findById(request.getReplyBy()).orElse(null);
-        reply.setReplyBy(replyBy);
-        reply.setReplyContent(request.content);
-
-        return reply;
-    }
 
     /**
      * 문의 답변 등록
@@ -42,8 +25,8 @@ public class InquiryReplyController {
      * @return
      */
     @PostMapping("/new/{inquiryId}")
-    public ResponseEntity<?> createReply(@Valid @RequestBody ReplyRequest request, @PathVariable Long inquiryId) {
-        InquiryReply reply = ReplyFormRequest(request);
+    public ResponseEntity<?> createReply(@Valid @RequestBody InquiryReplyDto request, @PathVariable Long inquiryId) {
+        InquiryReplyDto reply = InquiryReplyDto.ReplyFormRequest(request);
         Long createdId = replyService.createReply(reply, inquiryId);
 
         return ResponseEntity.ok(createdId);
