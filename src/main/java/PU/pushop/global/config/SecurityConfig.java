@@ -125,14 +125,14 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/logout",  "/", "/join", "/auth/**").permitAll()
                 // 상품 카테고리, 상품
                 .requestMatchers("/api/v1/categorys/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
-                .requestMatchers(antMatcher(
-                        HttpMethod.GET, "/api/v1/products/**")).permitAll()
-                .requestMatchers(antMatcher(
-                        HttpMethod.POST, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.PUT, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.DELETE, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
+//                .requestMatchers(antMatcher(
+//                        HttpMethod.GET, "/api/v1/products/**")).permitAll()
+//                .requestMatchers(antMatcher(
+//                        HttpMethod.POST, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
+//                .requestMatchers(antMatcher(
+//                        HttpMethod.PUT, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
+//                .requestMatchers(antMatcher(
+//                        HttpMethod.DELETE, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
                 // 상품 썸네일 이미지
                 .requestMatchers("/api/v1/thumbnail/**").permitAll()
                 .requestMatchers(antMatcher(

@@ -5,6 +5,7 @@ import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.ProductCreateDto;
 import PU.pushop.product.model.ProductDto;
+import PU.pushop.product.model.ProductResponseDto;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -25,20 +26,6 @@ import java.util.stream.Collectors;
 public class ProductApiControllerV1 {
 
     private final ProductServiceV1 productServiceV1;
-
-    // Response Data
-    @Data
-    private class ProductResponse {
-        private Long productId;
-        private String productName;
-        private Integer price;
-
-        public ProductResponse(Long productId, String productName, Integer price) {
-            this.productId = productId;
-            this.productName = productName;
-            this.price = price;
-        }
-    }
 
     /**
      * 전체 상품 조회
@@ -66,7 +53,8 @@ public class ProductApiControllerV1 {
 
         Long createProductId = productServiceV1.createProduct(product);
 
-        ProductResponse response = new ProductResponse(createProductId, product.getProductName(), product.getPrice());
+        ProductResponseDto response = new ProductResponseDto(product);
+
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -94,7 +82,8 @@ public class ProductApiControllerV1 {
     public ResponseEntity<?> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductCreateDto request) {
         Product updatedProduct = ProductCreateDto.requestForm(request);
         Product updated = productServiceV1.updateProduct(productId, updatedProduct);
-        ProductResponse response = new ProductResponse(updated.getProductId(), updated.getProductName(), updated.getPrice());
+
+        ProductResponseDto response = new ProductResponseDto(updated);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -127,6 +116,11 @@ public class ProductApiControllerV1 {
         return productColor;
     }
 
+    /**
+     * 색상 등록
+     * @param request
+     * @return
+     */
     @PostMapping("/color/new")
     public ResponseEntity<?> createColor(@Valid @RequestBody ColorRequest request) {
         ProductColor color = ColorFormRequest(request);
@@ -138,6 +132,18 @@ public class ProductApiControllerV1 {
             // 중복된 이름에 대한 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("중복된 이름으로 색상을 등록할 수 없습니다.");
         }
+    }
+
+    /**
+     * 색상 삭제
+     * @param colorId
+     * @return
+     */
+    @DeleteMapping("/color/{colorId}")
+    public ResponseEntity<?> deleteColor(@PathVariable Long colorId) {
+        productServiceV1.deleteColor(colorId);
+
+        return ResponseEntity.ok().build();
     }
 
 }

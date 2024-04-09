@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepositoryV1;
-
     public final ProductColorRepository productColorRepository;
 
 /*    public Product findProductById(Long productId) {
@@ -29,7 +29,6 @@ public class ProductServiceV1 {
      * @param product
      * @return productId
      */
-    @Transactional
     public Long createProduct(Product product) {
         productRepositoryV1.save(product);
         return product.getProductId();
@@ -89,10 +88,20 @@ public class ProductServiceV1 {
      * @param color
      * @return
      */
-    @Transactional
     public Long createColor(ProductColor color) {
         productColorRepository.save(color);
         return color.getColorId();
     }
+
+    /**
+     * 색상 삭제
+     * @param colorId
+     */
+    public void deleteColor(Long colorId) {
+        ProductColor color = productColorRepository.findById(colorId)
+                        .orElseThrow(()-> new NoSuchElementException("해당 색상을 찾을 수 없습니다. Id : " + colorId));
+        productColorRepository.delete(color);
+    }
+
 
 }
