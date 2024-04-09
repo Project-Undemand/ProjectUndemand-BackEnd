@@ -124,7 +124,9 @@ public class SecurityConfig {
                 // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
                 .requestMatchers("/login", "/logout",  "/", "/join", "/auth/**").permitAll()
                 // 상품 카테고리, 상품
-                .requestMatchers("/api/v1/categorys/**", "/api/v1/products/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
+                .requestMatchers("/api/v1/categorys/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
+                .requestMatchers(antMatcher(
+                        HttpMethod.GET, "/api/v1/products/**")).permitAll()
                 .requestMatchers(antMatcher(
                         HttpMethod.POST, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
                 .requestMatchers(antMatcher(
