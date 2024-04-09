@@ -18,8 +18,6 @@ spring:
   #  main:
   #    allow-bean-definition-overriding: true
 
-  resources:
-    static-locations: classpath:/static/,file:/static/
 
   #  create	기존테이블을 삭제하고 다시 생성
   #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
@@ -28,7 +26,7 @@ spring:
   #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
