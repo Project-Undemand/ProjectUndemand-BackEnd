@@ -15,13 +15,19 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class WishListService {
     public final WishListRepository wishListRepository;
     public final ProductRepositoryV1 productRepository;
     public final MemberRepositoryV1 memberRepository;
 
+    /**
+     * 찜 추가
+     * @param product
+     * @param member
+     * @return
+     */
     public WishList createWish(Product product, Member member) {
         // 이미 존재하는지 확인
         Optional<WishList> existingWishList = wishListRepository.findByProductAndMember(product, member);
@@ -43,6 +49,11 @@ public class WishListService {
         return wishList;
     }
 
+    /**
+     * 찜 삭제
+     * @param product
+     * @param member
+     */
     public void deleteWish(Product product, Member member) {
         WishList existingWishList = wishListRepository.findByProductAndMember(product, member)
                 .orElseThrow(() -> new NoSuchElementException("해당 찜목록을 찾을 수 없습니다."));
@@ -50,6 +61,11 @@ public class WishListService {
         wishListRepository.delete(existingWishList);
     }
 
+    /**
+     * 내 찜목록 모아보기
+     * @param member
+     * @return
+     */
     public List<WishList> myWishList(Member member) {
 
         return wishListRepository.findByMember(member);

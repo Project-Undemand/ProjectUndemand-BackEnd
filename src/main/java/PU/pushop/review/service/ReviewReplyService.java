@@ -12,13 +12,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ReviewReplyService {
     private final ReviewReplyRepository reviewReplyRepository;
     private final ReviewRepository reviewRepository;
     private final MemberRepositoryV1 memberRepository;
 
+    /**
+     * 리뷰 댓글 작성
+     * @param replyDto
+     * @param reviewId
+     * @return
+     */
     public Long createReply(ReviewReplyDto replyDto, Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다. reviewId: " + reviewId));
@@ -37,6 +43,10 @@ public class ReviewReplyService {
         return reviewReply.getReviewReplyId();
     }
 
+    /**
+     * 리뷰 댓글 삭제
+     * @param replyId
+     */
     public void deleteReply(Long replyId) {
         ReviewReply currentReply = reviewReplyRepository.findById(replyId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 글을 찾을 수 없습니다."));

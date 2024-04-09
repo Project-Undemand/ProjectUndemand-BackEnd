@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class CartService {
     private final CartRepository cartRepository;

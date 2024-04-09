@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class ReviewService {
     public final PaymentRepository paymentRepository;
     public final ReviewRepository reviewRepository;
@@ -51,6 +51,10 @@ public class ReviewService {
         return review;
     }
 
+    /**
+     * 모든 리뷰 보기
+     * @return
+     */
     public List<ReviewDto> allReview() {
         List<Review> reviews = reviewRepository.findAll();
         if (reviews.isEmpty()) {

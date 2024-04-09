@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class OrderService {
     public final CartRepository cartRepository;
     public final OrderRepository orderRepository;
@@ -37,8 +37,6 @@ public class OrderService {
      */
     public Orders createOrder(List<Long> cartIds) {
         List<Cart> carts = cartRepository.findByCartIdIn(cartIds);
-
-        List<Cart> cartslist = cartRepository.findAllById(cartIds);
 
         Long memberId = carts.get(0).getMember().getId();
         Member member = memberRepository.findById(memberId).orElse(null);
@@ -137,6 +135,7 @@ public class OrderService {
         String formattedDay = today.format(formatter).replace("-", "");
         // 무작위 문자열과 현재 날짜/시간을 조합하여 주문번호 생성
         String merchantUid = formattedDay +'-'+ uniqueString;
+
         return merchantUid;
     }
 

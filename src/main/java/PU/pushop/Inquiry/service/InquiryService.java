@@ -15,13 +15,14 @@ import PU.pushop.Inquiry.model.InquiryDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class InquiryService {
     public final InquiryRepository inquiryRepository;
@@ -120,7 +121,7 @@ public class InquiryService {
      */
     private Inquiry validatePasswordAndGetInquiry(Long inquiryId, String password) {
         Inquiry existingInquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
 
         // 비밀번호 검증
         if (!existingInquiry.getPassword().equals(password)) {

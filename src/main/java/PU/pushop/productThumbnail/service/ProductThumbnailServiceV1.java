@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ProductThumbnailServiceV1 {
     private final ProductThumbnailRepositoryV1 productThumbnailRepository;

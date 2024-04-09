@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ProductManagementService {
     public final ProductManagementRepository productManagementRepository;
@@ -17,7 +17,6 @@ public class ProductManagementService {
 
     /**
      * 상품관리 등록
-     *
      * @param productManagement
      * @return
      */

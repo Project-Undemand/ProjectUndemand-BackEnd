@@ -14,10 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class PaymentService {
 
     private final OrderRepository orderRepository;
@@ -42,15 +43,13 @@ public class PaymentService {
         Member member = null;
         if (memberId != null) {
 
-            // TODO : null일경우 예외처리
             member = memberRepository.findById(memberId)
-                    .orElse(null);
+                    .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다. Id : " + memberId));
         }
         Orders order = null;
         if (orderId != null) {
-            // TODO : null일경우 예외처리
             order = orderRepository.findById(orderId)
-                    .orElse(null);
+                    .orElseThrow(() -> new NoSuchElementException("해당 주문서를 찾을 수 없습니다. Id : " + orderId));
         }
 
         for (Long productId : productIdList) {
@@ -58,9 +57,8 @@ public class PaymentService {
 
             Product product = null;
             if(productId != null){
-                // TODO : null일경우 예외처리
                 product = productRepository.findByProductId(productId)
-                        .orElse(null);
+                        .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + productId));
             }
             paymentHistory.setProduct(product);
             paymentHistory.setOrders(order);
