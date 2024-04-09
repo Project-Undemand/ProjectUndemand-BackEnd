@@ -133,12 +133,12 @@ public class SecurityConfig {
                         HttpMethod.DELETE, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
                 // 상품 썸네일 이미지
                 .requestMatchers("/api/v1/thumbnail/**").permitAll()
-                .requestMatchers(antMatcher(
-                        HttpMethod.POST, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.PUT, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.DELETE, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
+//                .requestMatchers(antMatcher(
+//                        HttpMethod.POST, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
+//                .requestMatchers(antMatcher(
+//                        HttpMethod.PUT, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
+//                .requestMatchers(antMatcher(
+//                        HttpMethod.DELETE, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
                 // 관리자 페이지 권한: 관리자
 //                .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
                 // access, refresh token 만료시 재발행: ALL

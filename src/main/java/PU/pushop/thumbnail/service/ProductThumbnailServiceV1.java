@@ -38,12 +38,13 @@ public class ProductThumbnailServiceV1 {
             }
 
             // 이미지 파일 저장을 위한 경로 설정
-            String uploadsDir = "uploads/thumbnails/";
+            String uploadsDir = "src/main/resources/static/uploads/thumbnails/";
 
             // 각 이미지 파일에 대해 업로드 및 DB 저장 수행
             for (MultipartFile image : images) {
                 String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
                 String filePath = uploadsDir + fileName;
+                String dbFilePath = "/uploads/thumbnails/" + fileName;
 
                 // 저장된 이미지 파일 경로를 DB에 저장
                 saveImage(image, filePath);
@@ -51,7 +52,7 @@ public class ProductThumbnailServiceV1 {
                 // ProductThumbnail 엔티티 생성 및 저장
                 ProductThumbnail thumbnail = new ProductThumbnail(product, filePath);
                 thumbnail.setProduct(product);
-                thumbnail.setImagePath(filePath);
+                thumbnail.setImagePath(dbFilePath);
                 productThumbnailRepository.save(thumbnail);
             }
         } catch (IOException e) {
