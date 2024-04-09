@@ -45,7 +45,7 @@ public class PaymentHistory {
     @Column(name = "total_price")
     private Long totalPrice;
 
-    @Column(name = "paid_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE")
     private LocalDate paidAt;
 
     @Column(name = "status")

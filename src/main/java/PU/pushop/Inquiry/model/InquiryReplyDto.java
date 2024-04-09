@@ -1,6 +1,8 @@
 package PU.pushop.Inquiry.model;
 
+import PU.pushop.Inquiry.controller.InquiryReplyController;
 import PU.pushop.Inquiry.entity.InquiryReply;
+import PU.pushop.members.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,5 +30,14 @@ public class InquiryReplyDto {
                 inquiryReply.getCreatedAt()
 
                 );
+    }
+
+    public static InquiryReplyDto ReplyFormRequest(InquiryReplyDto request) {
+        InquiryReplyDto replyDto = new InquiryReplyDto();
+
+        replyDto.setReplyBy(request.replyBy);
+        replyDto.setReplyContent(request.replyContent);
+
+        return replyDto;
     }
 }

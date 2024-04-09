@@ -5,6 +5,8 @@ import PU.pushop.Inquiry.entity.InquiryReply;
 import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.repository.InquiryReplyRepository;
 import PU.pushop.Inquiry.repository.InquiryRepository;
+import PU.pushop.members.entity.Member;
+import PU.pushop.members.repository.MemberRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,27 +19,34 @@ import java.util.Optional;
 public class InquiryReplyService {
     private final InquiryReplyRepository inquiryReplyRepository;
     private final InquiryRepository inquiryRepository;
-
+    private final MemberRepositoryV1 memberRepository;
 
     /**
      * 문의 답변 등록
-     * @param reply
+     * @param replyDto
      * @param inquiryId
      * @return
      */
     @Transactional
-    public Long createReply(InquiryReply reply, Long inquiryId) {
-        Optional<Inquiry> optionalInquiry = inquiryRepository.findById(inquiryId);
-        Inquiry inquiry = optionalInquiry.orElseThrow(() -> new IllegalArgumentException("문의글을 찾을 수 없습니다. inquiryId: " + inquiryId));
+    public Long createReply(InquiryReplyDto replyDto, Long inquiryId) {
+        // 답변할 문의글
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new IllegalArgumentException("문의글을 찾을 수 없습니다. inquiryId: " + inquiryId));
+
+        InquiryReply reply = new InquiryReply();
+
+        Member member = memberRepository.findById(replyDto.getReplyBy())
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다. memberId: " + replyDto.getReplyBy()));
+
+        reply.setInquiry(inquiry);
+        reply.setReplyBy(member);
+        reply.setReplyContent(replyDto.getReplyContent());
+        reply.setReplyTitle(inquiry.getInquiryTitle()); // 답변 제목은 문의 제목과 동일
+
+        inquiryReplyRepository.save(reply);
 
         // Inquiry 테이블 의 isResponse -> true
         inquiry.setIsResponse(true);
-        // 답변 제목은 문의 제목과 동일
-        reply.setReplyTitle(inquiry.getInquiryTitle());
-
-        reply.setInquiry(inquiry);
-        inquiryReplyRepository.save(reply);
-        inquiryReplyRepository.save(reply);
 
         return reply.getInquiryReplyId();
     }

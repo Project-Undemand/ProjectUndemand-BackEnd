@@ -1,4 +1,4 @@
-package PU.pushop.Inquiry.entity;
+package PU.pushop.review.entity;
 
 import PU.pushop.members.entity.Member;
 import jakarta.persistence.*;
@@ -11,31 +11,28 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "inquiry_reply")
-public class InquiryReply {
+@Table(name = "review_reply")
+public class ReviewReply {
     @Id
     @SequenceGenerator(
-            name = "inquiry_reply_sequence",
-            sequenceName = "inquiry_reply_sequence",
+            name = "review_reply_sequence",
+            sequenceName = "review_reply_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "inquiry_reply_sequence"
+            generator = "review_reply_sequence"
     )
     @Column(name = "reply_id")
-    private Long inquiryReplyId;
+    private Long reviewReplyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inquiry_id", nullable = false)
-    private Inquiry inquiry;
+    @JoinColumn(name = "review_id", nullable = false)
+    private Review review;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reply_by", nullable = false)
     private Member replyBy;
-
-    @Column(name = "reply_title", nullable = false)
-    private String replyTitle;
 
     @Column(name = "reply_content", nullable = false)
     private String replyContent;
@@ -44,8 +41,8 @@ public class InquiryReply {
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDate createdAt;
 
-    public InquiryReply() {
+    public ReviewReply() {
         this.createdAt = LocalDate.now();
-
     }
+
 }

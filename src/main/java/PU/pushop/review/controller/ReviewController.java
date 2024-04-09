@@ -1,28 +1,24 @@
 package PU.pushop.review.controller;
 
-import PU.pushop.payment.entity.PaymentHistory;
-import PU.pushop.payment.repository.PaymentRepository;
 import PU.pushop.review.entity.Review;
 import PU.pushop.review.model.ReviewDto;
-import PU.pushop.review.service.reviewService;
+import PU.pushop.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("api/v1/review")
 @RequiredArgsConstructor
 @Slf4j
-public class reviewController {
+public class ReviewController {
 
-    private final reviewService reviewService;
+    private final ReviewService reviewService;
 
     /**
      * 리뷰 작성
@@ -38,7 +34,7 @@ public class reviewController {
 
         ReviewDto createdReview = new ReviewDto(reviewService.createReview(review, paymentId));
 
-        return ResponseEntity.ok(createdReview);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
     }
 
     @GetMapping("/all")
@@ -92,7 +88,7 @@ public class reviewController {
         Review updatedreview = ReviewDto.requestForm(request);
         ReviewDto updatedReivewDto = new ReviewDto(reviewService.updateReview(updatedreview, reviewId, memberId));
 
-        return ResponseEntity.ok(updatedReivewDto);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedReivewDto);
 
     }
 

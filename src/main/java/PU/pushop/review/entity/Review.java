@@ -6,8 +6,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,13 +29,10 @@ public class Review {
     @Column(name = "review_id")
     private Long reviewId;
 
-//    @PrimaryKeyJoinColumn(name = "payment")
+    //    @PrimaryKeyJoinColumn(name = "payment")
     @OneToOne
     @JoinColumn(name = "payment_history_id")
     private PaymentHistory paymentHistory;
-
-    @Column(name = "title", nullable = false)
-    private String reviewTitle;
 
     @Column(name = "content", nullable = false)
     private String reviewContent;
@@ -43,11 +42,16 @@ public class Review {
     @Max(value = 5)
     private int rating;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDate createdAt;
 
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE ON UPDATE CURRENT_DATE")
     private LocalDate updatedAt;
+
+    @OneToMany(mappedBy = "review")
+    private List<ReviewReply> replies;
+
 
     public Review() {
         this.createdAt = LocalDate.now();
