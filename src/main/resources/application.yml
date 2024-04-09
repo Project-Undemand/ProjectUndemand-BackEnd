@@ -10,10 +10,10 @@ spring:
     host: localhost
     port: 995
   mail:
-    username: puemailsender@gmail.com
-    password: ${GOOGLE_PASSWORD}
-    host: smtp.gmail.com
-    port: 587
+    username: gokorea1214@naver.com
+    password: ${NAVER_PASSWORD}
+    host: smtp.naver.com
+    port: 465
     auth-code-expiration-millis: 1800000  # 30분
   #  main:
   #    allow-bean-definition-overriding: true

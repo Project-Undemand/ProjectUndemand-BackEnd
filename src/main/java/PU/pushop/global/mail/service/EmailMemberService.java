@@ -31,7 +31,7 @@ public class EmailMemberService {
         MimeMessage message = mailSender.createMimeMessage();
 
         message.addRecipients(Message.RecipientType.TO, receiverMail); // 받는 분 메일 추가
-        message.setSubject("PU Shopping mall 회원가입 이메일 인증입니다. "); // 제목
+        message.setSubject("PU 회원가입 이메일 인증입니다. "); // 제목
 
         String body = "<div>"
                 + "<h1> 안녕하세요. PU Shopping mall 입니다.!</h1>"
@@ -42,7 +42,7 @@ public class EmailMemberService {
                 + "<p>즐거운 쇼핑 되세요.!<p>"
                 + "</div>";
         message.setText(body, "utf-8", "html");// 내용, charset 타입, subtype
-        message.setFrom(new InternetAddress("puemailsender@gmail.com", "PU_ADMIN")); // 보내는 사람
+        message.setFrom(new InternetAddress("gokorea1214@naver.com", "PU_ADMIN")); // 보내는 사람
         mailSender.send(message);
     }
 

@@ -76,21 +76,17 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
             //클라이언트 요청에서 email, password 추출
             String email = usernamePasswordMap.get("email");
             String password = usernamePasswordMap.get("password");
-//            String encodedPassword = passwordEncoder.encode(password);
-            System.out.println("password = " + password);
-//            System.out.println("encodedPassword = " + encodedPassword);
-
 
             // 사용자 정보에서 isCertifyByMail 필드 확인
-//            Member member = memberRepositoryV1.findByEmail(email)
-//                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
-//            boolean isCertifyByMail = member.isCertifyByMail();
-//            log.info("[LoginFilter] 회원 이메일인증 여부 = " + isCertifyByMail);
-//
-//            if (!isCertifyByMail) {
-//                // 이메일이 인증되지 않은 경우 로그인 실패 처리
-//                throw new AuthenticationServiceException("Email is not certified yet.");
-//            }
+            Member member = memberRepositoryV1.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+            boolean isCertifyByMail = member.isCertifyByMail();
+            log.info("[LoginFilter] 회원 이메일인증 여부 = " + isCertifyByMail);
+
+            if (!isCertifyByMail) {
+                // 이메일이 인증되지 않은 경우 로그인 실패 처리
+                throw new AuthenticationServiceException("Email is not certified yet.");
+            }
 
             // Principal(인증-유저이메일), Credentials(권한), Authenticated 등의 정보
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
