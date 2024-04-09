@@ -1,6 +1,6 @@
-package PU.pushop.thumbnail.repository;
+package PU.pushop.productThumbnail.repository;
 
-import PU.pushop.thumbnail.entity.ProductThumbnail;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

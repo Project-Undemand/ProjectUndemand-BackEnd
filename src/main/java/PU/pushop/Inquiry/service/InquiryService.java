@@ -1,12 +1,14 @@
 package PU.pushop.Inquiry.service;
 
 
+import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
 import PU.pushop.Inquiry.repository.InquiryRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import PU.pushop.Inquiry.model.InquiryDto;
@@ -15,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @Transactional
@@ -125,14 +129,5 @@ public class InquiryService {
 
         return existingInquiry;
     }
-
-    /**
-     * 문의글 조회 시 Dto 변환해서 가져오기
-     * @param inquiry
-     * @param includeContent
-     * @return
-     */
-
-
 
 }
