@@ -19,16 +19,15 @@ public class ProductServiceV1 {
 
     public final ProductColorRepository productColorRepository;
 
-
-    public Product findProductById(Long productId) {
+/*    public Product findProductById(Long productId) {
         return productRepositoryV1.findByProductId(productId)
                 .orElse(null); // productId에 해당하는 Product가 없을 경우 null 반환
-    }
+    }*/
 
     /**
      * 상품 등록
      * @param product
-     * @return productID
+     * @return productId
      */
     @Transactional
     public Long createProduct(Product product) {

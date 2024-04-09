@@ -9,9 +9,17 @@ spring:
   redis:
     host: localhost
     port: 995
-#  main:
-#    allow-bean-definition-overriding: true
+  mail:
+    username: gokorea1214@naver.com
+    password: ${NAVER_PASSWORD}
+    host: smtp.naver.com
+    port: 465
+    auth-code-expiration-millis: 1800000  # 30분
+  #  main:
+  #    allow-bean-definition-overriding: true
 
+  resources:
+    static-locations: classpath:/static/,file:/static/
 
   #  create	기존테이블을 삭제하고 다시 생성
   #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
@@ -20,7 +28,7 @@ spring:
   #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
@@ -30,8 +38,14 @@ spring:
         default_batch_fetch_size: 1000 #최적화 옵션
 #    open-in-view: false
 
+# iamport
+imp:
+  api:
+    key: ${IMP_API_KEY}
+    secretkey: ${IMP_SECRET_KEY}
 
-logging.level:
-  org.hibernate.SQL: debug
+logging.level.org.hibernate:
+  SQL: debug
 #  org.hibernate.type: trace
 #  jdbc:h2:~/pushop
+

@@ -2,11 +2,14 @@ package PU.pushop.product.model;
 
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.wishList.model.WishListDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(of = "productId")
@@ -25,6 +28,9 @@ public class ProductDto {
     private boolean isSale;
     private boolean isRecommend;
 
+    private List<WishListDto> wishLists;
+    private Long wishListCount;
+
 
     public ProductDto(Product product) {
         this(
@@ -37,7 +43,10 @@ public class ProductDto {
                 product.getUpdatedAt(),
                 product.getManufacturer(),
                 product.getIsSale(),
-                product.getIsRecommend()
+                product.getIsRecommend(),
+                product.getWishLists().stream().map(WishListDto::new)
+                        .collect(Collectors.toList()),
+                (long) product.getWishLists().size()
         );
     }
 
