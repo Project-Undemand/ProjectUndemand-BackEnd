@@ -50,12 +50,9 @@ public class ProductApiControllerV1 {
     @PostMapping("/products/new")
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto request) {
         Product product = ProductCreateDto.requestForm(request);
+        ProductResponseDto response = new ProductResponseDto(productServiceV1.createProduct(product));
 
-        Long createProductId = productServiceV1.createProduct(product);
-
-        ProductResponseDto response = new ProductResponseDto(product);
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. : " + response.getProductName());
     }
 
     /**

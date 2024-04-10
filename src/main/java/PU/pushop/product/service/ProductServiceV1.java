@@ -29,9 +29,12 @@ public class ProductServiceV1 {
      * @param product
      * @return productId
      */
-    public Long createProduct(Product product) {
+    public Product createProduct(Product product) {
+        if (product.getPrice() < 0) {
+            throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
+        }
         productRepositoryV1.save(product);
-        return product.getProductId();
+        return product;
     }
 
     /**

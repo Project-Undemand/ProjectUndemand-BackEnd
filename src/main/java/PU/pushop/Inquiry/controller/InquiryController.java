@@ -53,10 +53,15 @@ public class InquiryController {
     @PostMapping("/new/{productId}")
     public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryCreateDto request, @PathVariable Long productId) {
         Inquiry inquiry = InquiryCreateDto.requestForm(request);
-        Member member = memberRepository.findById(request.getMemberId())
+        if (request.getMemberId() == null) {
+            inquiry.setMember(null);
+        } else {
+            Member member = memberRepository.findById(request.getMemberId())
                     .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + request.getMemberId()));
+            inquiry.setMember(member);
 
-        inquiry.setMember(member);
+        }
+
         Long createdId = inquiryService.createInquiry(inquiry,productId);
         return ResponseEntity.ok(createdId);
     }

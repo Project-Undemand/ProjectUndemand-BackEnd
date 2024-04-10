@@ -35,7 +35,7 @@ public class Product {
     @Column(nullable = false, name = "product_name")
     private String productName;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false, columnDefinition = "INT CHECK (price >= 0)")
     private Integer price;
 
     @Column(name = "product_info")
