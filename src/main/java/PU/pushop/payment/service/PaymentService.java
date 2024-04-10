@@ -9,6 +9,8 @@ import PU.pushop.payment.model.PaymentRequestDto;
 import PU.pushop.payment.repository.PaymentRepository;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.repository.ProductManagementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +27,14 @@ public class PaymentService {
     private final MemberRepositoryV1 memberRepository;
     private final PaymentRepository paymentRepository;
     private final ProductRepositoryV1 productRepository;
+    private final ProductManagementRepository productMgtRepository;
 
     public void processPaymentDone(PaymentRequestDto request) {
 
         Long orderId = request.getOrderId();
         Long memberId = request.getMemberId();
         Long totalPrice = request.getPrice();
-        List<Long> productIdList = request.getProductIdList();
+        List<Long> inventoryIdList = request.getInventoryIdList();
 
         //orders 테이블에서 해당 부분 결제true 처리
         Orders nowOrder = orderRepository.findById(orderId)
@@ -52,15 +55,19 @@ public class PaymentService {
                     .orElseThrow(() -> new NoSuchElementException("해당 주문서를 찾을 수 없습니다. Id : " + orderId));
         }
 
-        for (Long productId : productIdList) {
+        for (Long inventoryId : inventoryIdList) {
             PaymentHistory paymentHistory = new PaymentHistory();
 
-            Product product = null;
-            if(productId != null){
-                product = productRepository.findByProductId(productId)
-                        .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + productId));
-            }
+            ProductManagement inventory = productMgtRepository.findById(inventoryId)
+                    .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + inventoryId));
+
+            Product product = inventory.getProduct();
+
+            String option = inventory.getColor().getColor() + ", " + inventory.getSize().toString();
+
             paymentHistory.setProduct(product);
+            paymentHistory.setProductName(product.getProductName());
+            paymentHistory.setOption(option);
             paymentHistory.setOrders(order);
             paymentHistory.setMember(member);
             paymentHistory.setTotalPrice(totalPrice);

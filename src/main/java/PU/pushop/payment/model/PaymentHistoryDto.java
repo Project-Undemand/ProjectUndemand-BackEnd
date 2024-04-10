@@ -16,6 +16,7 @@ public class PaymentHistoryDto {
     private Long memberId;
     private Long orderId;
     private String product;
+    private String option;
     private Integer productPrice;
     private LocalDate orderedAt;
     private Long totalPrice;
@@ -27,6 +28,7 @@ public class PaymentHistoryDto {
                 paymentHistory.getMember().getId(),
                 paymentHistory.getOrders().getOrderId(),
                 paymentHistory.getProduct().getProductName(),
+                paymentHistory.getOption(),
                 paymentHistory.getProduct().getPrice(),
                 paymentHistory.getOrders().getOrderDay(),
                 paymentHistory.getTotalPrice(),

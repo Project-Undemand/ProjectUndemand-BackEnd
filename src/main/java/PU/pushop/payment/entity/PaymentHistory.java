@@ -39,6 +39,12 @@ public class PaymentHistory {
     @JoinColumn(name = "product", nullable = false)
     private Product product;
 
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column(name = "option")
+    private String option;
+
     @Column(name = "product_price", nullable = false)
     private Integer price;
 
