@@ -55,7 +55,10 @@ dependencies {
 	implementation 'com.sun.mail:jakarta.mail:2.0.1'
 
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
+
+//	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'org.mysql:mysql-connector-java' //mysql
+
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	// TEST DEPENDENCY
@@ -66,11 +69,15 @@ dependencies {
 		exclude group: "org.hamcrest", module: "hamcrest-core"
 	}
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21' // 아임포트 설정
+	implementation 'mysql:mysql-connector-java:8.0.33'// MySQL
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
 tasks.withType(JavaCompile) {
 	options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
 }
+
+test{
+	useJUnitPlatform()
+	jvmArgs '-Xshare:off'
+}
+

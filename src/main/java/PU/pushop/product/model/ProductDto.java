@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,9 +45,8 @@ public class ProductDto {
                 product.getManufacturer(),
                 product.getIsSale(),
                 product.getIsRecommend(),
-                product.getWishLists().stream().map(WishListDto::new)
-                        .collect(Collectors.toList()),
-                (long) product.getWishLists().size()
+                product.getWishLists() != null ? product.getWishLists().stream().map(WishListDto::new).collect(Collectors.toList()) : Collections.emptyList(),
+                product.getWishLists() != null ? (long) product.getWishLists().size() : 0L
         );
     }
 

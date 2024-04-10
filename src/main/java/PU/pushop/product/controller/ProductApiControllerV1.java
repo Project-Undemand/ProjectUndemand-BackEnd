@@ -49,10 +49,14 @@ public class ProductApiControllerV1 {
      */
     @PostMapping("/products/new")
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto request) {
-        Product product = ProductCreateDto.requestForm(request);
-        ProductResponseDto response = new ProductResponseDto(productServiceV1.createProduct(product));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. : " + response.getProductName());
+        try {
+            Product product = ProductCreateDto.requestForm(request);
+            ProductResponseDto response = new ProductResponseDto(productServiceV1.createProduct(product));
+            return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. : " + response.getProductName());
+        } catch (IllegalArgumentException ex) {
+            // IllegalArgumentException 발생 시, 해당 예외를 GlobalExceptionHandler에서 처리할 수 있도록 throw
+            throw ex;
+        }
     }
 
     /**
@@ -100,6 +104,10 @@ public class ProductApiControllerV1 {
     @Data
     static class ColorRequest {
         private String color;
+
+        public ColorRequest(String color) {
+            this.color = color;
+        }
     }
 
     /**
