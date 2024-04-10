@@ -8,6 +8,7 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -128,11 +129,8 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
         saveOrUpdateRefreshEntity(memberByEmail, newRefresh);
 
         response.setCharacterEncoding("UTF-8");
-        // 로그인 성공시 -> [reponse Header] : Access Token 추가, [reponse Cookie] : Refresh Token 추가
-        setTokenResponse(response, newAccess, newRefresh);
-        //로그인 성공에 대한 추가 정보를 response body에 담음
-        response.getWriter().write("로그인에 성공했습니다.");
-
+        // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+        setTokenResponseV2(response, newAccess, newRefresh);
     }
 
     @Override
@@ -153,7 +151,10 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
                 .orElse("ROLE_USER"); // 기본 권한 설정. [따로 설정하지 않았을때]
     }
 
-    private void setTokenResponse(HttpServletResponse response, String accessToken, String refreshToken) {
+    /**
+     * 로그인 성공시 -> [reponse Header] : Access Token 추가, [reponse Cookie] : Refresh Token 추가
+      */
+    private void setTokenResponseV1(HttpServletResponse response, String accessToken, String refreshToken) {
         // [reponse Header] : Access Token 추가
         response.addHeader("Authorization", "Bearer " + accessToken);
         // [reponse Cookie] : Refresh Token 추가
@@ -162,6 +163,27 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
         response.setStatus(HttpStatus.OK.value());
     }
 
+    /**
+     * [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+     */
+    private void setTokenResponseV2(HttpServletResponse response, String accessToken, String refreshToken) throws IOException {
+        // 액세스 토큰을 JSON 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
+        JsonObject responseData = new JsonObject();
+        responseData.addProperty("accessToken", accessToken);
+        responseData.addProperty("refreshToken", refreshToken);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(responseData.toString());
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
+    }
+
+    /**
+     * [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
+     * 로그인에 성공했을 때, 이미 가지고 있던 리프레쉬 토큰 or 처음 로그인한 유저에 대해 리프레쉬 토큰을 DB에 업데이트합니다.
+     * @param member 회원의 PK로, member의 refresh Token를 조회.
+     * @param newRefreshToken
+     */
     private void saveOrUpdateRefreshEntity(Member member, String newRefreshToken) {
         // 멤버의 PK 식별자로, refresh 토큰을 가져옵니다.
         Optional<Refresh> existedRefresh = refreshRepository.findById(member.getId());
@@ -170,7 +192,8 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
             // 로그인 이메일과 같은 이메일을 가지고 있는 Refresh 엔티티에 대해서, refresh 값을 새롭게 업데이트해줌
             Refresh refreshEntity = existedRefresh.get();
             // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
-            RefreshDto refreshDto = RefreshDto.createRefreshDto(member, newRefreshToken, expirationDateTime);
+            // 2024.04.11 Dto 에서 member 를 생성할 필요는 없어서 삭제했습니다.
+            RefreshDto refreshDto = RefreshDto.createRefreshDto(newRefreshToken, expirationDateTime);
             // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
             refreshEntity.updateRefreshToken(refreshDto);
             // 저장합니다.

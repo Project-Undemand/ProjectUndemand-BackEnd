@@ -8,13 +8,13 @@ import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
-import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,7 +30,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
     private final MemberRepositoryV1 memberRepositoryV1;
@@ -67,6 +67,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.addHeader("Authorization", "Bearer " + accessToken);
         // 리프레시 토큰은 쿠키에 저장합니다.
         response.addCookie(createCookie("RefreshToken", refreshToken));
+        response.setStatus(HttpStatus.OK.value());
 
         response.sendRedirect("http://localhost:3000");
     }
@@ -99,7 +100,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             // 로그인 이메일과 같은 이메일을 가지고 있는 Refresh 엔티티에 대해서, refresh 값을 새롭게 업데이트해줌
             Refresh refreshEntity = existedRefresh.get();
             // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
-            RefreshDto refreshDto = RefreshDto.createRefreshDto(member, newRefreshToken, expirationDateTime);
+            RefreshDto refreshDto = RefreshDto.createRefreshDto(newRefreshToken, expirationDateTime);
             // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
             refreshEntity.updateRefreshToken(refreshDto);
             // 저장합니다.

@@ -4,11 +4,13 @@ package PU.pushop.members.entity;
 import PU.pushop.members.model.RefreshDto;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "REFRESH")
 public class Refresh {
 
@@ -35,7 +37,6 @@ public class Refresh {
     }
 
     public void updateRefreshToken(RefreshDto refreshDto) {
-        this.member = refreshDto.getMember();
         this.refreshToken = refreshDto.getRefreshToken();
         this.expiration = refreshDto.getExpirationDate();
     }
