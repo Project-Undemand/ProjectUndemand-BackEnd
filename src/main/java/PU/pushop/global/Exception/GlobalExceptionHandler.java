@@ -1,4 +1,4 @@
-package PU.pushop.Exception;
+package PU.pushop.global.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

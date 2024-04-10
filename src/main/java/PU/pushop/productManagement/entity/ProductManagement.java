@@ -27,18 +27,19 @@ public class ProductManagement {
     private Long inventoryId; // ProductManagement 테이블의 pk
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "color_id", unique = false)
+    @JoinColumn(name = "color_id", unique = false, nullable = false)
     private ProductColor color;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", unique = false)
+    @JoinColumn(name = "category_id", unique = false, nullable = false)
     private Category category;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "size", nullable = false)
     private Size size;
 
     @Column(name = "initial_stock")

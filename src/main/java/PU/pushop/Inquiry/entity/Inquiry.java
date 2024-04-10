@@ -2,7 +2,7 @@ package PU.pushop.Inquiry.entity;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.enums.InquiryType;
+import PU.pushop.Inquiry.entity.enums.InquiryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +43,7 @@ public class Inquiry {
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "inquiry_type", nullable = false)
     private InquiryType inquiryType;
 
     @Column(name = "inquiry_title",nullable = false)

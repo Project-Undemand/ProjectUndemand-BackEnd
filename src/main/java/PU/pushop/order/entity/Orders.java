@@ -1,10 +1,8 @@
 package PU.pushop.order.entity;
 
-import PU.pushop.cart.entity.Cart;
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.enums.PayMethod;
 import PU.pushop.payment.entity.PaymentHistory;
-import PU.pushop.product.entity.Product;
 import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -35,7 +33,7 @@ public class Orders {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
 /*    @OneToMany
@@ -43,7 +41,7 @@ public class Orders {
     private List<Cart> carts = new ArrayList<>();*/
 
     @OneToMany
-    @JoinColumn(name = "product_management")
+    @JoinColumn(name = "product_management", nullable = false)
     private List<ProductManagement> productManagements = new ArrayList<>();
 
 /*

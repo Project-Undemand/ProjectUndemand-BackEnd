@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -45,7 +46,7 @@ public class ProductManagementService {
 
     public ProductManagement updateInventory(Long inventoryId, ProductManagement updatedInventory) {
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
 
         // 기존 상품 관리 업데이트
         existingInventory.setProduct(updatedInventory.getProduct());
@@ -68,7 +69,7 @@ public class ProductManagementService {
      */
     public void deleteInventory(Long inventoryId) {
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
         productManagementRepository.delete(existingInventory);
 
     }

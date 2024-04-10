@@ -1,4 +1,4 @@
-package PU.pushop.product.entity.enums;
+package PU.pushop.Inquiry.entity.enums;
 
 public enum InquiryType {
     PRODUCT, DELIVERY, RETURN, EXCHANGE, REFUND, ETC, NOTSELECTED

@@ -1,7 +1,9 @@
 package PU.pushop.Inquiry.service;
 
 
+import PU.pushop.Inquiry.model.InquiryCreateDto;
 import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
+import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
@@ -35,12 +37,25 @@ public class InquiryService {
      */
 
     @Transactional
-    public Long createInquiry(Inquiry inquiry, Long productId) {
-        Optional<Product> product = productRepository.findByProductId(productId);
+    public Long createInquiry(InquiryCreateDto request, Long productId) {
+        Inquiry inquiry = InquiryCreateDto.setInquiry(request);
 
-        inquiry.setProduct(product.
-                orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다. productId: " + productId))
-        );
+        // 멤버 저장
+        if (request.getMemberId() == null) {
+            inquiry.setMember(null);
+        } else {
+            Member member = memberRepository.findById(request.getMemberId())
+                    .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + request.getMemberId()));
+            inquiry.setMember(member);
+
+        }
+
+        // 상품 저장
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + productId));
+        inquiry.setProduct(product);
+
+        // BD에 저장
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
     }
@@ -90,7 +105,7 @@ public class InquiryService {
      * @param updatedInquiry
      * @return
      */
-    public Inquiry updateInquiry(Long inquiryId, Inquiry updatedInquiry, String password) {
+    public Inquiry updateInquiry(Long inquiryId, InquiryCreateDto updatedInquiry, String password) {
 
         Inquiry existingInquiry = validatePasswordAndGetInquiry(inquiryId, password);
 

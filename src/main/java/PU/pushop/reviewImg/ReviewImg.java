@@ -15,11 +15,11 @@ public class ReviewImg {
     @Column(name = "review_img_id")
     private Long reviewImgId;
 
-    @Column(name = "review_image_path")
+    @Column(name = "review_image_path", nullable = false)
     private String reviewImgPath;
 
     @ManyToOne
-    @JoinColumn(name = "review_id")
+    @JoinColumn(name = "review_id", nullable = false)
     private Review review;
 
     public ReviewImg(Review review, String reviewImgPath) {

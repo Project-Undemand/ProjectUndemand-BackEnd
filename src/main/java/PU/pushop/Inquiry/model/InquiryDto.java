@@ -1,10 +1,7 @@
 package PU.pushop.Inquiry.model;
 
 import PU.pushop.Inquiry.entity.Inquiry;
-import PU.pushop.Inquiry.entity.InquiryReply;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.product.entity.enums.InquiryType;
+import PU.pushop.Inquiry.entity.enums.InquiryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

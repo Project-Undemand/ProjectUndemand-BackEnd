@@ -28,21 +28,21 @@ public class PaymentHistory {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member")
+    @JoinColumn(name = "member", nullable = false)
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "orders")
+    @JoinColumn(name = "orders", nullable = false)
     private Orders orders;
 
     @ManyToOne
-    @JoinColumn(name = "product")
+    @JoinColumn(name = "product", nullable = false)
     private Product product;
 
-    @Column(name = "product_price")
+    @Column(name = "product_price", nullable = false)
     private Integer price;
 
-    @Column(name = "total_price")
+    @Column(name = "total_price", nullable = false)
     private Long totalPrice;
 
     @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE")
