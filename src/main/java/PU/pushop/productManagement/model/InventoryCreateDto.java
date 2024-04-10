@@ -5,6 +5,7 @@ import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.entity.enums.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,10 +14,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InventoryCreateDto {
+    @NotNull(message = "상품은 필수로 지정해야 합니다.")
     private Long productId;
+    @NotNull(message = "색상은 필수로 지정해야 합니다.")
     private Long colorId;
+    @NotNull(message = "카테고리는 필수로 지정해야 합니다.")
     private Long categoryId;
-
+    @NotNull(message = "사이즈는 필수로 지정해야 합니다.")
     private Size size;
 
     private Long initialStock;

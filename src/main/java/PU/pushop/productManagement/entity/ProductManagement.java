@@ -1,12 +1,17 @@
 package PU.pushop.productManagement.entity;
 
+import PU.pushop.order.entity.Orders;
 import PU.pushop.product.entity.Product;
 import PU.pushop.category.entity.Category;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.enums.Size;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,13 +20,13 @@ import lombok.Setter;
 public class ProductManagement {
     @Id
     @SequenceGenerator(
-            name = "inventory_sequence",
-            sequenceName = "inventory_sequence",
+            name = "product_management_sequence",
+            sequenceName = "product_management_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "inventory_sequence"
+            generator = "product_management_sequence"
     )
     @Column(name = "inventory_id" )
     private Long inventoryId; // ProductManagement 테이블의 pk
@@ -56,6 +61,9 @@ public class ProductManagement {
     private boolean isRestockAvailable = false;
 
     private boolean isRestocked = false;
+
+    @ManyToMany(mappedBy = "productManagements")
+    private List<Orders> orders = new ArrayList<>();
 
     public ProductManagement() {
 

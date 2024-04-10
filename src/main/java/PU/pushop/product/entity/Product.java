@@ -4,6 +4,7 @@ import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -33,6 +34,7 @@ public class Product {
     private ProductType productType;
 
     @Column(nullable = false, name = "product_name")
+    @NotBlank(message = "상품 이름은 필수입니다.")
     private String productName;
 
     @Column(name = "price", nullable = false, columnDefinition = "INT CHECK (price >= 0)")

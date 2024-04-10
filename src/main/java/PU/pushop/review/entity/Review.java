@@ -38,8 +38,8 @@ public class Review {
     private String reviewContent;
 
     @Column(name = "rating", nullable = false)
-    @Min(value = 1)
-    @Max(value = 5)
+    @Min(value = 1, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
+    @Max(value = 5, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
     private int rating;
 
     @CreationTimestamp

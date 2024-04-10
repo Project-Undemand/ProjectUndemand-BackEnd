@@ -40,8 +40,12 @@ public class Orders {
     @JoinColumn(name = "carts")
     private List<Cart> carts = new ArrayList<>();*/
 
-    @OneToMany
-    @JoinColumn(name = "product_management", nullable = false)
+    @ManyToMany
+    @JoinTable(
+            name = "orders_product_management",
+            joinColumns = @JoinColumn(name = "orders_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_management_id")
+    )
     private List<ProductManagement> productManagements = new ArrayList<>();
 
 /*

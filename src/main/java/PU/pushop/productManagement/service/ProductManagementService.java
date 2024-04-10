@@ -21,8 +21,8 @@ public class ProductManagementService {
      * @param productManagement
      * @return
      */
-    @Transactional
     public Long createInventory(ProductManagement productManagement) {
+        System.out.println(productManagement.getInventoryId());
         productManagementRepository.save(productManagement);
         return productManagement.getInventoryId();
     }

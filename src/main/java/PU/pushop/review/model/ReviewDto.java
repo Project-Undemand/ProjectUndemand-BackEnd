@@ -3,6 +3,8 @@ package PU.pushop.review.model;
 import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.review.entity.Review;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,8 @@ public class ReviewDto {
     private Long reviewId;
     private Long paymentHistoryId;
     private String reviewContent;
+    @Min(value = 1, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
+    @Max(value = 5, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
     private int rating;
     private LocalDate createdAt;
     private LocalDate updatedAt;

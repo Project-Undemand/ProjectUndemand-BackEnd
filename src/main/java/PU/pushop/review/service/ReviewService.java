@@ -57,9 +57,9 @@ public class ReviewService {
      */
     public List<ReviewDto> allReview() {
         List<Review> reviews = reviewRepository.findAll();
-        if (reviews.isEmpty()) {
+       /* if (reviews.isEmpty()) {
             throw new IllegalStateException("리뷰가 없습니다.");
-        }
+        }*/
         return reviews.stream().map(ReviewDto::new).collect(Collectors.toList());
     }
 

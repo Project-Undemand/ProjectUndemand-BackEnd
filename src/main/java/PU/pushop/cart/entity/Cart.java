@@ -5,6 +5,7 @@ import PU.pushop.order.entity.Orders;
 import PU.pushop.product.entity.Product;
 import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 

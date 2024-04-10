@@ -1,5 +1,6 @@
 package PU.pushop.Inquiry.entity;
 
+import PU.pushop.Inquiry.validation.EnumConstraint;
 import PU.pushop.members.entity.Member;
 import PU.pushop.product.entity.Product;
 import PU.pushop.Inquiry.entity.enums.InquiryType;
@@ -44,6 +45,7 @@ public class Inquiry {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "inquiry_type", nullable = false)
+    @EnumConstraint
     private InquiryType inquiryType;
 
     @Column(name = "inquiry_title",nullable = false)
