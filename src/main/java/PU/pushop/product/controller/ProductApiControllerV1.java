@@ -105,6 +105,9 @@ public class ProductApiControllerV1 {
     static class ColorRequest {
         private String color;
 
+        // 기본 생성자 추가
+        public ColorRequest() {}
+
         public ColorRequest(String color) {
             this.color = color;
         }

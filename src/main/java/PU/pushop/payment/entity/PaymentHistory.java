@@ -25,6 +25,8 @@ public class PaymentHistory {
             strategy = GenerationType.SEQUENCE,
             generator = "pay_sequence"
     )
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_history_id")
     private Long id;
 
     @ManyToOne
@@ -51,7 +53,7 @@ public class PaymentHistory {
     @Column(name = "total_price", nullable = false)
     private Long totalPrice;
 
-    @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE")
+    @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDate paidAt;
 
     @Column(name = "status")

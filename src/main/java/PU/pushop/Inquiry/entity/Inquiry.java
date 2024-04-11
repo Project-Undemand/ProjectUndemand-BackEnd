@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "inquiry")
+@Table(name = "inquiry_table")
 public class Inquiry {
     @Id
     @SequenceGenerator(
@@ -26,6 +26,7 @@ public class Inquiry {
             strategy = GenerationType.SEQUENCE,
             generator = "inquiry_sequence"
     )
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inquiry_id")
     private Long inquiryId;
 
@@ -57,7 +58,7 @@ public class Inquiry {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDate createdAt;
 
     @Column(name = "is_secret")

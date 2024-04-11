@@ -12,15 +12,12 @@ import lombok.Setter;
 @Table(name = "product_color")
 public class ProductColor {
     @Id
-    @SequenceGenerator(
-            name = "color_sequence",
-            sequenceName = "color_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "color_sequence"
-    )
+//    @SequenceGenerator(
+//            name = "color_sequence",
+//            sequenceName = "color_sequence",
+//            allocationSize = 1
+//    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "color_id")
     private Long colorId;
 
