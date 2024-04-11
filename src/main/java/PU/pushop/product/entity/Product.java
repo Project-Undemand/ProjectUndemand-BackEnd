@@ -14,18 +14,19 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "products")
+@Table(name = "products_table")
 public class Product {
     @Id
-    @SequenceGenerator(
-            name = "product_sequence",
-            sequenceName = "product_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "product_sequence"
-    )
+//    @SequenceGenerator(
+//            name = "product_sequence",
+//            sequenceName = "product_sequence",
+//            allocationSize = 1
+//    )
+//    @GeneratedValue(
+//            strategy = GenerationType.SEQUENCE,
+//            generator = "product_sequence"
+//    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long productId;
 
@@ -47,7 +48,7 @@ public class Product {
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDate createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE ON UPDATE CURRENT_DATE")
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDate updatedAt;
 
     @Column(nullable = false)
