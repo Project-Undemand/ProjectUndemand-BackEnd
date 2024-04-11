@@ -9,8 +9,8 @@ spring:
 
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/pushop?&serverTimezone=Asia/Seoul
-    username: root
-    password: '0000'
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
 
   redis:
     host: localhost
