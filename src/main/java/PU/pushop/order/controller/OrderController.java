@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/order")
@@ -29,12 +30,15 @@ public class OrderController {
      */
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> payload) {
-        List<Long> cartIds = (List<Long>) payload.get("cartIds");
+        List<Integer> cartIdsInteger = (List<Integer>) payload.get("cartIds");
+        List<Long> cartIds = cartIdsInteger.stream().map(Long::valueOf).collect(Collectors.toList());
         Orders temporaryOrder = orderService.createOrder(cartIds);
 
         // 세션에 임시 주문 정보를 저장
         httpSession.setAttribute("temporaryOrder", temporaryOrder);
         httpSession.setAttribute("cartIds", cartIds);
+
+        Object cartIdsAttribute = httpSession.getAttribute("cartIds");
 
         return ResponseEntity.ok("주문 임시 저장 완료");
     }
@@ -52,7 +56,6 @@ public class OrderController {
 
         // 세션에서 임시 주문 정보를 가져옴
         Orders temporaryOrder = (Orders) httpSession.getAttribute("temporaryOrder");
-        System.out.println("cartIds: " + httpSession.getAttribute("temporaryOrder"));
 
         if (temporaryOrder == null) {
             return ResponseEntity.badRequest().body("임시 주문 정보를 찾을 수 없습니다.");

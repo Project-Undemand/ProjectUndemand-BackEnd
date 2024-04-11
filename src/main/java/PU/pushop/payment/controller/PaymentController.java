@@ -66,8 +66,7 @@ public class PaymentController {
     // 결제 완료 화면에서 세션 저장값, 장바구니 삭제하는 로직 - 프론트에서 확인해야 함
     @GetMapping("/order/paymentconfirm")
     public void deleteSession() {
-        List<Long>cartIds = (List) httpSession.getAttribute("cartIds");
-        System.out.println("cartIds: " + cartIds);
+        List<Long>cartIds = (List<Long>) httpSession.getAttribute("cartIds");
 
         for(Long cartId : cartIds){
             Cart cart = cartRepository.findById(cartId).orElse(null);
@@ -75,7 +74,7 @@ public class PaymentController {
         }
         // 세션에서 임시 주문 정보 삭제
         httpSession.removeAttribute("temporaryOrder");
-        httpSession.removeAttribute("cardIds");
+        httpSession.removeAttribute("cartIds");
 
     }
 
