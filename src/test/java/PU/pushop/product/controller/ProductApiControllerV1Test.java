@@ -8,12 +8,15 @@ import PU.pushop.product.model.ProductDto;
 import PU.pushop.product.model.ProductResponseDto;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.product.service.ProductServiceV1;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -24,6 +27,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
 class ProductApiControllerV1Test {
+
     @Mock
     private ProductServiceV1 productServiceV1;
 
@@ -35,7 +39,7 @@ class ProductApiControllerV1Test {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test
+    @Test@DisplayName("상품 등록 성공")
     void testCreateProduct() {
         // Given
         ProductCreateDto request = new ProductCreateDto();
@@ -60,6 +64,7 @@ class ProductApiControllerV1Test {
     }
 
     @Test
+    @DisplayName("가격을 음수로 설정했을 때 IllegalArgumentException 발생")
     void testCreateProductWithNegativePrice() {
         // Given
         ProductCreateDto request = new ProductCreateDto();
@@ -67,20 +72,15 @@ class ProductApiControllerV1Test {
         request.setPrice(-100); // 음수 가격
         request.setProductType(ProductType.WOMAN);
 
-        // When ProductServiceV1의 createProduct 메서드가 호출될 때 음수 가격이 들어있는 ProductCreateDto가 전달되면
-        // IllegalArgumentException을 발생시키도록 설정
         when(productServiceV1.createProduct(any())).thenThrow(new IllegalArgumentException("가격은 0 이상이어야 합니다."));
 
-        // When
-        ResponseEntity<?> responseEntity = productApiControllerV1.createProduct(request);
+        // When & Then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productApiControllerV1.createProduct(request));
 
-        // Then
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertEquals("가격은 0 이상이어야 합니다.", responseEntity.getBody());
     }
 
 
-    @Test
+    @Test@DisplayName("Id로 상품 찾기")
     void testGetProductById() {
         // Given
         Long productId = 1L;
@@ -100,7 +100,7 @@ class ProductApiControllerV1Test {
         assertEquals(productId, responseEntity.getBody().getProductId());
     }
 
-    @Test
+    @Test@DisplayName("상품 수정")
     public void testUpdateProduct() {
         // Given
         Long productId = 1L;
@@ -126,7 +126,7 @@ class ProductApiControllerV1Test {
         assertEquals(updatedProduct.getPrice(), ((ProductResponseDto) responseEntity.getBody()).getPrice());
     }
 
-    @Test
+    @Test@DisplayName("상품 삭제")
     public void testDeleteProduct() {
         // Given
         Long productId = 1L;
@@ -139,7 +139,7 @@ class ProductApiControllerV1Test {
         verify(productServiceV1, times(1)).deleteProduct(productId);
     }
 
-    @Test
+    @Test@DisplayName("색상 등록")
     public void testCreateColor() {
         // Given
         String colorName = "Red";
@@ -158,6 +158,27 @@ class ProductApiControllerV1Test {
     }
 
     @Test
+    @DisplayName("중복된 이름의 색상 등록 시 Internal Server Error 반환")
+    void createColor_DuplicateName_ReturnsInternalServerError() {
+        // Given
+        ProductApiControllerV1.ColorRequest request = new ProductApiControllerV1.ColorRequest();
+        request.setColor("Red"); // 이미 존재하는 색상 이름
+
+        ProductColor existingColor = new ProductColor();
+        existingColor.setColor("Red");
+
+        ProductApiControllerV1 productService;
+        when(productServiceV1.createColor(any())).thenThrow(DataIntegrityViolationException.class);
+
+        // When
+        ResponseEntity<?> response = productApiControllerV1.createColor(request);
+
+        // Then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("중복된 이름으로 색상을 등록할 수 없습니다.", response.getBody());
+    }
+
+    @Test@DisplayName("색상 삭제")
     public void testDeleteColor() {
         // Given
         Long colorId = 1L;
