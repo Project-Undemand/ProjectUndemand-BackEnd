@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,7 @@ public class OrderResponseDto {
     String postCode;
     String address;
     String detailAddress;
-    LocalDate orderDay;
+    LocalDateTime orderDay;
     Boolean paymentStatus;
 
     public OrderResponseDto(Orders orders) {

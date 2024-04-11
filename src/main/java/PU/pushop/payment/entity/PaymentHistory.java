@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -54,7 +55,7 @@ public class PaymentHistory {
     private Long totalPrice;
 
     @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDate paidAt;
+    private LocalDateTime paidAt;
 
     @Column(name = "status")
     private Boolean status = true;
@@ -64,7 +65,7 @@ public class PaymentHistory {
 
 
     public PaymentHistory() {
-        this.paidAt =  LocalDate.now();
+        this.paidAt =  LocalDateTime.now();
     }
 
 

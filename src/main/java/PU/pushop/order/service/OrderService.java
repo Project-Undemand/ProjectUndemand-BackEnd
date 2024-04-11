@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +134,7 @@ public class OrderService {
     private String generateMerchantUid() {
         // 현재 날짜와 시간을 포함한 고유한 문자열 생성
         String uniqueString = UUID.randomUUID().toString().replace("-", "");
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDay = today.format(formatter).replace("-", "");
         // 무작위 문자열과 현재 날짜/시간을 조합하여 주문번호 생성

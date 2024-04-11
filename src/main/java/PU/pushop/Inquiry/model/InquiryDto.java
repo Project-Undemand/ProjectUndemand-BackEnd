@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +23,7 @@ public class InquiryDto {
     private String inquiryTitle;
     private String inquiryContent;
     private String password;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     private Boolean isSecret;
     private Boolean isResponse;
     private List<InquiryReplyDto> replies;

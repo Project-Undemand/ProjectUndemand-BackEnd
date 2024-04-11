@@ -10,7 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +83,7 @@ public class Orders {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDate orderDay;
+    private LocalDateTime orderDay;
 
     @Column(name = "payment_status")
     private Boolean paymentStatus = false;
@@ -92,6 +92,6 @@ public class Orders {
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
     public Orders() {
-        this.orderDay = LocalDate.now();
+        this.orderDay = LocalDateTime.now();
     }
 }

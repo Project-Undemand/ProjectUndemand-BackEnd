@@ -4,10 +4,8 @@ import PU.pushop.payment.entity.PaymentHistory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.java.Log;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,9 +16,9 @@ public class PaymentHistoryDto {
     private String product;
     private String option;
     private Integer productPrice;
-    private LocalDate orderedAt;
+    private LocalDateTime orderedAt;
     private Long totalPrice;
-    private LocalDate payedAte;
+    private LocalDateTime payedAte;
 
 
     public PaymentHistoryDto(PaymentHistory paymentHistory) {
