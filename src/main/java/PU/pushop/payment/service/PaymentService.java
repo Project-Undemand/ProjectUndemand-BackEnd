@@ -67,7 +67,7 @@ public class PaymentService {
 
             paymentHistory.setProduct(product);
             paymentHistory.setProductName(product.getProductName());
-            paymentHistory.setOption(option);
+            paymentHistory.setProductOption(option);
             paymentHistory.setOrders(order);
             paymentHistory.setMember(member);
             paymentHistory.setTotalPrice(totalPrice);

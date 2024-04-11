@@ -44,8 +44,8 @@ public class PaymentHistory {
     @Column(name = "product_name")
     private String productName;
 
-    @Column(name = "option")
-    private String option;
+    @Column(name = "product_option")
+    private String productOption;
 
     @Column(name = "product_price", nullable = false)
     private Integer price;

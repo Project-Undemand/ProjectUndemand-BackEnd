@@ -28,7 +28,7 @@ public class PaymentHistoryDto {
                 paymentHistory.getMember().getId(),
                 paymentHistory.getOrders().getOrderId(),
                 paymentHistory.getProduct().getProductName(),
-                paymentHistory.getOption(),
+                paymentHistory.getProductOption(),
                 paymentHistory.getProduct().getPrice(),
                 paymentHistory.getOrders().getOrderDay(),
                 paymentHistory.getTotalPrice(),
