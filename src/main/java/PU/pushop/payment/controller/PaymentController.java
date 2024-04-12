@@ -16,6 +16,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -78,6 +80,11 @@ public class PaymentController {
         httpSession.removeAttribute("temporaryOrder");
         httpSession.removeAttribute("cartIds");
 
+    }
+
+    @GetMapping("/paymenthistory/{memberId}")
+    public ResponseEntity<?> paymentList(@PathVariable Long memberId) {
+        return ResponseEntity.status(HttpStatus.OK).body(paymentService.paymentHistoryList(memberId));
     }
 
 }

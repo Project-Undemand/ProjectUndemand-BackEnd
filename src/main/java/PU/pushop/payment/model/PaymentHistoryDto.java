@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentHistoryDto {
+    private Long paymentId;
     private Long memberId;
     private Long orderId;
     private String product;
@@ -23,6 +24,7 @@ public class PaymentHistoryDto {
 
     public PaymentHistoryDto(PaymentHistory paymentHistory) {
         this(
+                paymentHistory.getId(),
                 paymentHistory.getMember().getId(),
                 paymentHistory.getOrders().getOrderId(),
                 paymentHistory.getProduct().getProductName(),
@@ -33,4 +35,5 @@ public class PaymentHistoryDto {
                 paymentHistory.getPaidAt()
         );
     }
+
 }

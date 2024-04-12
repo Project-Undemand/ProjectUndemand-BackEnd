@@ -5,16 +5,19 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.order.repository.OrderRepository;
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.payment.model.PaymentHistoryDto;
 import PU.pushop.payment.model.PaymentRequestDto;
 import PU.pushop.payment.repository.PaymentRepository;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
+import com.siot.IamportRestClient.response.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -78,6 +81,20 @@ public class PaymentService {
 
         }
 
+    }
+
+    public List<PaymentHistoryDto> paymentHistoryList(Long memberId) {
+        List<PaymentHistory> paymentHistories = paymentRepository.findByMemberId(memberId);
+
+        List<PaymentHistoryDto> paymentHistoryDtos = new ArrayList<>();
+
+        for (PaymentHistory paymentHistory : paymentHistories) {
+            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(paymentHistory);
+            // 나머지 필드도 동일한 방식으로 복사
+            paymentHistoryDtos.add(paymentHistoryDto);
+        }
+
+        return paymentHistoryDtos;
     }
 
 
