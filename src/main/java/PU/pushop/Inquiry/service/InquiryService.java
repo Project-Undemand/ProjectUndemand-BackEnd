@@ -112,7 +112,6 @@ public class InquiryService {
         existingInquiry.setInquiryType(updatedInquiry.getInquiryType());
         existingInquiry.setInquiryTitle(updatedInquiry.getInquiryTitle());
         existingInquiry.setInquiryContent(updatedInquiry.getInquiryContent());
-        existingInquiry.setIsSecret(updatedInquiry.getIsSecret());
 
         return inquiryRepository.save(existingInquiry);
     }

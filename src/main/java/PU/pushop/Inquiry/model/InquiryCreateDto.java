@@ -23,7 +23,6 @@ public class InquiryCreateDto {
     @NotBlank(message = "내용은 필수입니다.")
     private String inquiryContent;
     private String password;
-    private Boolean isSecret;
 
     public InquiryCreateDto(Inquiry inquiry) {
         this(
@@ -33,8 +32,7 @@ public class InquiryCreateDto {
                 inquiry.getInquiryType(),
                 inquiry.getInquiryTitle(),
                 inquiry.getInquiryContent(),
-                inquiry.getPassword(),
-                inquiry.getIsSecret()
+                inquiry.getPassword()
         );
 
     }
@@ -49,7 +47,6 @@ public class InquiryCreateDto {
         inquiryCreateDto.setInquiryTitle(request.getInquiryTitle());
         inquiryCreateDto.setInquiryContent(request.getInquiryContent());
         inquiryCreateDto.setPassword(request.getPassword());
-        inquiryCreateDto.setIsSecret(request.getIsSecret());
 
         return inquiryCreateDto;
     }
@@ -63,7 +60,6 @@ public class InquiryCreateDto {
         inquiry.setInquiryTitle(inquiryCreateDto.getInquiryTitle());
         inquiry.setInquiryContent(inquiryCreateDto.getInquiryContent());
         inquiry.setPassword(inquiryCreateDto.getPassword());
-        inquiry.setIsSecret(inquiryCreateDto.getIsSecret());
 
         return inquiry;
     }
