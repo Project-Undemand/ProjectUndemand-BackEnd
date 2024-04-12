@@ -68,11 +68,9 @@ public class ProductManagementController {
      * @return
      */
     @PostMapping("/new")
-    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryCreateDto request) {
-        System.out.println(request);
-
-        ProductManagement productManagement = InventoryCreateDto.requestForm(request);
-        Long createdId = managementService.createInventory(productManagement);
+    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryCreateDto requestDto) {
+        ProductManagement request = InventoryCreateDto.requestForm(requestDto);
+        Long createdId = managementService.createInventory(request);
         return ResponseEntity.ok(createdId);
     }
 

@@ -18,13 +18,19 @@ public class ProductManagementService {
 
     /**
      * 상품관리 등록
-     * @param productManagement
+     * @param request
      * @return
      */
-    public Long createInventory(ProductManagement productManagement) {
-        System.out.println(productManagement.getInventoryId());
-        productManagementRepository.save(productManagement);
-        return productManagement.getInventoryId();
+    public Long createInventory(ProductManagement request) {
+
+        ProductManagement existingInventory = productManagementRepository.findByProductAndColorAndCategoryAndSize(request.getProduct(), request.getColor(), request.getCategory(), request.getSize()).orElse(null);
+
+        if (existingInventory != null) {
+            throw new IllegalArgumentException("이미 존재하는 상품입니다.");
+        }
+
+        productManagementRepository.save(request);
+        return request.getInventoryId();
     }
 
     /**

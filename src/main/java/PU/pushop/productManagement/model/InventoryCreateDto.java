@@ -26,6 +26,9 @@ public class InventoryCreateDto {
     private Long initialStock;
     private Long additionalStock;
     private Long productStock;
+    private Boolean isRestockAvailable = false;
+    private Boolean isRestocked = false;
+    private Boolean isSoldOut = false;
 
     public InventoryCreateDto(ProductManagement productManagement) {
         this(
@@ -35,7 +38,10 @@ public class InventoryCreateDto {
                 productManagement.getSize(),
                 productManagement.getInitialStock(),
                 productManagement.getAdditionalStock(),
-                productManagement.getProductStock()
+                productManagement.getProductStock(),
+                productManagement.isRestockAvailable(),
+                productManagement.isRestocked(),
+                productManagement.isSoldOut()
         );
     }
 
@@ -57,6 +63,9 @@ public class InventoryCreateDto {
         productManagement.setInitialStock(request.getInitialStock());
         productManagement.setAdditionalStock(request.getAdditionalStock());
         productManagement.setProductStock(request.getProductStock());
+        productManagement.setRestockAvailable(request.getIsRestockAvailable());
+        productManagement.setRestocked(request.getIsRestocked());
+        productManagement.setSoldOut(request.getIsSoldOut());
 
         return productManagement;
     }
