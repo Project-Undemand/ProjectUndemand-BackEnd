@@ -20,6 +20,7 @@ public class PaymentHistoryDto {
     private LocalDateTime orderedAt;
     private Long totalPrice;
     private LocalDateTime payedAte;
+    private Boolean review;
 
 
     public PaymentHistoryDto(PaymentHistory paymentHistory) {
@@ -32,7 +33,8 @@ public class PaymentHistoryDto {
                 paymentHistory.getProduct().getPrice(),
                 paymentHistory.getOrders().getOrderDay(),
                 paymentHistory.getTotalPrice(),
-                paymentHistory.getPaidAt()
+                paymentHistory.getPaidAt(),
+                paymentHistory.getReview()
         );
     }
 

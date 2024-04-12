@@ -90,7 +90,6 @@ public class PaymentService {
 
         for (PaymentHistory paymentHistory : paymentHistories) {
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(paymentHistory);
-            // 나머지 필드도 동일한 방식으로 복사
             paymentHistoryDtos.add(paymentHistoryDto);
         }
 
