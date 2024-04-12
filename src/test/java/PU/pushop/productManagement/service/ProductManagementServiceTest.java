@@ -83,7 +83,7 @@ class ProductManagementServiceTest {
 
         ProductManagement existingProductManagement = new ProductManagement();
         existingProductManagement.setInventoryId(1L);
-        existingProductManagement.setAdditionalStock(5L); // 기존 값
+        existingProductManagement.setInitialStock(1L);
 
         when(productManagementRepository.findById(1L)).thenReturn(Optional.of(existingProductManagement));
         when(productManagementRepository.save(any(ProductManagement.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -96,6 +96,7 @@ class ProductManagementServiceTest {
         verify(productManagementRepository, times(1)).save(any(ProductManagement.class));
         assertEquals(1L, result.getInventoryId());
         assertEquals(10L, result.getAdditionalStock()); // 수정된 값
+        assertEquals(11L, result.getProductStock()); // 상품 재고 = 초기재고 + 추가재고
     }
 
     @Test
