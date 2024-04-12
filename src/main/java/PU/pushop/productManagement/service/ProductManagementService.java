@@ -1,6 +1,7 @@
 package PU.pushop.productManagement.service;
 
 import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.model.InventoryUpdateDto;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,21 +51,12 @@ public class ProductManagementService {
         return productManagementRepository.findAll();
     }
 
-    public ProductManagement updateInventory(Long inventoryId, ProductManagement updatedInventory) {
+    public ProductManagement updateInventory(Long inventoryId, InventoryUpdateDto updatedInventory) {
+
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
                 .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
 
-        // 기존 상품 관리 업데이트
-        existingInventory.setProduct(updatedInventory.getProduct());
-        existingInventory.setColor(updatedInventory.getColor());
-        existingInventory.setProductStock(updatedInventory.getProductStock());
-        existingInventory.setCategory(updatedInventory.getCategory());
-        existingInventory.setSize(updatedInventory.getSize());
-        existingInventory.setAdditionalStock(updatedInventory.getAdditionalStock());
-        existingInventory.setInitialStock(updatedInventory.getInitialStock());
-        existingInventory.setRestockAvailable(updatedInventory.isRestockAvailable());
-        existingInventory.setRestocked(updatedInventory.isRestocked());
-        existingInventory.setSoldOut(updatedInventory.isSoldOut());
+        InventoryUpdateDto.updateInventoryForm(existingInventory, updatedInventory);
 
         return productManagementRepository.save(existingInventory);
     }

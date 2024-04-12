@@ -24,8 +24,8 @@ public class InventoryCreateDto {
     private Size size;
 
     private Long initialStock;
-    private Long additionalStock;
-    private Long productStock;
+    private Long additionalStock = 0L; // 생성할 땐 무조건 0
+//    private Long productStock; // 생성할 땐 productStock = initialStock
     private Boolean isRestockAvailable = false;
     private Boolean isRestocked = false;
     private Boolean isSoldOut = false;
@@ -38,7 +38,6 @@ public class InventoryCreateDto {
                 productManagement.getSize(),
                 productManagement.getInitialStock(),
                 productManagement.getAdditionalStock(),
-                productManagement.getProductStock(),
                 productManagement.isRestockAvailable(),
                 productManagement.isRestocked(),
                 productManagement.isSoldOut()
@@ -61,8 +60,7 @@ public class InventoryCreateDto {
 
         productManagement.setSize(request.getSize());
         productManagement.setInitialStock(request.getInitialStock());
-        productManagement.setAdditionalStock(request.getAdditionalStock());
-        productManagement.setProductStock(request.getProductStock());
+        productManagement.setProductStock(request.getInitialStock()); // 상품 재고는 초기재고로 자동 설정
         productManagement.setRestockAvailable(request.getIsRestockAvailable());
         productManagement.setRestocked(request.getIsRestocked());
         productManagement.setSoldOut(request.getIsSoldOut());

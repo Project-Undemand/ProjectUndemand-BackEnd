@@ -1,6 +1,7 @@
 package PU.pushop.productManagement.service;
 
 import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.model.InventoryUpdateDto;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -76,20 +77,42 @@ class ProductManagementServiceTest {
     @Test
     @DisplayName("상품관리 수정")
     void updateInventoryTest() {
-        ProductManagement updatedProductManagement = new ProductManagement();
-        updatedProductManagement.setInventoryId(1L);
+        // Given
+        InventoryUpdateDto updateDto = new InventoryUpdateDto();
+        updateDto.setAdditionalStock(10L);
 
         ProductManagement existingProductManagement = new ProductManagement();
         existingProductManagement.setInventoryId(1L);
+        existingProductManagement.setAdditionalStock(5L); // 기존 값
 
         when(productManagementRepository.findById(1L)).thenReturn(Optional.of(existingProductManagement));
-        when(productManagementRepository.save(any(ProductManagement.class))).thenReturn(updatedProductManagement);
+        when(productManagementRepository.save(any(ProductManagement.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        ProductManagement result = productManagementService.updateInventory(1L, updatedProductManagement);
+        // When
+        ProductManagement result = productManagementService.updateInventory(1L, updateDto);
 
+        // Then
         verify(productManagementRepository, times(1)).findById(1L);
         verify(productManagementRepository, times(1)).save(any(ProductManagement.class));
         assertEquals(1L, result.getInventoryId());
+        assertEquals(10L, result.getAdditionalStock()); // 수정된 값
+    }
+
+    @Test
+    @DisplayName("상품관리 수정 - 기존 상품이 없는 경우")
+    void updateInventoryNotFoundTest() {
+        // Given
+        InventoryUpdateDto updateDto = new InventoryUpdateDto();
+        updateDto.setAdditionalStock(10L);
+
+        when(productManagementRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // When, Then
+        NoSuchElementException exception = org.junit.jupiter.api.Assertions.assertThrows(
+                NoSuchElementException.class,
+                () -> productManagementService.updateInventory(1L, updateDto)
+        );
+        assertEquals("상품을 찾을 수 없습니다.", exception.getMessage());
     }
 
     @Test
