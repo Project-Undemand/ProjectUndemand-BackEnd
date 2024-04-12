@@ -3,6 +3,7 @@ package PU.pushop.product.service;
 
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
+import PU.pushop.product.model.ProductCreateDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
@@ -63,13 +64,7 @@ public class ProductServiceV1 {
         Product existingProduct = productRepositoryV1.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
 
-        // 기존 상품 정보 업데이트
-        existingProduct.setProductName(updatedProduct.getProductName());
-        existingProduct.setProductType(updatedProduct.getProductType());
-        existingProduct.setPrice(updatedProduct.getPrice());
-        existingProduct.setProductInfo(updatedProduct.getProductInfo());
-        existingProduct.setManufacturer(updatedProduct.getManufacturer());
-
+        ProductCreateDto.updateForm(existingProduct, updatedProduct);
         // 수정된 상품 정보 저장 후 return
         return productRepositoryV1.save(existingProduct);
 

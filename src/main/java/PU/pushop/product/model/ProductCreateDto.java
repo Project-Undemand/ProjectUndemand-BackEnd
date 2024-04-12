@@ -21,6 +21,9 @@ public class ProductCreateDto {
     private Integer price;
     private String productInfo;
     private String manufacturer;
+    private Boolean isSale = false;
+    private Boolean isRecommend = false;
+
 
     public ProductCreateDto(Product product) {
         this(
@@ -28,7 +31,9 @@ public class ProductCreateDto {
                 product.getProductType(),
                 product.getPrice(),
                 product.getProductInfo(),
-                product.getManufacturer()
+                product.getManufacturer(),
+                product.getIsSale(),
+                product.getIsRecommend()
         );
     }
 
@@ -40,7 +45,22 @@ public class ProductCreateDto {
         product.setPrice(request.getPrice());
         product.setProductInfo(request.getProductInfo());
         product.setManufacturer(request.getManufacturer());
+        product.setIsSale(request.getIsSale());
+        product.setIsRecommend(request.getIsRecommend());
         return product;
+    }
+
+    public static Product updateForm(Product existingProduct, Product updatedProduct) {
+        // 기존 상품 정보 업데이트
+        existingProduct.setProductName(updatedProduct.getProductName());
+        existingProduct.setProductType(updatedProduct.getProductType());
+        existingProduct.setPrice(updatedProduct.getPrice());
+        existingProduct.setProductInfo(updatedProduct.getProductInfo());
+        existingProduct.setManufacturer(updatedProduct.getManufacturer());
+        existingProduct.setIsSale(updatedProduct.getIsSale());
+        existingProduct.setIsRecommend(updatedProduct.getIsRecommend());
+
+        return existingProduct;
     }
 
 }

@@ -58,7 +58,7 @@ public class Product {
     @Column(name = "is_sale")
     private Boolean isSale = false;
 
-    @Column(name = "is_recomment")
+    @Column(name = "is_recommend")
     private Boolean isRecommend = false;
 
     @OneToMany(mappedBy = "product")
