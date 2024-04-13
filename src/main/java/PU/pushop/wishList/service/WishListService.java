@@ -5,11 +5,13 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
 import PU.pushop.wishList.entity.WishList;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.wishList.model.WishListResponseDto;
 import PU.pushop.wishList.repository.WishListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -28,10 +30,10 @@ public class WishListService {
      * @param member
      * @return
      */
-    public WishList createWish(Product product, Member member) {
+    public Long createWish(Product product, Member member) {
         // 이미 존재하는지 확인
-        Optional<WishList> existingWishList = wishListRepository.findByProductAndMember(product, member);
-        if (existingWishList.isPresent()) {
+        boolean isAlreadyWished = !wishListRepository.findByProductAndMember(product, member).isEmpty();
+        if (isAlreadyWished) {
             throw new IllegalStateException("이미 찜한 상품입니다.");
         }
         WishList wishList = new WishList();
@@ -40,13 +42,13 @@ public class WishListService {
         wishList.setProduct(product);
 
         product.getWishLists().add(wishList);
-        productRepository.save(product);
         member.getWishLists().add(wishList);
+        product.setWishListCount((long) product.getWishLists().size());
+
+        productRepository.save(product);
         memberRepository.save(member);
 
-        wishListRepository.save(wishList);
-
-        return wishList;
+        return wishListRepository.save(wishList).getWishListId();
     }
 
     /**
@@ -66,9 +68,18 @@ public class WishListService {
      * @param member
      * @return
      */
-    public List<WishList> myWishList(Member member) {
+    public List<WishListResponseDto> myWishList(Member member) {
 
-        return wishListRepository.findByMember(member);
+        List<WishList> wishLists = wishListRepository.findByMember(member);
+
+        List<WishListResponseDto> wishListResponseDtos = new ArrayList<>();
+
+        for (WishList wishList : wishLists) {
+            WishListResponseDto wishListResponseDto = new WishListResponseDto(wishList);
+            wishListResponseDtos.add(wishListResponseDto);
+        }
+
+        return wishListResponseDtos;
 
     }
 }
