@@ -1,7 +1,9 @@
 package PU.pushop.product.model;
 
+import PU.pushop.global.validation.ValidDiscountRate;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ValidDiscountRate // 커스텀 유효성 검사 애노테이션 적용
 public class ProductCreateDto {
     @NotBlank(message = "상품 이름은 필수입니다.")
     private String productName;
@@ -21,7 +24,9 @@ public class ProductCreateDto {
     private Integer price;
     private String productInfo;
     private String manufacturer;
-    private Boolean isSale = false;
+    private Boolean isDiscount = false;
+    @Max(value = 100, message = "할인율은 100을 초과할 수 없습니다.")
+    private Integer discountRate = null;
     private Boolean isRecommend = false;
 
 
@@ -32,10 +37,28 @@ public class ProductCreateDto {
                 product.getPrice(),
                 product.getProductInfo(),
                 product.getManufacturer(),
-                product.getIsSale(),
+                product.getIsDiscount(),
+                product.getDiscountRate(),
                 product.getIsRecommend()
         );
     }
+
+    // isDiscount가 false 라면 할인율 null
+    public void setIsDiscount(Boolean isDiscount) {
+        this.isDiscount = isDiscount;
+        if (Boolean.FALSE.equals(isDiscount)) {
+            this.discountRate = null;
+        }
+    }
+
+    // discountRate를 설정하는 메서드
+//    public void setDiscountRate(Integer discountRate) {
+//        // isDiscount가 false이면서 discountRate가 설정되면 isDiscount를 true로 변경
+//        if (discountRate != null && discountRate > 0) {
+//            this.isDiscount = true;
+//        }
+//        this.discountRate = discountRate;
+//    }
 
 /*  Model Mapper 사용으로 필요 없어짐
 

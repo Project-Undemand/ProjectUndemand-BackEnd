@@ -4,6 +4,8 @@ import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -55,8 +57,11 @@ public class Product {
     @Column(nullable = false)
     private String manufacturer;
 
-    @Column(name = "is_sale")
-    private Boolean isSale = false;
+    @Column(name = "is_discount")
+    private Boolean isDiscount = false;
+
+    @Column(name = "discount_rate", nullable = true)
+    private Integer discountRate;
 
     @Column(name = "is_recommend")
     private Boolean isRecommend = false;
@@ -101,8 +106,12 @@ public class Product {
         this.wishListCount = wishListCount;
     }
 
-    public void setIsSale(Boolean isSale) {
-        this.isSale = isSale;
+    public void setisDiscount(Boolean isDiscount) {
+        this.isDiscount = isDiscount;
+    }
+
+    public void setDiscountRate(Integer discountRate) {
+        this.discountRate = discountRate;
     }
 
     public void setIsRecommend(Boolean isRecommend) {

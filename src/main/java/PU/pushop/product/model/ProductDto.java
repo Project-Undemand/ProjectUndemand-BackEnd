@@ -27,7 +27,8 @@ public class ProductDto {
     private LocalDateTime updatedAt;
     private String manufacturer;
 
-    private boolean isSale;
+    private boolean isDiscount;
+    private Integer discountRate;
     private boolean isRecommend;
 
     private List<WishListDto> wishLists;
@@ -44,7 +45,8 @@ public class ProductDto {
                 product.getCreatedAt(),
                 product.getUpdatedAt(),
                 product.getManufacturer(),
-                product.getIsSale(),
+                product.getIsDiscount(),
+                product.getDiscountRate(),
                 product.getIsRecommend(),
                 product.getWishLists() != null ? product.getWishLists().stream().map(WishListDto::new).collect(Collectors.toList()) : Collections.emptyList(),
                 product.getWishListCount()

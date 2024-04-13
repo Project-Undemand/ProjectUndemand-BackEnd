@@ -6,10 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(of = "colorId")
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductColorDto {
     private Long colorId;
     @NotBlank(message = "색상 이름은 필수입니다.")
@@ -20,9 +22,5 @@ public class ProductColorDto {
                 color.getColorId(),
                 color.getColor()
         );
-    }
-
-    public ProductColorDto() {
-
     }
 }

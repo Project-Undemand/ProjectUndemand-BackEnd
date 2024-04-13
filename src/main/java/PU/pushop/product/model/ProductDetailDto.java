@@ -4,11 +4,13 @@ import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductDetailDto {
     private Long productId;
     private ProductType productType;
@@ -16,7 +18,8 @@ public class ProductDetailDto {
     private Integer price;
     private String productInfo;
     private String manufacturer;
-    private Boolean isSale;
+    private Boolean isDiscount;
+    private Integer discountRate;
     private Boolean isRecommend;
 
     public ProductDetailDto(Product product) {
@@ -27,7 +30,8 @@ public class ProductDetailDto {
                 product.getPrice(),
                 product.getProductInfo(),
                 product.getManufacturer(),
-                product.getIsSale(),
+                product.getIsDiscount(),
+                product.getDiscountRate(),
                 product.getIsRecommend()
         );
     }

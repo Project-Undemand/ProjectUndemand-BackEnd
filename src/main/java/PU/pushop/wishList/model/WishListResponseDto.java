@@ -16,7 +16,7 @@ public class WishListResponseDto {
     private String productName;
     private Integer price;
     private String productInfo;
-    private Boolean isSale;
+    private Boolean isDiscount;
     private Boolean isRecommend;
 
     public WishListResponseDto(WishList wishList) {
@@ -27,7 +27,7 @@ public class WishListResponseDto {
                 wishList.getProduct().getProductName(),
                 wishList.getProduct().getPrice(),
                 wishList.getProduct().getProductInfo(),
-                wishList.getProduct().getIsSale(),
+                wishList.getProduct().getIsDiscount(),
                 wishList.getProduct().getIsRecommend()
         );
     }

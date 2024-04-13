@@ -72,6 +72,10 @@ dependencies {
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21' // 아임포트 설정
 	implementation 'mysql:mysql-connector-java:8.0.33'// MySQL
 	implementation 'org.modelmapper:modelmapper:2.4.1' // modelmapper
+
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
+	implementation 'org.hibernate.validator:hibernate-validator:7.0.2.Final'
+
 }
 
 tasks.withType(JavaCompile) {

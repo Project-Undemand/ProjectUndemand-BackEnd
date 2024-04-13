@@ -5,6 +5,7 @@ import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.wishList.entity.WishList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductListDto {
     private Long productId;
     private ProductType productType;
@@ -19,7 +21,8 @@ public class ProductListDto {
     private Integer price;
     private LocalDateTime createAt;
     private Long wishListCount;
-    private Boolean isSale;
+    private Boolean isDiscount;
+    private Integer discountRate;
     private Boolean isRecommend;
 
     public ProductListDto(Product product) {
@@ -29,9 +32,9 @@ public class ProductListDto {
                 product.getProductName(),
                 product.getPrice(),
                 product.getCreatedAt(),
-//                product.getWishLists().stream().map(WishList::getWishListId).collect(Collectors.toList()),
                 product.getWishListCount(),
-                product.getIsSale(),
+                product.getIsDiscount(),
+                product.getDiscountRate(),
                 product.getIsRecommend()
         );
     }
