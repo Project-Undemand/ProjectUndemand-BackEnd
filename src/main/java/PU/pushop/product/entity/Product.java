@@ -97,6 +97,10 @@ public class Product {
         this. wishLists = wishLists;
     }
 
+    public void setWishListCount(Long wishListCount) {
+        this.wishListCount = wishListCount;
+    }
+
     public void setIsSale(Boolean isSale) {
         this.isSale = isSale;
     }
@@ -109,6 +113,7 @@ public class Product {
 
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+
 
     }
 

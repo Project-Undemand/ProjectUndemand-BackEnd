@@ -76,26 +76,22 @@ public class InquiryReplyService {
         message.addRecipients(Message.RecipientType.TO, mailAddress);
         message.setSubject("[PUSHOP] 문의하신 상품에 대한 답변이 도착했습니다."); // 제목
 
-        String body = "<div>"
-                + "<h1> PUSHOP </h1>"
-                + "<h1> 문의주셔서 감사합니다.<br>아래 답변 내용을 확인해주세요. </h1>"
+        String body = "<div style='max-width: 1000px;'>"
+            + "<div style='width: 85%; margin: 0 auto; color: rgb(7, 145, 163);'>"
+            + "<h1 style='left:10vw'>PUSHOP</h1>"
+            + "<h1>문의주셔서 감사합니다.<br>아래 답변 내용을 확인해주세요.</h1>"
+            + "<a href='" + //문의글 보러가기 링크
+                "'><b>문의내용 보러가기</b> / 추가 문의하기</a></div>"
 
-                + "<a href='"
-                // 여기에 해당 문의 보기 프론트 링크
-                + "'><b>문의내용 보러가기</b></a>"
-                + "<a href='"
-                // 여기에 문의 작성 화면으로 가는 프론트 링크
-                + "'> / 추가 문의하기</a>"
+            + "<div style='width: 85%; background-color: rgb(239, 247, 255);  margin: 40px auto;'><p style='padding: 40px 50px; overflow: auto; width: auto; height: 100%; min-height: 180px; font-weight: bold;'>"
+            + reply.getReplyContent()
+            + "</p></div>"
 
-                + "<br><br><br><hr><br><br><br> "
+            + "<div style='width: 85%; margin: 0 auto; margin-bottom: 150px; '><hr style=' margin-bottom: 50px; border-style: dashed; border-width: 1px 0px 0px 0px; border-color: rgb(0, 0, 0);'>"
+            +"["+inquiry.getProduct().getProductName()+ "] - "+inquiry.getInquiryTitle()+"<br>"
+            + inquiry.getInquiryContent()
+            +" </div> </div>";
 
-                + "<b>" + reply.getReplyContent() + "</b>"
-                + "<br><br><br><br><br><br> "
-                + "["+inquiry.getProduct().getProductName()+ "] - "+inquiry.getInquiryTitle()
-                + "<br>" + inquiry.getInquiryContent()
-                + "<br><br><br><hr><br><br><br> "
-                + "<p>이용해주셔서 감사합니다.<p>"
-                + "</div>";
         message.setText(body, "utf-8", "html");// 내용, charset 타입, subtype
         message.setFrom(new InternetAddress("gokorea1214@naver.com", "PU_ADMIN")); // 보내는 사람
         mailSender.send(message);

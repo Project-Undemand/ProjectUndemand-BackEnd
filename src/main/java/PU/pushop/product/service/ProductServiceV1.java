@@ -4,12 +4,14 @@ package PU.pushop.product.service;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.model.ProductCreateDto;
+import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -50,8 +52,15 @@ public class ProductServiceV1 {
     /**
      * 전체 상품 리스트 - 전체 상품 찾기
      */
-    public List<Product> allProducts() {
-        return productRepositoryV1.findAll();
+    public List<ProductListDto> allProducts() {
+        List<Product> products = productRepositoryV1.findAll();
+
+        List<ProductListDto> productListDtos = new ArrayList<>();
+        for (Product product : products) {
+            ProductListDto productListDto = new ProductListDto(product);
+            productListDtos.add(productListDto);
+        }
+        return productListDtos;
     }
 
     /**

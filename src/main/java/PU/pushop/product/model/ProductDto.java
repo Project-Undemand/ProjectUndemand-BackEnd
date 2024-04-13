@@ -47,7 +47,7 @@ public class ProductDto {
                 product.getIsSale(),
                 product.getIsRecommend(),
                 product.getWishLists() != null ? product.getWishLists().stream().map(WishListDto::new).collect(Collectors.toList()) : Collections.emptyList(),
-                product.getWishLists() != null ? (long) product.getWishLists().size() : 0L
+                product.getWishListCount()
         );
     }
 

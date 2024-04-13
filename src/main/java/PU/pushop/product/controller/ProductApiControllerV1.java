@@ -5,6 +5,7 @@ import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.ProductCreateDto;
 import PU.pushop.product.model.ProductDto;
+import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.model.ProductResponseDto;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
@@ -33,12 +34,12 @@ public class ProductApiControllerV1 {
      * @return
      */
     @GetMapping("/products")
-    public ResponseEntity<List<ProductDto>> productList() {
-        List<Product> productList = productServiceV1.allProducts();
-        List<ProductDto> collect = productList.stream()
-                .map(ProductDto::new)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(collect, HttpStatus.OK);
+    public ResponseEntity<List<ProductListDto>> productList() {
+        List<ProductListDto> productList = productServiceV1.allProducts();
+//        List<ProductDto> collect = productList.stream()
+//                .map(ProductDto::new)
+//                .collect(Collectors.toList());
+        return new ResponseEntity<>(productList, HttpStatus.OK);
     }
 
     /**
