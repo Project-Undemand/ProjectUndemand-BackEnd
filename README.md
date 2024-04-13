@@ -8,7 +8,8 @@
 > 배포 :  
 > Front-End : https://github.com/Project-Undemand/ProjectUndemand-FrontEnd  
 > DOCS :  
-> ERD :  
+> ERD :  ![PUSHOP](https://github.com/Project-Undemand/ProjectUndemand-BackEnd/assets/120750451/32381227-87b8-4a90-b871-9a19b3ba9b50)
+
 
 ### Stacks
 
