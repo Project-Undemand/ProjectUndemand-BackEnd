@@ -21,4 +21,8 @@ public class ProductColorDto {
                 color.getColor()
         );
     }
+
+    public ProductColorDto() {
+
+    }
 }

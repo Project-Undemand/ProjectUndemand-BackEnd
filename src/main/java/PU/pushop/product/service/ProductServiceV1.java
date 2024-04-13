@@ -3,17 +3,21 @@ package PU.pushop.product.service;
 
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
+import PU.pushop.product.model.ProductColorDto;
 import PU.pushop.product.model.ProductCreateDto;
+import PU.pushop.product.model.ProductDetailDto;
 import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -21,21 +25,21 @@ import java.util.NoSuchElementException;
 public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepositoryV1;
     public final ProductColorRepository productColorRepository;
+    public final ModelMapper modelMapper;
 
-/*    public Product findProductById(Long productId) {
-        return productRepositoryV1.findByProductId(productId)
-                .orElse(null); // productId에 해당하는 Product가 없을 경우 null 반환
-    }*/
+    public static final String PRODUCT_NOT_FOUND_MESSAGE = "상품을 찾을 수 없습니다.";
 
     /**
      * 상품 등록
-     * @param product
+     * @param requestDto
      * @return productId
      */
-    public Product createProduct(Product product) {
-        if (product.getPrice() < 0) {
+    public Product createProduct(ProductCreateDto requestDto) {
+        if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
+        // DTO를 엔티티로 매핑
+        Product product = modelMapper.map(requestDto, Product.class);
         productRepositoryV1.save(product);
         return product;
     }
@@ -45,8 +49,10 @@ public class ProductServiceV1 {
      * @param productId
      * @return
      */
-    public Product productDetail(Long productId) {
-        return productRepositoryV1.findById(productId).get();
+    public ProductDetailDto productDetail(Long productId) {
+        Product product =productRepositoryV1.findById(productId)
+                .orElseThrow(()->new NoSuchElementException(PRODUCT_NOT_FOUND_MESSAGE));
+        return modelMapper.map(product, ProductDetailDto.class);
     }
 
     /**
@@ -54,29 +60,26 @@ public class ProductServiceV1 {
      */
     public List<ProductListDto> allProducts() {
         List<Product> products = productRepositoryV1.findAll();
-
-        List<ProductListDto> productListDtos = new ArrayList<>();
-        for (Product product : products) {
-            ProductListDto productListDto = new ProductListDto(product);
-            productListDtos.add(productListDto);
-        }
-        return productListDtos;
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductListDto.class))
+                .toList();
     }
 
     /**
      * 상품 정보 수정
      * @param productId
-     * @param updatedProduct
+     * @param updatedDto
      * @return
      */
-    public Product updateProduct(Long productId, Product updatedProduct) {
+    public Product updateProduct(Long productId, ProductCreateDto updatedDto) {
         Product existingProduct = productRepositoryV1.findById(productId)
-                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND_MESSAGE));
 
-        ProductCreateDto.updateForm(existingProduct, updatedProduct);
+        // ModelMapper를 사용하여 DTO에서 엔티티로 매핑
+        modelMapper.map(updatedDto, existingProduct);
+
         // 수정된 상품 정보 저장 후 return
         return productRepositoryV1.save(existingProduct);
-
     }
 
     /**
@@ -85,17 +88,18 @@ public class ProductServiceV1 {
      */
     public void deleteProduct(Long productId) {
         Product existingProduct = productRepositoryV1.findById(productId)
-                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND_MESSAGE));
 
         productRepositoryV1.delete(existingProduct);
     }
 
     /**
      * 색상 등록
-     * @param color
+     * @param request
      * @return
      */
-    public Long createColor(ProductColor color) {
+    public Long createColor(ProductColorDto request) {
+        ProductColor color = modelMapper.map(request, ProductColor.class);
         productColorRepository.save(color);
         return color.getColorId();
     }

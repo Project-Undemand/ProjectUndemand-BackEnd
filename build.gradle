@@ -71,6 +71,7 @@ dependencies {
 	}
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21' // 아임포트 설정
 	implementation 'mysql:mysql-connector-java:8.0.33'// MySQL
+	implementation 'org.modelmapper:modelmapper:2.4.1' // modelmapper
 }
 
 tasks.withType(JavaCompile) {

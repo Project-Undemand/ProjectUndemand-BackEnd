@@ -37,6 +37,8 @@ public class ProductCreateDto {
         );
     }
 
+/*  Model Mapper 사용으로 필요 없어짐
+
     public static Product requestForm(ProductCreateDto request) {
         Product product = new Product();
 
@@ -49,8 +51,11 @@ public class ProductCreateDto {
         product.setIsRecommend(request.getIsRecommend());
         return product;
     }
+*/
 
-    public static Product updateForm(Product existingProduct, Product updatedProduct) {
+    /* Model Mapper 사용으로 필요 없어짐
+
+        public static Product updateForm(Product existingProduct, Product updatedProduct) {
         // 기존 상품 정보 업데이트
         existingProduct.setProductName(updatedProduct.getProductName());
         existingProduct.setProductType(updatedProduct.getProductType());
@@ -61,6 +66,6 @@ public class ProductCreateDto {
         existingProduct.setIsRecommend(updatedProduct.getIsRecommend());
 
         return existingProduct;
-    }
+    }*/
 
 }
