@@ -96,7 +96,7 @@ public class ReissueRefreshController {
         Refresh refreshEntity = refreshRepository.findById(member.getId())
                 .orElseThrow(() -> new ClassNotFoundException("해당 Refresh가 존재하지 않습니다."));
         // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
-        RefreshDto refreshDto = RefreshDto.createRefreshDto(member, refresh, expirationDateTime);
+        RefreshDto refreshDto = RefreshDto.createRefreshDto(refresh, expirationDateTime);
         // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
         refreshEntity.updateRefreshToken(refreshDto);
         // 저장합니다.

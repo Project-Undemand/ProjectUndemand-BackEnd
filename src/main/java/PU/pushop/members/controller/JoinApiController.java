@@ -113,7 +113,6 @@ public class JoinApiController {
     private Member createMemberFromRequest(JoinMemberRequest request, String token) {
         Member member = Member.createGeneralMember(
                 request.email,
-                request.username,
                 request.nickname,
                 request.password,
                 token
@@ -124,7 +123,6 @@ public class JoinApiController {
     private Member createAdminFromRequest(JoinMemberRequest request, String token) {
         Member member = Member.createAdminMember(
                 request.email,
-                request.username,
                 request.nickname,
                 passwordEncoder.encode(request.password),
                 token
@@ -135,12 +133,8 @@ public class JoinApiController {
     @Data
     static class JoinMemberRequest {
         private String email;
-        private String password;
-        private String password_certify;
-        private String username;
         private String nickname;
-        private MemberRole role;
-        private SocialType socialType;
+        private String password;
     }
 
     @Data

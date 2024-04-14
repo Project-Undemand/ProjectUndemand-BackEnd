@@ -29,7 +29,6 @@ public class JoinService {
 
         Member newMember = Member.createGeneralMember(
                 member.getEmail(),
-                member.getUsername(),
                 member.getNickname(),
                 passwordEncoder.encode(member.getPassword()),
                 member.getToken()

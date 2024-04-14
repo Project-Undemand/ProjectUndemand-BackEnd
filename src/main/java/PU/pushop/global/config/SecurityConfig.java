@@ -4,8 +4,8 @@ import PU.pushop.global.authentication.jwts.filters.*;
 import PU.pushop.global.authentication.jwts.login.CustomUserDetailsService;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
-import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserService;
+import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV2;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +42,7 @@ public class SecurityConfig {
     private final MemberRepositoryV1 memberRepositoryV1;
     private final RefreshRepository refreshRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final CustomLoginSuccessHandlerV2 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
     @Bean

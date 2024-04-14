@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,6 +61,7 @@ public class ProductApiControllerV1 {
      * @param request
      * @return productId, productName, price (테스트용)
      */
+    @Secured("ROLE_ADMIN")
     @PostMapping("/products/new")
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto request) {
         Product product = ProductCreateDto.requestForm(request);

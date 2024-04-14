@@ -36,7 +36,7 @@ public class MemberApiController {
         Member member = joinService.memberLogin(loginRequest);
         if(member == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("ID 또는 비밀번호가 일치하지 않습니다!");
+                    .body("email 또는 비밀번호가 일치하지 않습니다!");
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body("로그인 성공했습니다");
