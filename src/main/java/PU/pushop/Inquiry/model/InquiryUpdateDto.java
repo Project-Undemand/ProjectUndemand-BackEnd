@@ -7,31 +7,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InquiryCreateDto {
-
-    private String name;
-    private String email;
+public class InquiryUpdateDto {
     private InquiryType inquiryType;
-    @NotBlank(message = "제목은 필수입니다.")
-    private String inquiryTitle;
     @NotBlank(message = "내용은 필수입니다.")
     private String inquiryContent;
     private String password;
 
-    public InquiryCreateDto(Inquiry inquiry) {
+    public InquiryUpdateDto(Inquiry inquiry) {
         this(
-                inquiry.getName(),
-                inquiry.getEmail(),
                 inquiry.getInquiryType(),
-                inquiry.getInquiryTitle(),
                 inquiry.getInquiryContent(),
                 inquiry.getPassword()
         );
 
     }
-
 }

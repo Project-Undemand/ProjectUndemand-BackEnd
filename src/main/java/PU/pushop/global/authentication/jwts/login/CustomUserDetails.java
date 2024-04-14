@@ -31,6 +31,10 @@ public class CustomUserDetails implements UserDetails {
         return customMemberDto.getEmail();
     }
 
+    public Long getMemberId() {
+        return customMemberDto.getMemberId();
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return customMemberDto.isActive();
