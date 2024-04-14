@@ -5,6 +5,7 @@ import PU.pushop.Inquiry.model.InquiryCreateDto;
 import PU.pushop.Inquiry.model.InquiryUpdateDto;
 import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
@@ -50,11 +51,8 @@ public class InquiryService {
 
         if (authHeader != null) {
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            Long memberId = userDetails.getMemberId();
-            System.out.println(userDetails.getMemberId());
+            // 로그인 중인 유저의 memberId 찾기
+            Long memberId = MemberAuthorizationUtil.getLoginMemberId();
 
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));

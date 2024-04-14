@@ -5,6 +5,8 @@ import PU.pushop.Inquiry.entity.InquiryReply;
 import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.repository.InquiryReplyRepository;
 import PU.pushop.Inquiry.repository.InquiryRepository;
+import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import jakarta.mail.Message;
@@ -13,6 +15,8 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,25 +35,30 @@ public class InquiryReplyService {
 
     /**
      * 문의 답변 등록
-     * @param replyDto
+     * @param replyRequest
      * @param inquiryId
      * @return
      */
     @Transactional
-    public Long createReply(InquiryReplyDto replyDto, Long inquiryId) throws Exception {
+    public Long createReply(InquiryReplyDto replyRequest, Long inquiryId) throws Exception {
+
+        // 로그인 중인 유저의 memberId 찾기
+        Long memberId = MemberAuthorizationUtil.getLoginMemberId();
+
+        // 답변하는 사람
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
+
         // 답변할 문의글
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new NoSuchElementException("문의글을 찾을 수 없습니다. inquiryId: " + inquiryId));
 
         InquiryReply reply = new InquiryReply();
 
-        Member member = memberRepository.findById(replyDto.getReplyBy())
-                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다. memberId: " + replyDto.getReplyBy()));
-
         reply.setInquiry(inquiry);
         reply.setReplyBy(member);
-        reply.setReplyContent(replyDto.getReplyContent());
         reply.setReplyTitle(inquiry.getInquiryTitle()); // 답변 제목은 문의 제목과 동일
+        reply.setReplyContent(replyRequest.getReplyContent());
 
         inquiryReplyRepository.save(reply);
 

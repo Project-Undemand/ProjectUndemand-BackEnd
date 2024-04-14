@@ -23,14 +23,13 @@ public class InquiryReplyController {
     /**
      * 문의 답변 등록
      *
-     * @param request
+     * @param replyRequest
      * @param inquiryId
      * @return
      */
     @PostMapping("/new/{inquiryId}")
-    public ResponseEntity<?> createReply(@Valid @RequestBody InquiryReplyDto request, @PathVariable Long inquiryId) throws Exception {
-        InquiryReplyDto reply = InquiryReplyDto.ReplyFormRequest(request);
-        Long createdId = replyService.createReply(reply, inquiryId);
+    public ResponseEntity<?> createReply(@Valid @RequestBody InquiryReplyDto replyRequest, @PathVariable Long inquiryId) throws Exception {
+        Long createdId = replyService.createReply(replyRequest, inquiryId);
 
         return ResponseEntity.ok(createdId);
 
