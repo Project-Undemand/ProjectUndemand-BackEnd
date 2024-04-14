@@ -7,6 +7,7 @@ import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.model.OAuthUserDTO;
+import PU.pushop.members.repository.MemberRepositoryV1;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,15 +20,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JWTFilterV1 extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final MemberRepositoryV1 memberRepositoryV1;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -77,9 +81,11 @@ public class JWTFilterV1 extends OncePerRequestFilter {
         }
 
         String memberId = jwtUtil.getMemberId(token);
+        Member member = memberRepositoryV1.findById(Long.valueOf(memberId))
+                .orElseThrow(() -> new UsernameNotFoundException("id에 맞는 해당 회원이 존재하지 않습니다."));
         MemberRole role = jwtUtil.getRole(token);
 
-        CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), role, true);
+        CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), member, role, true);
 
         CustomUserDetails customOAuth2User = new CustomUserDetails(customMemberDto);
         return new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());

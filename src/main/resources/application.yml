@@ -2,15 +2,16 @@ spring:
   profiles:
     include: jwt, oauth2
   datasource:
-#    url: jdbc:h2:tcp://localhost/~/pushop
-#    username: pu
-#    password:
-#    driver-class-name: org.h2.Driver
-
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/pushop?&serverTimezone=Asia/Seoul
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+    # H2
+    url: jdbc:h2:tcp://localhost/~/pushop
+    username: pu
+    password:
+    driver-class-name: org.h2.Driver
+    # MySQL
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/pushop?&serverTimezone=Asia/Seoul
+#    username: ${MYSQL_USERNAME}
+#    password: ${MYSQL_PASSWORD}
 
   redis:
     host: localhost
