@@ -31,7 +31,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomLoginSuccessHandlerV3 extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
     private final MemberRepositoryV1 memberRepositoryV1;
@@ -65,7 +65,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         saveOrUpdateRefreshEntity(requestMember, newRefresh);
 
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        setTokenResponseV2(response, newAccess, newRefresh);
+        setTokenToResponseCookieV3(response, newAccess, newRefresh);
 
         response.sendRedirect("http://localhost:3000");
     }
@@ -111,7 +111,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
 
     }
 
-    private void setTokenResponseV1(HttpServletResponse response, String accessToken, String refreshToken) {
+    private void setTokenToResponseV1(HttpServletResponse response, String accessToken, String refreshToken) {
         // [reponse Header] : Access Token 추가
         response.addHeader("Authorization", "Bearer " + accessToken);
         // [reponse Cookie] : Refresh Token 추가
@@ -120,7 +120,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         response.setStatus(HttpStatus.OK.value());
     }
 
-    private void setTokenResponseV2(HttpServletResponse response, String accessToken, String refreshToken) throws IOException {
+    private void setTokenToResponseV2(HttpServletResponse response, String accessToken, String refreshToken) throws IOException {
         // 액세스 토큰을 JSON 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
         JsonObject responseData = new JsonObject();
         responseData.addProperty("accessToken", accessToken);
@@ -132,5 +132,14 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         response.setStatus(HttpStatus.OK.value());
         // 클라이언트 콘솔에 응답 로그 출력
         log.info("Response sent to client: " + responseData.toString());
+    }
+
+    private void setTokenToResponseCookieV3(HttpServletResponse response, String accessToken, String refreshToken) {
+        // [reponse Cookie] : Access Token 추가
+        response.addCookie(createCookie("Authorization", "Bearer " + accessToken));
+        // [reponse Cookie] : Refresh Token 추가
+        response.addCookie(createCookie("refreshToken", refreshToken));
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
     }
 }
