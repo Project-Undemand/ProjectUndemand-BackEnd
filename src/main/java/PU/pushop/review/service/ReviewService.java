@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class ReviewService {
     public final PaymentRepository paymentRepository;
     public final ReviewRepository reviewRepository;
@@ -51,11 +51,15 @@ public class ReviewService {
         return review;
     }
 
+    /**
+     * 모든 리뷰 보기
+     * @return
+     */
     public List<ReviewDto> allReview() {
         List<Review> reviews = reviewRepository.findAll();
-        if (reviews.isEmpty()) {
+       /* if (reviews.isEmpty()) {
             throw new IllegalStateException("리뷰가 없습니다.");
-        }
+        }*/
         return reviews.stream().map(ReviewDto::new).collect(Collectors.toList());
     }
 
@@ -66,7 +70,7 @@ public class ReviewService {
      */
     public List<ReviewDto> findReviewByProduct(Long productId) {
         Product product = productRepository.findByProductId(productId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
 
         List<Review> reviews = reviewRepository.findByPaymentHistoryProduct(product);
 
@@ -84,7 +88,7 @@ public class ReviewService {
      */
     public List<ReviewDto> findReviewByUser(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
 
         List<Review> reviews = reviewRepository.findByPaymentHistoryMember(member);
 
@@ -102,7 +106,7 @@ public class ReviewService {
      */
     public ReviewDto reviewDetail(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 후기를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 후기를 찾을 수 없습니다."));
 
         ReviewDto reviewDetail = new ReviewDto(review);
 
@@ -118,7 +122,7 @@ public class ReviewService {
     public Review updateReview(Review updatedReview, Long reviewId, Long memberId) {
 
         Review currentReview = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 후기를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 후기를 찾을 수 없습니다."));
 
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
@@ -138,7 +142,7 @@ public class ReviewService {
      */
     public void deleteReview(Long reviewId, Long memberId) {
         Review currentReview = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
         if (!memberId.equals(reviewWriterId)) {

@@ -15,11 +15,11 @@ public class ProductThumbnail {
     @Column(name = "thumbnail_id")
     private Long thumbnailId;
 
-    @Column(name = "image_path")
+    @Column(name = "image_path", nullable = false)
     private String imagePath;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     // 생성자 추가

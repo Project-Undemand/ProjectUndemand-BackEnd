@@ -1,7 +1,9 @@
 package PU.pushop.Inquiry.service;
 
 
+import PU.pushop.Inquiry.model.InquiryCreateDto;
 import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
+import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
@@ -15,13 +17,14 @@ import PU.pushop.Inquiry.model.InquiryDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class InquiryService {
     public final InquiryRepository inquiryRepository;
@@ -34,12 +37,25 @@ public class InquiryService {
      */
 
     @Transactional
-    public Long createInquiry(Inquiry inquiry, Long productId) {
-        Optional<Product> product = productRepository.findByProductId(productId);
+    public Long createInquiry(InquiryCreateDto request, Long productId) {
+        Inquiry inquiry = InquiryCreateDto.setInquiry(request);
 
-        inquiry.setProduct(product.
-                orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId))
-        );
+        // 멤버 저장
+        if (request.getMemberId() == null) {
+            inquiry.setMember(null);
+        } else {
+            Member member = memberRepository.findById(request.getMemberId())
+                    .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + request.getMemberId()));
+            inquiry.setMember(member);
+
+        }
+
+        // 상품 저장
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + productId));
+        inquiry.setProduct(product);
+
+        // BD에 저장
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
     }
@@ -77,7 +93,7 @@ public class InquiryService {
      */
     public InquiryDto inquiryDetail(Long inquiryId) {
         Inquiry inquiryDetail = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
 
 
         return InquiryDto.mapInquiryToDto(inquiryDetail, true);
@@ -89,14 +105,13 @@ public class InquiryService {
      * @param updatedInquiry
      * @return
      */
-    public Inquiry updateInquiry(Long inquiryId, Inquiry updatedInquiry, String password) {
+    public Inquiry updateInquiry(Long inquiryId, InquiryCreateDto updatedInquiry, String password) {
 
         Inquiry existingInquiry = validatePasswordAndGetInquiry(inquiryId, password);
 
         existingInquiry.setInquiryType(updatedInquiry.getInquiryType());
         existingInquiry.setInquiryTitle(updatedInquiry.getInquiryTitle());
         existingInquiry.setInquiryContent(updatedInquiry.getInquiryContent());
-        existingInquiry.setIsSecret(updatedInquiry.getIsSecret());
 
         return inquiryRepository.save(existingInquiry);
     }
@@ -120,7 +135,7 @@ public class InquiryService {
      */
     private Inquiry validatePasswordAndGetInquiry(Long inquiryId, String password) {
         Inquiry existingInquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
 
         // 비밀번호 검증
         if (!existingInquiry.getPassword().equals(password)) {

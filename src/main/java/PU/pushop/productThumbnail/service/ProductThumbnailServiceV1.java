@@ -15,10 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ProductThumbnailServiceV1 {
     private final ProductThumbnailRepositoryV1 productThumbnailRepository;
@@ -35,7 +36,7 @@ public class ProductThumbnailServiceV1 {
 //            Product product = productService.findProductById(productId);
 
             Product product = productRepository.findByProductId(productId)
-                    .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
             // 이미지 파일 저장을 위한 경로 설정
             String uploadsDir = "src/main/resources/static/uploads/thumbnails/";
 
@@ -74,7 +75,7 @@ public class ProductThumbnailServiceV1 {
     public void deleteThumbnail(Long thumbnailId) {
         // 썸네일 엔티티 조회
         ProductThumbnail thumbnail = productThumbnailRepository.findById(thumbnailId)
-                .orElseThrow(() -> new RuntimeException("해당 사진을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 사진을 찾을 수 없습니다."));
 
         // 썸네일 파일 경로 가져오기
         String imagePath = thumbnail.getImagePath();

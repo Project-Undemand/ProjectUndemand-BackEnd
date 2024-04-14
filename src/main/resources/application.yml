@@ -2,10 +2,16 @@ spring:
   profiles:
     include: jwt, oauth2
   datasource:
-    url: jdbc:h2:tcp://localhost/~/pushop
-    username: pu
-    password:
-    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:tcp://localhost/~/pushop
+#    username: pu
+#    password:
+#    driver-class-name: org.h2.Driver
+
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/pushop?&serverTimezone=Asia/Seoul
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
   redis:
     host: localhost
     port: 995
@@ -33,9 +39,10 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
-        #        show_sql: true
         format_sql: true
         default_batch_fetch_size: 1000 #최적화 옵션
+    show_sql: true
+
 #    open-in-view: false
 
 # iamport

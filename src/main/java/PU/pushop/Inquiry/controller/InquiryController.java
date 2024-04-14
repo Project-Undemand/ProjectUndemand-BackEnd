@@ -4,17 +4,17 @@ import PU.pushop.Inquiry.model.InquiryCreateDto;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
-import PU.pushop.product.entity.enums.InquiryType;
 import PU.pushop.Inquiry.model.InquiryDto;
 import PU.pushop.Inquiry.service.InquiryService;
 import jakarta.validation.Valid;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/v1/inquiry")
@@ -51,15 +51,16 @@ public class InquiryController {
      */
     @PostMapping("/new/{productId}")
     public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryCreateDto request, @PathVariable Long productId) {
-        Inquiry inquiry = InquiryCreateDto.requestForm(request);
-        Member member = null;
-        // TODO : null일경우 예외처리
-        if (request.getMemberId() != null) {
-            member = memberRepository.findById(request.getMemberId()).orElse(null);
+        try {
+            InquiryCreateDto inquiry = InquiryCreateDto.requestForm(request);
+
+            Long createdId = inquiryService.createInquiry(inquiry, productId);
+            return ResponseEntity.status(HttpStatus.CREATED).body("문의 등록 완료. Id : "+createdId);
+        } catch (HttpMessageNotReadableException e) {
+            return ResponseEntity.badRequest().body("유효하지 않은 문의 유형입니다.");
+
         }
-        inquiry.setMember(member);
-        Long createdId = inquiryService.createInquiry(inquiry,productId);
-        return ResponseEntity.ok(createdId);
+
     }
 
     /**
@@ -85,7 +86,7 @@ public class InquiryController {
      */
     @PutMapping("/{inquiryId}")
     public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryCreateDto request) {
-        Inquiry updatedInquiry = InquiryCreateDto.requestForm(request);
+        InquiryCreateDto updatedInquiry = InquiryCreateDto.requestForm(request);
         Inquiry updated = inquiryService.updateInquiry(inquiryId, updatedInquiry, request.getPassword());
         return ResponseEntity.ok(updated);
     }

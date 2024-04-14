@@ -23,6 +23,10 @@ public class CategoryControllerV1 {
         return ResponseEntity.ok(productServiceV1.getCategoryList());
     }*/
 
+    /**
+     * 전체 카테고리 조회
+     * @return
+     */
     @GetMapping("")
     public ResponseEntity<?> getCategoryList() {
         List<Category> topLevelCategories = categoryServiceV1.getTopLevelCategories(); // 최상위 부모 카테고리만 가져오는 메서드
@@ -35,19 +39,29 @@ public class CategoryControllerV1 {
         return ResponseEntity.ok(categoryDtoList);
     }
 
-    // 부모 카테고리 생성
+    /**
+     * 부모 카테고리 생성
+     * @param category
+     * @return
+     */
     @PostMapping("/parent")
     public ResponseEntity<Long> createParentCategory(@RequestBody Category category) {
         Long categoryId = categoryServiceV1.createCategory(category, null); // 부모 카테고리 생성 시 parentId를 null로 전달
         return ResponseEntity.ok(categoryId);
     }
 
-    // 1. 부모 카테고리 id를 URL로 보냄
+    /**
+     * 자식 카테고리 생성
+     * @param category
+     * @param parentId
+     * @return
+     */
     @PostMapping("/child/{parentId}")
     public ResponseEntity<Long> createChildCategory(@RequestBody Category category, @PathVariable Long parentId) {
         Long categoryId = categoryServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
         return ResponseEntity.ok(categoryId);
     }
+/*
 
     // 2. 부모 카테고리 id를 바디로 보냄
     @PostMapping("/child")
@@ -56,7 +70,17 @@ public class CategoryControllerV1 {
         Long categoryId = categoryServiceV1.createCategory(category, parentId); // 부모 카테고리의 ID를 parentId로 전달하여 자식 카테고리 생성
         return ResponseEntity.ok(categoryId);
     }
+*/
 
-    // 3. 부모 카테고리 이름을 바디로 보냄
+    /**
+     * 카테고리 삭제
+     * @param categoryId
+     * @return
+     */
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
+        categoryServiceV1.deleteCategory(categoryId);
+        return ResponseEntity.ok("카테고리 삭제 완료");
+    }
 
 }

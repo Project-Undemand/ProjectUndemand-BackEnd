@@ -6,6 +6,7 @@ import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.entity.enums.Size;
 import PU.pushop.productManagement.model.InventoryCreateDto;
+import PU.pushop.productManagement.model.InventoryUpdateDto;
 import PU.pushop.productManagement.model.ProductManagementDto;
 import PU.pushop.productManagement.service.ProductManagementService;
 import jakarta.validation.Valid;
@@ -64,15 +65,13 @@ public class ProductManagementController {
 
     /**
      * 상품 관리 등록
-     * @param request
+     * @param requestDto
      * @return
      */
     @PostMapping("/new")
-    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryCreateDto request) {
-
-
-        ProductManagement productManagement = InventoryCreateDto.requestForm(request);
-        Long createdId = managementService.createInventory(productManagement);
+    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryCreateDto requestDto) {
+        ProductManagement request = InventoryCreateDto.requestForm(requestDto);
+        Long createdId = managementService.createInventory(request);
         return ResponseEntity.ok(createdId);
     }
 
@@ -83,9 +82,9 @@ public class ProductManagementController {
      * @return
      */
     @PutMapping("/{inventoryId}")
-    public ResponseEntity<?> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryCreateDto request) {
-        ProductManagement updatedInventory = InventoryCreateDto.requestForm(request);
-        ProductManagement updated = managementService.updateInventory(inventoryId, updatedInventory);
+    public ResponseEntity<?> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryUpdateDto request) {
+
+        ProductManagement updated = managementService.updateInventory(inventoryId, request);
         UpdateResponse response = new UpdateResponse(updated.getInventoryId(), updated.getProduct());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
