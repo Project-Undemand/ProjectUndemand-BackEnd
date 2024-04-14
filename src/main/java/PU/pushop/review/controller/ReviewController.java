@@ -22,7 +22,6 @@ public class ReviewController {
 
     /**
      * 리뷰 작성
-     *
      * @param request   reviewTitle, reviewContent, rating
      * @param paymentId
      * @return
@@ -30,13 +29,15 @@ public class ReviewController {
     @PostMapping("/new/{paymentId}")
     public ResponseEntity<?> createReview(@RequestBody ReviewDto request, @PathVariable Long paymentId) {
 
-        Review review = ReviewDto.requestForm(request);
-
-        ReviewDto createdReview = new ReviewDto(reviewService.createReview(review, paymentId));
+        ReviewDto createdReview = new ReviewDto(reviewService.createReview(request, paymentId));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
     }
 
+    /**
+     * 모든 리뷰 모아보기
+     * @return
+     */
     @GetMapping("/all")
     public List<ReviewDto> allReview() {
         return reviewService.allReview();
@@ -44,7 +45,6 @@ public class ReviewController {
 
     /**
      * 특정 상품의 리뷰 모아보기
-     *
      * @param productId
      * @return
      */
@@ -56,7 +56,6 @@ public class ReviewController {
 
     /**
      * 특정 회원의 리뷰 모아보기
-     *
      * @param memberId
      * @return
      */
@@ -85,8 +84,8 @@ public class ReviewController {
     @PutMapping("/{reviewId}/{memberId}")
     public ResponseEntity<?> updateReview(@Valid @PathVariable Long reviewId, @PathVariable Long memberId, @RequestBody ReviewDto request) {
 
-        Review updatedreview = ReviewDto.requestForm(request);
-        ReviewDto updatedReivewDto = new ReviewDto(reviewService.updateReview(updatedreview, reviewId, memberId));
+//        Review updatedreview = ReviewDto.requestForm(request);
+        ReviewDto updatedReivewDto = new ReviewDto(reviewService.updateReview(request, reviewId, memberId));
 
         return ResponseEntity.status(HttpStatus.OK).body(updatedReivewDto);
 

@@ -1,6 +1,7 @@
 package PU.pushop.review.service;
 
 
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.payment.entity.PaymentHistory;
@@ -11,6 +12,7 @@ import PU.pushop.review.entity.Review;
 import PU.pushop.review.model.ReviewDto;
 import PU.pushop.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,14 +29,15 @@ public class ReviewService {
     public final ReviewRepository reviewRepository;
     public final ProductRepositoryV1 productRepository;
     public final MemberRepositoryV1 memberRepository;
+    public final ModelMapper modelMapper;
 
     /**
      * 리뷰 작성
-     * @param review reviewTitle, reviewContent, rating
+     * @param request reviewTitle, reviewContent, rating
      * @param paymentId
      * @return
      */
-    public Review createReview(Review review, Long paymentId) {
+    public Review createReview(ReviewDto request, Long paymentId) {
         PaymentHistory paymentHistory = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NoSuchElementException("해당 주문 내역을 찾을 수 없습니다."));
 
@@ -43,6 +46,10 @@ public class ReviewService {
         if (existingReview.isPresent()) {
             throw new IllegalStateException("이미 후기가 작성되었습니다.");
         }
+
+//        Review review = ReviewDto.requestForm(request);
+        Review review = modelMapper.map(request, Review.class);
+
         review.setPaymentHistory(paymentHistory);
         reviewRepository.save(review);
 
@@ -119,19 +126,26 @@ public class ReviewService {
      * @param reviewId
      * @return
      */
-    public Review updateReview(Review updatedReview, Long reviewId, Long memberId) {
+    public Review updateReview(ReviewDto updateRequest, Long reviewId, Long memberId) {
 
         Review currentReview = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NoSuchElementException("해당 후기를 찾을 수 없습니다."));
 
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
-        if (!memberId.equals(reviewWriterId)) {
+//        Review updatedreview = ReviewDto.requestForm(request);
+
+        Review updatedreview = modelMapper.map(updateRequest, Review.class);
+
+        // 로그인 중인 유저의 memberId 찾기
+        Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
+
+        if (!loginMemberId.equals(memberId) || !memberId.equals(reviewWriterId)) {
             throw new SecurityException("접근 권한이 없습니다.");
         }
 
-        currentReview.setReviewContent(updatedReview.getReviewContent());
-        currentReview.setRating(updatedReview.getRating());
+        currentReview.setReviewContent(updatedreview.getReviewContent());
+        currentReview.setRating(updatedreview.getRating());
 
         return reviewRepository.save(currentReview);
     }
@@ -145,7 +159,10 @@ public class ReviewService {
                 .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
-        if (!memberId.equals(reviewWriterId)) {
+        // 로그인 중인 유저의 memberId 찾기
+        Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
+
+        if (!loginMemberId.equals(memberId) || !memberId.equals(reviewWriterId)) {
             throw new SecurityException("접근 권한이 없습니다.");
         }
 
