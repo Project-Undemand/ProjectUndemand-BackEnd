@@ -6,6 +6,7 @@ import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserService;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV2;
+import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV3;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,7 @@ public class SecurityConfig {
     private final MemberRepositoryV1 memberRepositoryV1;
     private final RefreshRepository refreshRepository;
     private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomLoginSuccessHandlerV2 customLoginSuccessHandler;
+    private final CustomLoginSuccessHandlerV3 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
     @Bean
@@ -122,7 +123,7 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
                 // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
-                .requestMatchers("/login", "/logout",  "/", "/join", "/auth/**").permitAll()
+                .requestMatchers("/login", "/api/v1/logout",  "/", "/join", "/auth/**").permitAll()
                 // 상품 카테고리, 상품
                 .requestMatchers("/api/v1/categorys/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
                 .requestMatchers(antMatcher(

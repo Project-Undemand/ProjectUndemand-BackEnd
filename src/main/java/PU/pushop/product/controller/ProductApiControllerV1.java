@@ -61,7 +61,7 @@ public class ProductApiControllerV1 {
      * @param request
      * @return productId, productName, price (테스트용)
      */
-    @Secured("ROLE_ADMIN")
+//    @Secured("ROLE_ADMIN")
     @PostMapping("/products/new")
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto request) {
         Product product = ProductCreateDto.requestForm(request);

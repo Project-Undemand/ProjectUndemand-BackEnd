@@ -6,10 +6,12 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.JoinService;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,12 +21,14 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class JoinApiController {
 
     private final JoinService joinService;
     private final EmailMemberService emailMemberService;
     private final MemberRepositoryV1 memberRepositoryV1;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final RefreshRepository refreshRepository;
 
     /**
      * 일반 회원에 대한 회원가입 진행. (default) MemberRole = USER, SocialType = GENERAL,
@@ -40,11 +44,10 @@ public class JoinApiController {
         // request로부터 받은 데이터로 Member 객체 생성.
         Member member = createMemberFromRequest(request, token);
         try {
-            // 동일한 이메일이 존재하는지 유효성 검사.
+            // 동일한 이메일이 존재하는지 유효성 검사. 백엔드 로그에 ERROR 전달.[2024.04.14 김성우]
             validateExistedMemberByEmail(member.getEmail());
         } catch (JoinService.ExistingMemberException e) {
             // 클라이언트에게 400 Bad Request 오류를 반환.
-
             return ResponseEntity.badRequest().body(member.getEmail() + " : 이미 등록된 이메일입니다.");
         }
         // 멤버 객체를 가지고 회원가입 Join 서비스 진행.
@@ -72,6 +75,7 @@ public class JoinApiController {
     private void validateExistedMemberByEmail(String email) {
         boolean isExistMember = memberRepositoryV1.existsByEmail(email);
         if (isExistMember) {
+            log.error("이미 등록된 이메일입니다.");
             throw new JoinService.ExistingMemberException();
         }
     }

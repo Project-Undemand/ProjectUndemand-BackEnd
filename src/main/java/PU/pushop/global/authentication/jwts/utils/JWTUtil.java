@@ -78,6 +78,22 @@ public class JWTUtil {
         return createToken(category, memberId, role, expirationDate);
     }
 
+    // 액세스 토큰 파싱 후, 토큰형태로 반환합니다.
+    public String parseAccessToken(String accessToken) {
+        Claims claims = parseToken(accessToken);
+
+        // 토큰에서 category, memberId, role을 추출
+        String category = claims.get(CATEGORY_CLAIM_KEY, String.class);
+        String memberId = claims.get(MEMBERPK_CLAIM_KEY, String.class);
+        String role = claims.get("role", String.class);
+
+        // AccessToken의 만료 시간을 가져옴
+        Date expirationDate = claims.getExpiration();
+
+        // 새로운 AccessToken 생성
+        return createToken(category, memberId, role, expirationDate);
+    }
+
     /**
      * 토큰 유효성 체크
      *

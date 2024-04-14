@@ -85,7 +85,7 @@ public class CustomLoginSuccessHandlerV3 extends SimpleUrlAuthenticationSuccessH
         cookie.setMaxAge(60*60*60);
         //cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setHttpOnly(true);
+//        cookie.setHttpOnly(true);
 
         return cookie;
     }

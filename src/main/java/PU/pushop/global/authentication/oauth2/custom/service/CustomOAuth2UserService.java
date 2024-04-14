@@ -11,6 +11,7 @@ import PU.pushop.members.entity.enums.SocialType;
 import PU.pushop.members.model.OAuthUserDTO;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepositoryV1 memberRepositoryV1;
@@ -32,9 +34,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         String registrationType = userRequest.getClientRegistration().getRegistrationId();
-        System.out.println("=================== getAttributes() 시작 ================== 개발단계 ====");
-        System.out.println(oAuth2User.getAttributes());
-        System.out.println("=================== getAttributes() 끝  ================== 개발단계 ====");
+        log.info("=================== getAttributes() 시작 ================== 개발단계 ====");
+        log.info(oAuth2User.getAttributes().toString());
+        log.info("=================== getAttributes() 끝  ================== 개발단계 ====");
 
         OAuth2Response oAuth2Response = createOAuth2Response(registrationType, oAuth2User.getAttributes());
         if (oAuth2Response == null) {
@@ -45,7 +47,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member memberByOAuth2Response = getOrCreateMember(oAuth2Response);
         // Member 객체 -> OAuth2User 로 변경
         OAuth2User customOAuth2User = createOAuth2User(memberByOAuth2Response);
-        System.out.println("CustomOAuth2User = " + customOAuth2User.getAttributes().toString());
+        log.info("CustomOAuth2User = " + customOAuth2User.getAttributes().toString());
 
         return customOAuth2User;
     }
