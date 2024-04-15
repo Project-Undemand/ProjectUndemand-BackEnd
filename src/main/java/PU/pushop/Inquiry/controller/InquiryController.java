@@ -3,8 +3,6 @@ package PU.pushop.Inquiry.controller;
 import PU.pushop.Inquiry.model.InquiryCreateDto;
 import PU.pushop.Inquiry.model.InquiryUpdateDto;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.Inquiry.model.InquiryDto;
@@ -15,18 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
-
-import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
-import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api/v1/inquiry")
@@ -63,7 +52,7 @@ public class InquiryController {
      * @return
      */
     @PostMapping("/new/{productId}")
-    public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryCreateDto requestDto, @PathVariable Long productId , HttpServletRequest request) {
+    public ResponseEntity<String> createInquiry(@Valid @RequestBody InquiryCreateDto requestDto, @PathVariable Long productId , HttpServletRequest request) {
         try {
 
             Long createdId = inquiryService.createInquiry(requestDto, productId, request);
@@ -81,7 +70,7 @@ public class InquiryController {
      * @return
      */
     @GetMapping("/{inquiryId}")
-    public ResponseEntity<?> getInquiryById(@PathVariable Long inquiryId) {
+    public ResponseEntity<Object> getInquiryById(@PathVariable Long inquiryId) {
         try {
             InquiryDto inquiryDetail = inquiryService.inquiryDetail(inquiryId);
             return new ResponseEntity<>(inquiryDetail, HttpStatus.OK);
@@ -97,9 +86,9 @@ public class InquiryController {
      * @return
      */
     @PutMapping("/{inquiryId}")
-    public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryUpdateDto requestDto) {
+    public ResponseEntity<String> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryUpdateDto requestDto) {
         Inquiry updated = inquiryService.updateInquiry(inquiryId, requestDto, requestDto.getPassword());
-        return ResponseEntity.ok("수정 완료"+ updated.getInquiryId());
+        return ResponseEntity.ok("수정 완료 : "+ updated.getInquiryId());
     }
 
     /**
@@ -109,7 +98,7 @@ public class InquiryController {
      * @return
      */
     @DeleteMapping("/{inquiryId}")
-    public ResponseEntity<?> deleteInquiry(@PathVariable Long inquiryId, @RequestHeader("password") String password) {
+    public ResponseEntity<String> deleteInquiry(@PathVariable Long inquiryId, @RequestHeader("password") String password) {
         inquiryService.deleteInquiry(inquiryId, password);
         return ResponseEntity.ok().build();
     }

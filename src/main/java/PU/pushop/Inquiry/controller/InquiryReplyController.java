@@ -1,18 +1,12 @@
 package PU.pushop.Inquiry.controller;
 
-import PU.pushop.Inquiry.entity.InquiryReply;
 import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.service.InquiryReplyService;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.repository.MemberRepositoryV1;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/v1/inquiry/reply")
@@ -28,16 +22,16 @@ public class InquiryReplyController {
      * @return
      */
     @PostMapping("/new/{inquiryId}")
-    public ResponseEntity<?> createReply(@Valid @RequestBody InquiryReplyDto replyRequest, @PathVariable Long inquiryId) throws Exception {
+    public ResponseEntity<String> createReply(@Valid @RequestBody InquiryReplyDto replyRequest, @PathVariable Long inquiryId) throws Exception {
         Long createdId = replyService.createReply(replyRequest, inquiryId);
 
-        return ResponseEntity.ok(createdId);
+        return ResponseEntity.status(HttpStatus.CREATED).body("답변 등록 완료 : "+createdId);
 
     }
 
     @DeleteMapping("/{replyId}")
-    public ResponseEntity<?> deleteInquiry(@PathVariable Long replyId) {
+    public ResponseEntity<String> deleteInquiry(@PathVariable Long replyId) {
         replyService.deleteReply(replyId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("삭제완료");
     }
 }

@@ -15,15 +15,15 @@ public class ReviewReplyController {
     private final ReviewReplyService replyService;
 
     @PostMapping("/new/{reviewId}")
-    public ResponseEntity<?> createReply(@Valid @RequestBody ReviewReplyDto request, @PathVariable Long reviewId) {
+    public ResponseEntity<String> createReply(@Valid @RequestBody ReviewReplyDto request, @PathVariable Long reviewId) {
         ReviewReplyDto replyDto = ReviewReplyDto.ReplyFormRequest(request);
         Long createdId = replyService.createReply(replyDto, reviewId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdId);
+        return ResponseEntity.status(HttpStatus.CREATED).body("리뷰 답변 등록 완료 : "+createdId);
     }
 
     @DeleteMapping("/{replyId}")
-    public ResponseEntity<?> deleteReply(@PathVariable Long replyId) {
+    public ResponseEntity<String> deleteReply(@PathVariable Long replyId) {
         replyService.deleteReply(replyId);
         return ResponseEntity.ok().body("삭제 완료");
     }

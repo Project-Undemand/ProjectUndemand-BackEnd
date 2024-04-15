@@ -1,6 +1,5 @@
 package PU.pushop.review.controller;
 
-import PU.pushop.review.entity.Review;
 import PU.pushop.review.model.ReviewDto;
 import PU.pushop.review.service.ReviewService;
 import jakarta.validation.Valid;
@@ -27,7 +26,7 @@ public class ReviewController {
      * @return
      */
     @PostMapping("/new/{paymentId}")
-    public ResponseEntity<?> createReview(@RequestBody ReviewDto request, @PathVariable Long paymentId) {
+    public ResponseEntity<ReviewDto> createReview(@RequestBody ReviewDto request, @PathVariable Long paymentId) {
 
         ReviewDto createdReview = new ReviewDto(reviewService.createReview(request, paymentId));
 
@@ -82,9 +81,8 @@ public class ReviewController {
      * @return
      */
     @PutMapping("/{reviewId}/{memberId}")
-    public ResponseEntity<?> updateReview(@Valid @PathVariable Long reviewId, @PathVariable Long memberId, @RequestBody ReviewDto request) {
+    public ResponseEntity<ReviewDto> updateReview(@Valid @PathVariable Long reviewId, @PathVariable Long memberId, @RequestBody ReviewDto request) {
 
-//        Review updatedreview = ReviewDto.requestForm(request);
         ReviewDto updatedReivewDto = new ReviewDto(reviewService.updateReview(request, reviewId, memberId));
 
         return ResponseEntity.status(HttpStatus.OK).body(updatedReivewDto);
@@ -97,9 +95,9 @@ public class ReviewController {
      * @return
      */
     @DeleteMapping("/{reviewId}/{memberId}")
-    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId, @PathVariable Long memberId) {
+    public ResponseEntity<String> deleteReview(@PathVariable Long reviewId, @PathVariable Long memberId) {
         reviewService.deleteReview(reviewId, memberId);
-        return ResponseEntity.ok("리뷰 삭제 완료 " + reviewId);
+        return ResponseEntity.ok("리뷰 삭제 완료 : " + reviewId);
     }
 
 }
