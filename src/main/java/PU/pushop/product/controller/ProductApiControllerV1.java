@@ -7,11 +7,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
@@ -28,11 +32,106 @@ public class ProductApiControllerV1 {
      *
      * @return
      */
-    @GetMapping("/products")
+/*    @GetMapping("/products")
     public ResponseEntity<List<ProductListDto>> productList() {
         List<ProductListDto> productList = productServiceV1.allProducts();
         return new ResponseEntity<>(productList, HttpStatus.OK);
+    }*/
+
+    /**
+     * 전체 상품 조회 (페이징 처리)
+     */
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductListDto>> productList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProductListDto> productPage = productServiceV1.allProductsPaged(page, size);
+        return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
     }
+
+    /**
+     * 최신순
+     * @return
+     */
+    /*@GetMapping("/products/new")
+    public ResponseEntity<List<ProductListDto>> NewProductList() {
+        List<ProductListDto> productList = productServiceV1.getNewProducts();
+        return new ResponseEntity<>(productList, HttpStatus.OK);
+    }*/
+
+    /**
+     * 최신순(페이징 처리)
+     * @return
+     */
+    @GetMapping("/products/new")
+    public ResponseEntity<List<ProductListDto>> newProductList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProductListDto> newProductPage = productServiceV1.getNewProductsPaged(page,size);
+        return new ResponseEntity<>(newProductPage.getContent(), HttpStatus.OK);
+    }
+
+
+    /**
+     * 인기순
+     * @return
+     */
+   /* @GetMapping("/products/best")
+    public ResponseEntity<List<ProductListDto>> bestProductList() {
+        List<ProductListDto> productList = productServiceV1.getBestProducts();
+        return new ResponseEntity<>(productList, HttpStatus.OK);
+    }*/
+
+    /**
+     * 인기순 (페이징 처리)
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping("/products/best")
+    public ResponseEntity<List<ProductListDto>> bestProductList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProductListDto> newProductPage = productServiceV1.getBestProductsPaged(page,size);
+        return new ResponseEntity<>(newProductPage.getContent(), HttpStatus.OK);
+    }
+
+    /**
+     * 할인중 목록 (페이징 처리)
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping("/products/discount")
+    public ResponseEntity<List<ProductListDto>> discountProductList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProductListDto> newProductPage = productServiceV1.getDiscountProductsPaged(page,size);
+        return new ResponseEntity<>(newProductPage.getContent(), HttpStatus.OK);
+    }
+
+    /**
+     * 추천 상품 목록 (페이징 처리)
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping("/products/recommend")
+    public ResponseEntity<List<ProductListDto>> recommendProductList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProductListDto> newProductPage = productServiceV1.getRecommendProductsPaged(page,size);
+        return new ResponseEntity<>(newProductPage.getContent(), HttpStatus.OK);
+    }
+
+
+
+
 
     /**
      * 상품 등록

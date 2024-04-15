@@ -19,7 +19,7 @@ public class ProductListDto {
     private ProductType productType;
     private String productName;
     private Integer price;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
     private Long wishListCount;
     private Boolean isDiscount;
     private Integer discountRate;

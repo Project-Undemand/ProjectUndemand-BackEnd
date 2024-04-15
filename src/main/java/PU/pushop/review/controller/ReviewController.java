@@ -1,5 +1,6 @@
 package PU.pushop.review.controller;
 
+import PU.pushop.review.model.ReviewCreateDto;
 import PU.pushop.review.model.ReviewDto;
 import PU.pushop.review.service.ReviewService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -28,9 +30,11 @@ public class ReviewController {
      * @return
      */
     @PostMapping("/new/{paymentId}")
-    public ResponseEntity<ReviewDto> createReview(@RequestBody ReviewDto request, @PathVariable Long paymentId) {
+    public ResponseEntity<ReviewDto> createReview(@RequestParam("images") List<MultipartFile> images,
+                                                  @ModelAttribute ReviewCreateDto request,
+                                                  @PathVariable Long paymentId) {
 
-        ReviewDto createdReview = new ReviewDto(reviewService.createReview(request, paymentId));
+        ReviewDto createdReview = new ReviewDto(reviewService.createReview(request, images,paymentId));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
     }
@@ -83,7 +87,7 @@ public class ReviewController {
      * @return
      */
     @PutMapping("/{reviewId}/{memberId}")
-    public ResponseEntity<ReviewDto> updateReview(@Valid @PathVariable Long reviewId, @PathVariable Long memberId, @RequestBody ReviewDto request) {
+    public ResponseEntity<ReviewDto> updateReview(@Valid @PathVariable Long reviewId, @PathVariable Long memberId, @RequestBody ReviewCreateDto request) {
 
         ReviewDto updatedReivewDto = new ReviewDto(reviewService.updateReview(request, reviewId, memberId));
 

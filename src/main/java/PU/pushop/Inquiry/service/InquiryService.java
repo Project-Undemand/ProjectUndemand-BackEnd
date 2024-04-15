@@ -37,10 +37,12 @@ public class InquiryService {
     public final ModelMapper modelMapper;
 
     /**
-     * 문의 등록
+     * 문의 작성
+     * @param requestDto 문의 엔티티 필드
+     * @param productId 문의 작성할 상품
+     * @param request
      * @return
      */
-
     @Transactional
     public Long createInquiry(InquiryCreateDto requestDto, Long productId, HttpServletRequest request) {
 

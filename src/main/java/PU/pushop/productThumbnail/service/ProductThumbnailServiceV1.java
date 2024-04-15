@@ -78,7 +78,7 @@ public class ProductThumbnailServiceV1 {
                 .orElseThrow(() -> new NoSuchElementException("해당 사진을 찾을 수 없습니다."));
 
         // 썸네일 파일 경로 가져오기
-        String imagePath = thumbnail.getImagePath();
+        String imagePath = "src/main/resources/static" + thumbnail.getImagePath();
 
         // 썸네일 데이터베이스에서 삭제
         productThumbnailRepository.delete(thumbnail);
