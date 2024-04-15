@@ -81,12 +81,12 @@ public class ProductManagementController {
      * @return
      */
     @PutMapping("/{inventoryId}")
-    public ResponseEntity<UpdateResponse> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryUpdateDto request) {
+    public ResponseEntity<String> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryUpdateDto request) {
 
         ProductManagement updated = managementService.updateInventory(inventoryId, request);
         UpdateResponse response = new UpdateResponse(updated.getInventoryId(), updated.getProduct());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok().body("수정 완료");
 
     }
 
