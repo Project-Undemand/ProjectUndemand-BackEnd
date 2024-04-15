@@ -157,7 +157,7 @@ public class SecurityConfig {
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         http
-                .addFilterBefore(new JWTFilterV1(jwtUtil), CustomLogoutFilter.class);
+                .addFilterBefore(new JWTFilterV1(jwtUtil, memberRepositoryV1), CustomLogoutFilter.class);
 
 //        http
 //                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilterV1.class);
