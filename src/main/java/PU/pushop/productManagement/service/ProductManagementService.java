@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
@@ -54,7 +56,7 @@ public class ProductManagementService {
     public ProductManagement updateInventory(Long inventoryId, InventoryUpdateDto updatedInventory) {
 
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         InventoryUpdateDto.updateInventoryForm(existingInventory, updatedInventory);
 
@@ -67,7 +69,7 @@ public class ProductManagementService {
      */
     public void deleteInventory(Long inventoryId) {
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
         productManagementRepository.delete(existingInventory);
 
     }

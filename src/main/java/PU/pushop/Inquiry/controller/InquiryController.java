@@ -1,12 +1,12 @@
 package PU.pushop.Inquiry.controller;
 
+import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.Inquiry.model.InquiryCreateDto;
+import PU.pushop.Inquiry.model.InquiryDto;
 import PU.pushop.Inquiry.model.InquiryUpdateDto;
+import PU.pushop.Inquiry.service.InquiryService;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.Inquiry.entity.Inquiry;
-import PU.pushop.Inquiry.model.InquiryDto;
-import PU.pushop.Inquiry.service.InquiryService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
 @RestController
 @RequestMapping("/api/v1/inquiry")
@@ -100,7 +102,7 @@ public class InquiryController {
     @DeleteMapping("/{inquiryId}")
     public ResponseEntity<String> deleteInquiry(@PathVariable Long inquiryId, @RequestHeader("password") String password) {
         inquiryService.deleteInquiry(inquiryId, password);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 
 

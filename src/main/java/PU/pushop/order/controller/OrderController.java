@@ -1,16 +1,16 @@
 package PU.pushop.order.controller;
 
 import PU.pushop.order.entity.Orders;
-import PU.pushop.order.entity.enums.PayMethod;
 import PU.pushop.order.model.OrderDto;
 import PU.pushop.order.model.OrderResponseDto;
 import PU.pushop.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Order;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class OrderController {
      * @return
      */
     @PostMapping("/create")
-    public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<String> createOrder(@RequestBody Map<String, Object> payload) {
         List<Integer> cartIdsInteger = (List<Integer>) payload.get("cartIds");
         List<Long> cartIds = cartIdsInteger.stream().map(Long::valueOf).collect(Collectors.toList());
         Orders temporaryOrder = orderService.createOrder(cartIds);
@@ -50,7 +50,7 @@ public class OrderController {
      * @return
      */
     @PostMapping("/done")
-    public ResponseEntity<?> completeOrder(@RequestBody OrderDto request) {
+    public ResponseEntity<Object> completeOrder(@RequestBody OrderDto request) {
 
         Orders orders = OrderDto.RequestForm(request);
 

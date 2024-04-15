@@ -14,10 +14,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+
+import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -27,7 +27,6 @@ public class ProductServiceV1 {
     public final ProductColorRepository productColorRepository;
     public final ModelMapper modelMapper;
 
-    public static final String PRODUCT_NOT_FOUND_MESSAGE = "상품을 찾을 수 없습니다.";
 
     /**
      * 상품 등록
@@ -51,7 +50,7 @@ public class ProductServiceV1 {
      */
     public ProductDetailDto productDetail(Long productId) {
         Product product =productRepositoryV1.findById(productId)
-                .orElseThrow(()->new NoSuchElementException(PRODUCT_NOT_FOUND_MESSAGE));
+                .orElseThrow(()->new NoSuchElementException(PRODUCT_NOT_FOUND));
         return modelMapper.map(product, ProductDetailDto.class);
     }
 
@@ -73,7 +72,7 @@ public class ProductServiceV1 {
      */
     public Product updateProduct(Long productId, ProductCreateDto updatedDto) {
         Product existingProduct = productRepositoryV1.findById(productId)
-                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         // ModelMapper를 사용하여 DTO에서 엔티티로 매핑
         modelMapper.map(updatedDto, existingProduct);
@@ -88,7 +87,7 @@ public class ProductServiceV1 {
      */
     public void deleteProduct(Long productId) {
         Product existingProduct = productRepositoryV1.findById(productId)
-                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND_MESSAGE));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         productRepositoryV1.delete(existingProduct);
     }

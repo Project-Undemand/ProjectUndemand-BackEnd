@@ -1,22 +1,19 @@
 package PU.pushop.product.controller;
 
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.ProductColor;
-import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.*;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -84,9 +81,9 @@ public class ProductApiControllerV1 {
      * @return
      */
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
         productServiceV1.deleteProduct(productId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 
     /**
@@ -112,10 +109,10 @@ public class ProductApiControllerV1 {
      * @return
      */
     @DeleteMapping("/color/{colorId}")
-    public ResponseEntity<Void> deleteColor(@PathVariable Long colorId) {
+    public ResponseEntity<String> deleteColor(@PathVariable Long colorId) {
         productServiceV1.deleteColor(colorId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 
 }

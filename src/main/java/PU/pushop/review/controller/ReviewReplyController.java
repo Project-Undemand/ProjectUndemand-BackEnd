@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
+
 @RestController
 @RequestMapping("/api/v1/review/reply")
 @RequiredArgsConstructor
@@ -25,6 +27,6 @@ public class ReviewReplyController {
     @DeleteMapping("/{replyId}")
     public ResponseEntity<String> deleteReply(@PathVariable Long replyId) {
         replyService.deleteReply(replyId);
-        return ResponseEntity.ok().body("삭제 완료");
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 }

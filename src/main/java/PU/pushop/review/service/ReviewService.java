@@ -19,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static PU.pushop.global.ResponseMessageConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +68,7 @@ public class ReviewService {
        /* if (reviews.isEmpty()) {
             throw new IllegalStateException("리뷰가 없습니다.");
         }*/
-        return reviews.stream().map(ReviewDto::new).collect(Collectors.toList());
+        return reviews.stream().map(ReviewDto::new).toList();
     }
 
     /**
@@ -77,15 +78,15 @@ public class ReviewService {
      */
     public List<ReviewDto> findReviewByProduct(Long productId) {
         Product product = productRepository.findByProductId(productId)
-                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         List<Review> reviews = reviewRepository.findByPaymentHistoryProduct(product);
 
         if (reviews.isEmpty()) {
-            throw new IllegalStateException("리뷰가 없습니다.");
+            throw new IllegalStateException(WRITING_NOT_FOUND);
         }
 
-        return reviews.stream().map(ReviewDto::new).collect(Collectors.toList());
+        return reviews.stream().map(ReviewDto::new).toList();
     }
 
     /**
@@ -95,15 +96,15 @@ public class ReviewService {
      */
     public List<ReviewDto> findReviewByUser(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
 
         List<Review> reviews = reviewRepository.findByPaymentHistoryMember(member);
 
         if (reviews.isEmpty()) {
-            throw new IllegalStateException("리뷰가 없습니다.");
+            throw new IllegalStateException(WRITING_NOT_FOUND);
         }
 
-        return reviews.stream().map(ReviewDto::new).collect(Collectors.toList());
+        return reviews.stream().map(ReviewDto::new).toList();
     }
 
     /**
@@ -113,11 +114,9 @@ public class ReviewService {
      */
     public ReviewDto reviewDetail(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NoSuchElementException("해당 후기를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
 
-        ReviewDto reviewDetail = new ReviewDto(review);
-
-        return reviewDetail;
+        return new ReviewDto(review);
     }
 
     /**
@@ -129,11 +128,9 @@ public class ReviewService {
     public Review updateReview(ReviewDto updateRequest, Long reviewId, Long memberId) {
 
         Review currentReview = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NoSuchElementException("해당 후기를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
 
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
-
-//        Review updatedreview = ReviewDto.requestForm(request);
 
         Review updatedreview = modelMapper.map(updateRequest, Review.class);
 
@@ -141,7 +138,7 @@ public class ReviewService {
         Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
 
         if (!loginMemberId.equals(memberId) || !memberId.equals(reviewWriterId)) {
-            throw new SecurityException("접근 권한이 없습니다.");
+            throw new SecurityException(ACCESS_DENIED);
         }
 
         currentReview.setReviewContent(updatedreview.getReviewContent());
@@ -156,14 +153,14 @@ public class ReviewService {
      */
     public void deleteReview(Long reviewId, Long memberId) {
         Review currentReview = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
         // 로그인 중인 유저의 memberId 찾기
         Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
 
         if (!loginMemberId.equals(memberId) || !memberId.equals(reviewWriterId)) {
-            throw new SecurityException("접근 권한이 없습니다.");
+            throw new SecurityException(ACCESS_DENIED);
         }
 
         reviewRepository.delete(currentReview);

@@ -1,5 +1,6 @@
 package PU.pushop.payment.service;
 
+import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.order.entity.Orders;
@@ -12,7 +13,6 @@ import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
-import com.siot.IamportRestClient.response.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ public class PaymentService {
         if (memberId != null) {
 
             member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다. Id : " + memberId));
+                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
         }
         Orders order = null;
         if (orderId != null) {
@@ -62,7 +62,7 @@ public class PaymentService {
             PaymentHistory paymentHistory = new PaymentHistory();
 
             ProductManagement inventory = productMgtRepository.findById(inventoryId)
-                    .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + inventoryId));
+                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
 
             Product product = inventory.getProduct();
 

@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,8 +27,7 @@ public class CategoryServiceV1 {
 
 
     public List<CategoryDto> getCategoryList() {
-        List<CategoryDto> results = categoryRepository.findAll().stream().map(CategoryDto::of).collect(Collectors.toList());
-        return results;
+        return categoryRepository.findAll().stream().map(CategoryDto::of).collect(Collectors.toList());
     }
 
     /**

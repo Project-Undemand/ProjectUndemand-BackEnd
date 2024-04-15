@@ -5,7 +5,6 @@ import PU.pushop.Inquiry.entity.InquiryReply;
 import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.repository.InquiryReplyRepository;
 import PU.pushop.Inquiry.repository.InquiryRepository;
-import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
@@ -15,14 +14,13 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+
+import static PU.pushop.global.ResponseMessageConstants.*;
 
 @Service
 @Transactional
@@ -47,11 +45,11 @@ public class InquiryReplyService {
 
         // 답변하는 사람
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND+" Id : " + memberId));
 
         // 답변할 문의글
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new NoSuchElementException("문의글을 찾을 수 없습니다. inquiryId: " + inquiryId));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND + " inquiryId: " + inquiryId));
 
         InquiryReply reply = new InquiryReply();
 
@@ -72,7 +70,7 @@ public class InquiryReplyService {
 
     public void deleteReply(Long replyId) {
         InquiryReply existingReply = inquiryReplyRepository.findById(replyId)
-                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
 
         inquiryReplyRepository.delete(existingReply);
 

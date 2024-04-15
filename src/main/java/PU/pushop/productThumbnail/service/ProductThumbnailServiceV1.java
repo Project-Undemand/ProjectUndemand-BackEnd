@@ -1,8 +1,8 @@
 package PU.pushop.productThumbnail.service;
 
+import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.product.service.ProductServiceV1;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.productThumbnail.repository.ProductThumbnailRepositoryV1;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class ProductThumbnailServiceV1 {
 //            Product product = productService.findProductById(productId);
 
             Product product = productRepository.findByProductId(productId)
-                    .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
             // 이미지 파일 저장을 위한 경로 설정
             String uploadsDir = "src/main/resources/static/uploads/thumbnails/";
 

@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
+
 @RestController
 @RequestMapping("/api/v1/thumbnail")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class ProductThumbnailControllerV1 {
     @DeleteMapping("/delete/{thumbnailId}")
     public ResponseEntity<String> deleteThumbnail(@PathVariable Long thumbnailId) {
         productThumbnailService.deleteThumbnail(thumbnailId);
-        return ResponseEntity.status(HttpStatus.OK).body("썸네일 삭제 완료");
+        return ResponseEntity.status(HttpStatus.OK).body(DELETE_SUCCESS);
     }
     
     // 상품 id로 썸네일 조회 (경로 리스트)

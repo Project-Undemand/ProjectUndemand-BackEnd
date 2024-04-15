@@ -1,6 +1,5 @@
 package PU.pushop.reviewImg;
 
-import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
+
 @RestController
 @RequestMapping("api/v1/review")
 @RequiredArgsConstructor
@@ -97,7 +99,7 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}/{memberId}")
     public ResponseEntity<String> deleteReview(@PathVariable Long reviewId, @PathVariable Long memberId) {
         reviewService.deleteReview(reviewId, memberId);
-        return ResponseEntity.ok("리뷰 삭제 완료 : " + reviewId);
+        return ResponseEntity.ok(DELETE_SUCCESS);
     }
 
 }

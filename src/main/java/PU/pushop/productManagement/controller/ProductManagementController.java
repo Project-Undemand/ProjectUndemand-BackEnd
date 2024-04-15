@@ -1,10 +1,7 @@
 package PU.pushop.productManagement.controller;
 
 import PU.pushop.product.entity.Product;
-import PU.pushop.category.entity.Category;
-import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.ProductManagement;
-import PU.pushop.productManagement.entity.enums.Size;
 import PU.pushop.productManagement.model.InventoryCreateDto;
 import PU.pushop.productManagement.model.InventoryUpdateDto;
 import PU.pushop.productManagement.model.ProductManagementDto;
@@ -18,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
 @RestController
 @RequestMapping("/api/v1/inventory")
@@ -69,7 +68,7 @@ public class ProductManagementController {
      * @return
      */
     @PostMapping("/new")
-    public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryCreateDto requestDto) {
+    public ResponseEntity<Long> createInventory(@Valid @RequestBody InventoryCreateDto requestDto) {
         ProductManagement request = InventoryCreateDto.requestForm(requestDto);
         Long createdId = managementService.createInventory(request);
         return ResponseEntity.ok(createdId);
@@ -82,7 +81,7 @@ public class ProductManagementController {
      * @return
      */
     @PutMapping("/{inventoryId}")
-    public ResponseEntity<?> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryUpdateDto request) {
+    public ResponseEntity<UpdateResponse> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryUpdateDto request) {
 
         ProductManagement updated = managementService.updateInventory(inventoryId, request);
         UpdateResponse response = new UpdateResponse(updated.getInventoryId(), updated.getProduct());
@@ -97,8 +96,8 @@ public class ProductManagementController {
      * @return
      */
     @DeleteMapping("/{inventoryId}")
-    public ResponseEntity<?> deleteInventory(@PathVariable Long inventoryId) {
+    public ResponseEntity<String> deleteInventory(@PathVariable Long inventoryId) {
         managementService.deleteInventory(inventoryId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 }

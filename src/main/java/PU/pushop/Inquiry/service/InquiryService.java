@@ -1,30 +1,30 @@
 package PU.pushop.Inquiry.service;
 
 
+import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.Inquiry.model.InquiryCreateDto;
+import PU.pushop.Inquiry.model.InquiryDto;
 import PU.pushop.Inquiry.model.InquiryUpdateDto;
-import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
+import PU.pushop.Inquiry.repository.InquiryRepository;
+import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.Inquiry.entity.Inquiry;
 import PU.pushop.product.entity.Product;
-import PU.pushop.Inquiry.repository.InquiryRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import PU.pushop.Inquiry.model.InquiryDto;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import static PU.pushop.global.ResponseMessageConstants.WRITING_NOT_FOUND;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -55,7 +55,7 @@ public class InquiryService {
             Long memberId = MemberAuthorizationUtil.getLoginMemberId();
 
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
+                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
             inquiry.setMember(member);
             inquiry.setName(member.getUsername());
             inquiry.setEmail(member.getEmail());
@@ -65,7 +65,7 @@ public class InquiryService {
 
         // 상품 저장
         Product product = productRepository.findByProductId(productId)
-                .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + productId));
+                .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
         inquiry.setProduct(product);
 
         // BD에 저장
@@ -106,7 +106,7 @@ public class InquiryService {
      */
     public InquiryDto inquiryDetail(Long inquiryId) {
         Inquiry inquiryDetail = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
 
 
         return InquiryDto.mapInquiryToDto(inquiryDetail, true);
@@ -150,7 +150,7 @@ public class InquiryService {
      */
     private Inquiry validatePasswordAndGetInquiry(Long inquiryId, String password) {
         Inquiry existingInquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new NoSuchElementException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
 
         // 비밀번호 검증
         if (!existingInquiry.getPassword().equals(password)) {
