@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 public class JWTFilterV0 extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final MemberRepositoryV1 memberRepositoryV1;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -53,11 +52,8 @@ public class JWTFilterV0 extends OncePerRequestFilter {
             String memberId = jwtUtil.getMemberId(accessToken);
             MemberRole role = jwtUtil.getRole(accessToken);
 
-            Member member = memberRepositoryV1.findById(Long.valueOf(memberId))
-                    .orElseThrow(() -> new UsernameNotFoundException("id에 맞는 해당 회원이 존재하지 않습니다."));
-
             // 멤버 엔터티 생성
-            CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), member, role, true);
+            CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), role, true);
 
             // 멤버 엔터티를 CustomUserDetails 로 변환
             CustomUserDetails customUserDetails = new CustomUserDetails(customMemberDto);

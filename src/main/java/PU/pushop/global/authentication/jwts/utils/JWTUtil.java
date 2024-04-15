@@ -2,16 +2,14 @@ package PU.pushop.global.authentication.jwts.utils;
 
 import PU.pushop.members.entity.enums.MemberRole;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+
 
 @Component
 @Slf4j
@@ -24,8 +22,11 @@ public class JWTUtil {
     private final Long accessTokenExpirationPeriod = 3600L; // 1일
     private final Long refreshTokenExpirationPeriod = 1209600L; // 14일
 
-    public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
-        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
+
+
+    public JWTUtil() {
+        this.secretKey = Jwts.SIG.HS256.key().build();
+//        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
     }
 
     private Claims parseToken(String token) {

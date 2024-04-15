@@ -10,6 +10,7 @@ import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +46,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomLoginSuccessHandlerV3 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
+
 
     @Bean
     @Primary
@@ -158,7 +160,7 @@ public class SecurityConfig {
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         http
-                .addFilterBefore(new JWTFilterV1(jwtUtil, memberRepositoryV1), CustomLogoutFilter.class);
+                .addFilterBefore(new JWTFilterV1(jwtUtil), CustomLogoutFilter.class);
 
 //        http
 //                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilterV1.class);

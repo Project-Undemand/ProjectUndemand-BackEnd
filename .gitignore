@@ -1,6 +1,7 @@
 application-test.yml
 DummyDataLoader.java
 
+src/main/resources/.env
 HELP.md
 .gradle
 .yml
