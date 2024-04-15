@@ -21,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static PU.pushop.global.ResponseMessageConstants.*;
 
@@ -62,9 +60,11 @@ public class ReviewService {
         // 결제내역에서 리뷰 작성 여부 true 로 변환
         paymentHistory.setReview(true);
 
-        // 이미지 업로드
-        reviewImgService.uploadReviewImg(review.getReviewId(), images);
-
+        // 이미지파일에 이미지가 있을 경우에만
+        if (!Objects.equals(images.get(0).getOriginalFilename(), "")) {
+            // 이미지 업로드
+            reviewImgService.uploadReviewImg(review.getReviewId(), images.stream().toList());
+        }
         return review;
     }
 
@@ -177,11 +177,14 @@ public class ReviewService {
         }
 
         List<ReviewImg> reviewImgList = reviewImgRepository.findByReview_ReviewId(reviewId);
+        System.out.println("dlalwl" + reviewImgList);
 
-        for (ReviewImg reviewImg : reviewImgList) {
-            reviewImgRepository.delete(reviewImg);
-            String imagePath = "src/main/resources/static"+reviewImg.getReviewImgPath();
-            ReviewImgService.deleteImageFile(imagePath);
+        if (reviewImgList != null) {
+            for (ReviewImg reviewImg : reviewImgList) {
+                reviewImgRepository.delete(reviewImg);
+                String imagePath = "src/main/resources/static" + reviewImg.getReviewImgPath();
+                ReviewImgService.deleteImageFile(imagePath);
+            }
         }
 
         reviewRepository.delete(currentReview);
