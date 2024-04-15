@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 
@@ -71,87 +72,29 @@ public class ProductServiceV1 {
                 .toList();
     }
 
-    /**
-     * 전체 상품 리스트 - 페이징 처리된 상품 찾기
-     */
-    public Page<ProductListDto> allProductsPaged(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> productPage = productRepositoryV1.findAll(pageable);
-        return productPage.map(ProductListDto::new); // Spring Data JPA에서 제공하는 Page 객체의 메소드. 페이지 내의 각 엔티티를 다른 형식으로 매핑
+    // 페이징 처리, 상품 목록 매핑 메서드
+    public Page<ProductListDto> getProductsPaged(Pageable pageable, Function<Pageable, Page<Product>> pageFetcher) {
+        return pageFetcher.apply(pageable).map(ProductListDto::new);
     }
 
-    /**
-     * 최신 상품
-     * @return
-     */
-    public List<ProductListDto> getNewProducts() {
-        List<Product> products = productRepositoryV1.findAllByOrderByCreatedAtDesc();
-        return products.stream()
-                .map(product -> modelMapper.map(product, ProductListDto.class))
-                .toList();
-    }
-
-    /**
-     * 생성일자 기준 리스트 페이징
-     * @param page
-     * @param size
-     * @return
-     */
-    public Page<ProductListDto> getNewProductsPaged(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> productPage = productPagingRepository.findAllByOrderByCreatedAtDesc(pageable);
-        return productPage.map(ProductListDto::new);
+    // 최신순
+    public Page<ProductListDto> getNewProductsPaged(Pageable pageable) {
+        return getProductsPaged(pageable, productPagingRepository::findAllByOrderByCreatedAtDesc);
 
     }
-
-
-    /**
-     * 위시리스트 개수를 기준으로 내림차순으로 상품 리스트 가져오기
-     */
-    public List<ProductListDto> getBestProducts() {
-        List<Product> products = productRepositoryV1.findAllByOrderByWishListCountDesc();
-        return products.stream()
-                .map(product -> modelMapper.map(product, ProductListDto.class))
-                .toList();
+    // 인기순
+    public Page<ProductListDto> getBestProductsPaged(Pageable pageable) {
+        return getProductsPaged(pageable, productPagingRepository::findAllByOrderByWishListCountDesc);
     }
 
-    /**
-     * 위시리스트 기준 리스트 페이징
-     * @param page
-     * @param size
-     * @return
-     */
-    public Page<ProductListDto> getBestProductsPaged(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> productPage = productPagingRepository.findAllByOrderByWishListCountDesc(pageable);
-        return productPage.map(ProductListDto::new);
-
+    // 할인 상품
+    public Page<ProductListDto> getDiscountProductsPaged(Pageable pageable) {
+        return getProductsPaged(pageable, p -> productPagingRepository.findByIsDiscountTrue(pageable));
     }
 
-    /**
-     * 할인 상품 목록 페이징
-     * @param page
-     * @param size
-     * @return
-     */
-    public Page<ProductListDto> getDiscountProductsPaged(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> productPage = productPagingRepository.findByIsDiscountTrue(pageable);
-        return productPage.map(ProductListDto::new);
-
-    }
-
-    /**
-     * 추천 상품 목록 페이징
-     * @param page
-     * @param size
-     * @return
-     */
-    public Page<ProductListDto> getRecommendProductsPaged(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Product> productPage = productPagingRepository.findByIsRecommendTrue(pageable);
-        return productPage.map(ProductListDto::new);
-
+    // 추천 상품
+    public Page<ProductListDto> getRecommendProductsPaged(Pageable pageable) {
+        return getProductsPaged(pageable, p -> productPagingRepository.findByIsRecommendTrue(pageable));
     }
 
 
