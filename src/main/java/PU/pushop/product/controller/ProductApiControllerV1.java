@@ -33,7 +33,7 @@ public class ProductApiControllerV1 {
      *
      * @return
      */
-    @GetMapping("/products")
+    @GetMapping("/products/all")
     public ResponseEntity<List<ProductListDto>> productList() {
         List<ProductListDto> productList = productServiceV1.allProducts();
         return new ResponseEntity<>(productList, HttpStatus.OK);
@@ -50,13 +50,16 @@ public class ProductApiControllerV1 {
         Page<ProductListDto> productPage = productServiceV1.allProductsPaged(page, size);
         return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
     }*/
+/*
 
-    /**
+    */
+/**
      * 새 상품 목록 (페이징)
      * @param page
      * @param size
      * @return
-     */
+     *//*
+
     @GetMapping("/products/new")
     public ResponseEntity<List<ProductListDto>> newProductList(
             @RequestParam(defaultValue = "0") int page,
@@ -65,12 +68,14 @@ public class ProductApiControllerV1 {
         return getProductListResponse(page, size, productServiceV1::getNewProductsPaged);
     }
 
-    /**
+    */
+/**
      * 인기순 (페이징)
      * @param page
      * @param size
      * @return
-     */
+     *//*
+
     @GetMapping("/products/best")
     public ResponseEntity<List<ProductListDto>> bestProductList(
             @RequestParam(defaultValue = "0") int page,
@@ -79,12 +84,14 @@ public class ProductApiControllerV1 {
         return getProductListResponse(page, size, productServiceV1::getBestProductsPaged);
     }
 
-    /**
+    */
+/**
      * 할인 목록 (페이징)
      * @param page
      * @param size
      * @return
-     */
+     *//*
+
     @GetMapping("/products/discount")
     public ResponseEntity<List<ProductListDto>> discountProductList(
             @RequestParam(defaultValue = "0") int page,
@@ -93,12 +100,14 @@ public class ProductApiControllerV1 {
         return getProductListResponse(page, size, productServiceV1::getDiscountProductsPaged);
     }
 
-    /**
+    */
+/**
      * 추천 상품 (페이징)
      * @param page
      * @param size
      * @return
-     */
+     *//*
+
     @GetMapping("/products/recommend")
     public ResponseEntity<List<ProductListDto>> recommendProductList(
             @RequestParam(defaultValue = "0") int page,
@@ -107,18 +116,39 @@ public class ProductApiControllerV1 {
         return getProductListResponse(page, size, productServiceV1::getRecommendProductsPaged);
     }
 
-    /**
+    */
+/**
      * 페이징된 상품 목록 반환 메서드
      * @param page
      * @param size
      * @param pageFetcher
      * @return
-     */
+     *//*
+
     private ResponseEntity<List<ProductListDto>> getProductListResponse(int page, int size, Function<Pageable, Page<ProductListDto>> pageFetcher) {
         // 페이징된 상품 목록 가져옴
         Page<ProductListDto> productPage = pageFetcher.apply(PageRequest.of(page, size));
         return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
     }
+*/
+
+    /**
+     * 조건별 상품 리스트 페이징
+     * @param page
+     * @param size
+     * @param condition
+     * @return
+     */
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductListDto>> productList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "new") String condition
+    ) {
+        Page<ProductListDto> productPage = productServiceV1.getProductsByConditionPaged(PageRequest.of(page, size), condition);
+        return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
+    }
+
 
 
     /**

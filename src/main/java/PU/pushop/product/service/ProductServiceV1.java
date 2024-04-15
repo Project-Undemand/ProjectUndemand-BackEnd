@@ -71,6 +71,7 @@ public class ProductServiceV1 {
                 .map(product -> modelMapper.map(product, ProductListDto.class))
                 .toList();
     }
+/*
 
     // 페이징 처리, 상품 목록 매핑 메서드
     public Page<ProductListDto> getProductsPaged(Pageable pageable, Function<Pageable, Page<Product>> pageFetcher) {
@@ -97,7 +98,28 @@ public class ProductServiceV1 {
         return getProductsPaged(pageable, p -> productPagingRepository.findByIsRecommendTrue(pageable));
     }
 
+*/
 
+    /**
+     * 조건별 상품 리스트 페이징
+     * @param pageable
+     * @param condition
+     * @return
+     */
+    public Page<ProductListDto> getProductsByConditionPaged(Pageable pageable, String condition) {
+        switch (condition) {
+            case "new":
+                return productPagingRepository.findAllByOrderByCreatedAtDesc(pageable).map(ProductListDto::new);
+            case "best":
+                return productPagingRepository.findAllByOrderByWishListCountDesc(pageable).map(ProductListDto::new);
+            case "discount":
+                return productPagingRepository.findByIsDiscountTrue(pageable).map(ProductListDto::new);
+            case "recommend":
+                return productPagingRepository.findByIsRecommendTrue(pageable).map(ProductListDto::new);
+            default:
+                throw new IllegalArgumentException("Invalid condition: " + condition);
+        }
+    }
 
     /**
      * 상품 정보 수정
