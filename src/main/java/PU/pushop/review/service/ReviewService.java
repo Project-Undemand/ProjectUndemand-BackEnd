@@ -58,8 +58,11 @@ public class ReviewService {
 
         review.setPaymentHistory(paymentHistory);
         reviewRepository.save(review);
+        
+        // 결제내역에서 리뷰 작성 여부 true 로 변환
         paymentHistory.setReview(true);
 
+        // 이미지 업로드
         reviewImgService.uploadReviewImg(review.getReviewId(), images);
 
         return review;

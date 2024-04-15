@@ -1,6 +1,7 @@
 package PU.pushop.review.model;
 
 import PU.pushop.review.entity.Review;
+import PU.pushop.reviewImg.ReviewImg;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class ReviewDto {
     private String writer;
     private Long productId;
     private String productName;
+    private List<String> reviewImgPaths;
     private List<ReviewReplyDto> replies;
 
     public ReviewDto(Review review) {
@@ -41,6 +43,8 @@ public class ReviewDto {
                 review.getPaymentHistory().getOrders().getMember().getUsername(),
                 review.getPaymentHistory().getProduct().getProductId(),
                 review.getPaymentHistory().getProduct().getProductName(),
+                review.getReviewImages().stream().map(ReviewImg::getReviewImgPath).toList(),
+
                 review.getReplies() != null ? review.getReplies().stream().map(ReviewReplyDto::new).toList() : null
         );
     }
