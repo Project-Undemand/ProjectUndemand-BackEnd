@@ -33,8 +33,6 @@ public class ProductThumbnailServiceV1 {
     public void uploadThumbnail(Long productId, List<MultipartFile> images) {
         try {
             // Product 엔티티 가져오기
-//            Product product = productService.findProductById(productId);
-
             Product product = productRepository.findByProductId(productId)
                     .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
             // 이미지 파일 저장을 위한 경로 설정
@@ -52,7 +50,6 @@ public class ProductThumbnailServiceV1 {
                 // ProductThumbnail 엔티티 생성 및 저장
                 ProductThumbnail thumbnail = new ProductThumbnail(product, filePath);
                 thumbnail.setProduct(product);
-//                thumbnail.setImagePath(filePath);
                 thumbnail.setImagePath(dbFilePath);
                 productThumbnailRepository.save(thumbnail);
             }

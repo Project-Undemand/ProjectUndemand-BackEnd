@@ -3,20 +3,19 @@ package PU.pushop.product.controller;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.model.*;
 import PU.pushop.product.service.ProductServiceV1;
+import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
@@ -27,6 +26,7 @@ import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 public class ProductApiControllerV1 {
 
     private final ProductServiceV1 productServiceV1;
+    private final ProductThumbnailServiceV1 productThumbnailService;
 
     /**
      * 전체 상품 조회
@@ -50,87 +50,7 @@ public class ProductApiControllerV1 {
         Page<ProductListDto> productPage = productServiceV1.allProductsPaged(page, size);
         return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
     }*/
-/*
 
-    */
-/**
-     * 새 상품 목록 (페이징)
-     * @param page
-     * @param size
-     * @return
-     *//*
-
-    @GetMapping("/products/new")
-    public ResponseEntity<List<ProductListDto>> newProductList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return getProductListResponse(page, size, productServiceV1::getNewProductsPaged);
-    }
-
-    */
-/**
-     * 인기순 (페이징)
-     * @param page
-     * @param size
-     * @return
-     *//*
-
-    @GetMapping("/products/best")
-    public ResponseEntity<List<ProductListDto>> bestProductList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return getProductListResponse(page, size, productServiceV1::getBestProductsPaged);
-    }
-
-    */
-/**
-     * 할인 목록 (페이징)
-     * @param page
-     * @param size
-     * @return
-     *//*
-
-    @GetMapping("/products/discount")
-    public ResponseEntity<List<ProductListDto>> discountProductList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return getProductListResponse(page, size, productServiceV1::getDiscountProductsPaged);
-    }
-
-    */
-/**
-     * 추천 상품 (페이징)
-     * @param page
-     * @param size
-     * @return
-     *//*
-
-    @GetMapping("/products/recommend")
-    public ResponseEntity<List<ProductListDto>> recommendProductList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return getProductListResponse(page, size, productServiceV1::getRecommendProductsPaged);
-    }
-
-    */
-/**
-     * 페이징된 상품 목록 반환 메서드
-     * @param page
-     * @param size
-     * @param pageFetcher
-     * @return
-     *//*
-
-    private ResponseEntity<List<ProductListDto>> getProductListResponse(int page, int size, Function<Pageable, Page<ProductListDto>> pageFetcher) {
-        // 페이징된 상품 목록 가져옴
-        Page<ProductListDto> productPage = pageFetcher.apply(PageRequest.of(page, size));
-        return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
-    }
-*/
 
     /**
      * 조건별 상품 리스트 페이징
@@ -149,8 +69,6 @@ public class ProductApiControllerV1 {
         return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
     }
 
-
-
     /**
      * 상품 등록
      *
@@ -158,9 +76,10 @@ public class ProductApiControllerV1 {
      * @return productId, productName, price
      */
     @PostMapping("/products/new")
-    public ResponseEntity<String> createProduct(@Valid @RequestBody ProductCreateDto requestDto) {
-        ProductResponseDto response = new ProductResponseDto(productServiceV1.createProduct(requestDto));
-        return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. : " + response.getProductName());
+    public ResponseEntity<String> createProduct(@Valid @RequestParam("images") List<MultipartFile> images, @ModelAttribute ProductCreateDto requestDto) {
+        Long productId = productServiceV1.createProduct(requestDto); // 저장한 상품의 pk
+        productThumbnailService.uploadThumbnail(productId, images);
+        return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. Id : " + productId);
     }
 
     /**

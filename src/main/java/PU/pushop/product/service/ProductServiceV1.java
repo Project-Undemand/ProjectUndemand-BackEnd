@@ -13,14 +13,12 @@ import PU.pushop.product.repository.ProductRepositoryV1;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 
@@ -40,14 +38,14 @@ public class ProductServiceV1 {
      * @param requestDto
      * @return productId
      */
-    public Product createProduct(ProductCreateDto requestDto) {
+    public Long createProduct(ProductCreateDto requestDto) {
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
         // DTO를 엔티티로 매핑
         Product product = modelMapper.map(requestDto, Product.class);
         productRepositoryV1.save(product);
-        return product;
+        return product.getProductId();
     }
 
     /**
@@ -71,34 +69,7 @@ public class ProductServiceV1 {
                 .map(product -> modelMapper.map(product, ProductListDto.class))
                 .toList();
     }
-/*
 
-    // 페이징 처리, 상품 목록 매핑 메서드
-    public Page<ProductListDto> getProductsPaged(Pageable pageable, Function<Pageable, Page<Product>> pageFetcher) {
-        return pageFetcher.apply(pageable).map(ProductListDto::new);
-    }
-
-    // 최신순
-    public Page<ProductListDto> getNewProductsPaged(Pageable pageable) {
-        return getProductsPaged(pageable, productPagingRepository::findAllByOrderByCreatedAtDesc);
-
-    }
-    // 인기순
-    public Page<ProductListDto> getBestProductsPaged(Pageable pageable) {
-        return getProductsPaged(pageable, productPagingRepository::findAllByOrderByWishListCountDesc);
-    }
-
-    // 할인 상품
-    public Page<ProductListDto> getDiscountProductsPaged(Pageable pageable) {
-        return getProductsPaged(pageable, p -> productPagingRepository.findByIsDiscountTrue(pageable));
-    }
-
-    // 추천 상품
-    public Page<ProductListDto> getRecommendProductsPaged(Pageable pageable) {
-        return getProductsPaged(pageable, p -> productPagingRepository.findByIsRecommendTrue(pageable));
-    }
-
-*/
 
     /**
      * 조건별 상품 리스트 페이징

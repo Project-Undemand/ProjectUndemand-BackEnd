@@ -2,6 +2,8 @@ package PU.pushop.product.model;
 
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
+import PU.pushop.reviewImg.ReviewImg;
 import PU.pushop.wishList.entity.WishList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +26,7 @@ public class ProductListDto {
     private Boolean isDiscount;
     private Integer discountRate;
     private Boolean isRecommend;
+    private List<String> productThumbnails; // 썸네일 리스트 추가
 
     public ProductListDto(Product product) {
         this(
@@ -35,7 +38,9 @@ public class ProductListDto {
                 product.getWishListCount(),
                 product.getIsDiscount(),
                 product.getDiscountRate(),
-                product.getIsRecommend()
+                product.getIsRecommend(),
+                product.getProductThumbnails().stream().map(ProductThumbnail::getImagePath).toList() // 경로만 가져오기
+
         );
     }
 }
