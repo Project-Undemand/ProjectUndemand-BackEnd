@@ -1,5 +1,7 @@
 package PU.pushop.productThumbnail.controller;
 
+import PU.pushop.product.entity.Product;
+import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import lombok.RequiredArgsConstructor;
@@ -9,20 +11,24 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
+import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 
 @RestController
 @RequestMapping("/api/v1/thumbnail")
 @RequiredArgsConstructor
 public class ProductThumbnailControllerV1 {
     private final ProductThumbnailServiceV1 productThumbnailService;
+    private final ProductRepositoryV1 productRepository;
 
     // 썸네일 업로드
     @PostMapping("/upload")
     public ResponseEntity<String> uploadThumbnail(@RequestParam("productId") Long productId, @RequestParam("image") List<MultipartFile> images) {
-        productThumbnailService.uploadThumbnail(productId, images);
+        Product product = productRepository.findByProductId(productId).orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
+        productThumbnailService.uploadThumbnail(product, images);
         return ResponseEntity.status(HttpStatus.CREATED).body("썸네일 업로드 완료");
     }
 

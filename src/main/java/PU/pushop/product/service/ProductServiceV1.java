@@ -10,12 +10,14 @@ import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductPagingRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,6 +31,7 @@ public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepositoryV1;
     public final ProductColorRepository productColorRepository;
     public final ModelMapper modelMapper;
+    private final ProductThumbnailServiceV1 productThumbnailService;
     public final ProductPagingRepository productPagingRepository;
 
 
@@ -38,13 +41,15 @@ public class ProductServiceV1 {
      * @param requestDto
      * @return productId
      */
-    public Long createProduct(ProductCreateDto requestDto) {
+    public Long createProduct(ProductCreateDto requestDto, List<MultipartFile> images) {
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
         // DTO를 엔티티로 매핑
         Product product = modelMapper.map(requestDto, Product.class);
         productRepositoryV1.save(product);
+        // 추가 - 썸네일 저장 메서드 실행
+        productThumbnailService.uploadThumbnail(product, images);
         return product.getProductId();
     }
 

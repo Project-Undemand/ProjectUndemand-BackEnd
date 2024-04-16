@@ -26,7 +26,6 @@ import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 public class ProductApiControllerV1 {
 
     private final ProductServiceV1 productServiceV1;
-    private final ProductThumbnailServiceV1 productThumbnailService;
 
     /**
      * 전체 상품 조회
@@ -77,8 +76,8 @@ public class ProductApiControllerV1 {
      */
     @PostMapping("/products/new")
     public ResponseEntity<String> createProduct(@Valid @RequestParam("images") List<MultipartFile> images, @ModelAttribute ProductCreateDto requestDto) {
-        Long productId = productServiceV1.createProduct(requestDto); // 저장한 상품의 pk
-        productThumbnailService.uploadThumbnail(productId, images);
+        Long productId = productServiceV1.createProduct(requestDto, images); // 저장한 상품의 pk
+
         return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. Id : " + productId);
     }
 
