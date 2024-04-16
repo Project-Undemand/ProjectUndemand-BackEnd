@@ -3,12 +3,12 @@ package PU.pushop.product.service;
 
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
+import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.ProductColorDto;
 import PU.pushop.product.model.ProductCreateDto;
 import PU.pushop.product.model.ProductDetailDto;
 import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
-import PU.pushop.product.repository.ProductPagingRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +28,10 @@ import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ProductServiceV1 {
-    public final ProductRepositoryV1 productRepositoryV1;
+    public final ProductRepositoryV1 productRepository;
     public final ProductColorRepository productColorRepository;
     public final ModelMapper modelMapper;
     private final ProductThumbnailServiceV1 productThumbnailService;
-    public final ProductPagingRepository productPagingRepository;
 
 
     /**
@@ -47,7 +46,7 @@ public class ProductServiceV1 {
         }
         // DTO를 엔티티로 매핑
         Product product = modelMapper.map(requestDto, Product.class);
-        productRepositoryV1.save(product);
+        productRepository.save(product);
         // 추가 - 썸네일 저장 메서드 실행
         productThumbnailService.uploadThumbnail(product, images);
         return product.getProductId();
@@ -60,7 +59,7 @@ public class ProductServiceV1 {
      * @return
      */
     public ProductDetailDto productDetail(Long productId) {
-        Product product = productRepositoryV1.findById(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
         return modelMapper.map(product, ProductDetailDto.class);
     }
@@ -69,7 +68,7 @@ public class ProductServiceV1 {
      * 전체 상품 리스트 - 전체 상품 찾기
      */
     public List<ProductListDto> allProducts() {
-        List<Product> products = productRepositoryV1.findAll();
+        List<Product> products = productRepository.findAll();
         return products.stream()
                 .map(product -> modelMapper.map(product, ProductListDto.class))
                 .toList();
@@ -85,16 +84,27 @@ public class ProductServiceV1 {
     public Page<ProductListDto> getProductsByConditionPaged(Pageable pageable, String condition) {
         switch (condition) {
             case "new":
-                return productPagingRepository.findAllByOrderByCreatedAtDesc(pageable).map(ProductListDto::new);
+                return productRepository.findAllByOrderByCreatedAtDesc(pageable).map(ProductListDto::new);
             case "best":
-                return productPagingRepository.findAllByOrderByWishListCountDesc(pageable).map(ProductListDto::new);
+                return productRepository.findAllByOrderByWishListCountDesc(pageable).map(ProductListDto::new);
             case "discount":
-                return productPagingRepository.findByIsDiscountTrue(pageable).map(ProductListDto::new);
+                return productRepository.findByIsDiscountTrue(pageable).map(ProductListDto::new);
             case "recommend":
-                return productPagingRepository.findByIsRecommendTrue(pageable).map(ProductListDto::new);
+                return productRepository.findByIsRecommendTrue(pageable).map(ProductListDto::new);
             default:
                 throw new IllegalArgumentException("Invalid condition: " + condition);
         }
+    }
+
+    /**
+     * 상품 타입별 페이징
+     * @param pageable
+     * @param productType
+     * @return
+     */
+    public Page<ProductListDto> getProductsByTypePaged(Pageable pageable, ProductType productType) {
+        return productRepository.findByProductType(productType, pageable)
+                .map(ProductListDto::new);
     }
 
     /**
@@ -105,14 +115,14 @@ public class ProductServiceV1 {
      * @return
      */
     public Product updateProduct(Long productId, ProductCreateDto updatedDto) {
-        Product existingProduct = productRepositoryV1.findById(productId)
+        Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         // ModelMapper를 사용하여 DTO에서 엔티티로 매핑
         modelMapper.map(updatedDto, existingProduct);
 
         // 수정된 상품 정보 저장 후 return
-        return productRepositoryV1.save(existingProduct);
+        return productRepository.save(existingProduct);
     }
 
     /**
@@ -121,10 +131,10 @@ public class ProductServiceV1 {
      * @param productId
      */
     public void deleteProduct(Long productId) {
-        Product existingProduct = productRepositoryV1.findById(productId)
+        Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
-        productRepositoryV1.delete(existingProduct);
+        productRepository.delete(existingProduct);
     }
 
     /**
