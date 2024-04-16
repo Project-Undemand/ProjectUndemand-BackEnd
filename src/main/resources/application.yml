@@ -14,9 +14,6 @@ spring:
 #    username: pu
 #    password:
 #    driver-class-name: org.h2.Driver
-  redis:
-    host: localhost
-    port: 995
   mail:
     username: gokorea1214@naver.com
     password: ${NAVER_PASSWORD}
@@ -36,7 +33,7 @@ spring:
   #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
@@ -44,6 +41,10 @@ spring:
         format_sql: true
         default_batch_fetch_size: 1000 #최적화 옵션
     show_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 995
 
 #    open-in-view: false
 

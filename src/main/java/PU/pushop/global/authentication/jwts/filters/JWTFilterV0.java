@@ -1,11 +1,9 @@
 package PU.pushop.global.authentication.jwts.filters;
 
-import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
-import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
+import PU.pushop.global.authentication.jwts.customuserlogin.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.customuserlogin.dto.CustomMemberDto;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
-import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;

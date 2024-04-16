@@ -4,7 +4,7 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
-import PU.pushop.members.service.JoinService;
+import PU.pushop.members.service.MemberService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +25,7 @@ import java.util.Optional;
 public class MemberApiController {
 
     private final MemberRepositoryV1 memberRepositoryV1;
-    private final JoinService joinService;
+    private final MemberService memberService;
     private final RefreshRepository refreshRepository;
 
     @GetMapping("/api/v1/members/{memberId}")
@@ -41,7 +41,7 @@ public class MemberApiController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
 
-        Member member = joinService.memberLogin(loginRequest);
+        Member member = memberService.memberLogin(loginRequest);
         if(member == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("email 또는 비밀번호가 일치하지 않습니다!");
@@ -50,7 +50,7 @@ public class MemberApiController {
                 .body("로그인 성공했습니다");
     }
 
-    @PostMapping("/api/v1/logout")
+    @PostMapping("/logout")
     public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
                        HttpServletResponse response) {
         System.out.println(refreshToken);

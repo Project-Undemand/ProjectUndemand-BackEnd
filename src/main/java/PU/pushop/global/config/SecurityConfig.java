@@ -1,16 +1,14 @@
 package PU.pushop.global.config;
 
 import PU.pushop.global.authentication.jwts.filters.*;
-import PU.pushop.global.authentication.jwts.login.CustomUserDetailsService;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserServiceV2;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
-import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserService;
-import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV2;
+import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserServiceV1;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV3;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +41,8 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
     private final MemberRepositoryV1 memberRepositoryV1;
     private final RefreshRepository refreshRepository;
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2UserServiceV1 customOAuth2UserServiceV1;
+    private final CustomOAuth2UserServiceV2 customOAuth2UserServiceV2;
     private final CustomLoginSuccessHandlerV3 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
@@ -54,10 +53,14 @@ public class SecurityConfig {
         return new AuthenticationConfiguration();
     }
 
-    @Bean
-    public CustomUserDetailsService customUserDetailsService() {
-        return new CustomUserDetailsService(memberRepositoryV1);
-    }
+//    @Bean
+//    public CustomOAuth2UserServiceV1 customOAuth2UserServiceV1() {
+//        return new CustomOAuth2UserServiceV1(memberRepositoryV1);
+//    }
+//    @Bean
+//    public CustomOAuth2UserServiceV2 customOAuth2UserServiceV2() {
+//        return new CustomOAuth2UserServiceV2(objectMapper);
+//    }
 
     @Bean
     public AuthenticationSuccessHandler loginSuccessHandler() {
@@ -125,7 +128,7 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
                 // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
-                .requestMatchers("/login", "/api/v1/logout",  "/", "/join", "/auth/**").permitAll()
+                .requestMatchers("/login", "/logout",  "/", "/join", "/auth/**").permitAll()
                 // 상품 카테고리, 상품
                 .requestMatchers("/api/v1/categorys/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
 //                .requestMatchers(antMatcher(
@@ -173,10 +176,10 @@ public class SecurityConfig {
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint(
                                 (userInfoEndpointConfig -> userInfoEndpointConfig
-                                        .userService(customOAuth2UserService)
+                                        .userService(customOAuth2UserServiceV1)
                                 )
                         )
-                        .successHandler(loginSuccessHandler()) // 쿠키에 refresh 토큰을 저장한다.
+                        .successHandler(loginSuccessHandler())
                         .failureHandler(loginFailureHandler())
                 );
 

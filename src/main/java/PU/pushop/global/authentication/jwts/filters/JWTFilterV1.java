@@ -1,13 +1,9 @@
 package PU.pushop.global.authentication.jwts.filters;
 
-import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
-import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
+import PU.pushop.global.authentication.jwts.customuserlogin.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.customuserlogin.dto.CustomMemberDto;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
-import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
-import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
-import PU.pushop.members.model.OAuthUserDTO;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,11 +16,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,7 +37,7 @@ public class JWTFilterV1 extends OncePerRequestFilter {
             log.info("로그인 하지 않은 상태입니다. 액세스토큰 없음");
             // 토큰이 유효하지 않으므로 클라이언트에게 에러 메시지 전송
 //            sendErrorResponse(response, "액세스 토큰이 없습니다.");
-//            filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
             // 메서드 종료
             return;
         }

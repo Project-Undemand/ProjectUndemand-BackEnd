@@ -1,6 +1,6 @@
-package PU.pushop.global.authentication.jwts.login;
+package PU.pushop.global.authentication.jwts.customuserlogin;
 
-import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
+import PU.pushop.global.authentication.jwts.customuserlogin.dto.CustomMemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

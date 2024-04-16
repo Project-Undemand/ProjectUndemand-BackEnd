@@ -18,15 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -43,32 +40,26 @@ public class CustomLoginSuccessHandlerV3 extends SimpleUrlAuthenticationSuccessH
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getName();
-        String role = extractOAuthRole(authentication);
+        log.info("oAuth2User.PK = {}", oAuth2User.getMemberId());
+        String email = authentication.getName();
+        String memberRole = extractOAuthRole(authentication);
+        String authorization = request.getHeader("Authorization");
+//        String accessToken = authorization.substring(7);
         log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
-        log.info("email = " + email);
-        log.info("role = " + role);
-        log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
-        log.info("============= memberId 를 가져오기 위해, DB 조회 시작 ==============");
-        Member requestMember = memberRepositoryV1.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
-        log.info("============= memberId 를 가져오기 위해, DB 조회 끝 ==============");
-        log.info("requestMember = " + requestMember);
-        // 액세스 토큰을 생성합니다.
-        String newAccess = jwtUtil.createAccessToken("access", String.valueOf(requestMember.getId()), role);
-        // 리프레시 토큰을 생성합니다.
-        String newRefresh = jwtUtil.createRefreshToken("refresh", String.valueOf(requestMember.getId()), role);
-        log.info("newAccess : " + newAccess);
-        log.info("newRefresh : " + newRefresh);
+        log.info("memberRole = {}", memberRole);
+        log.info("email = {}", email);
+        log.info("authorization = {}", authorization + " , accessToken 이 아직 request Header 에 없는 상황");
+        log.info("=============소셜 로그인 성공, 유저 데이터 끝 ==============");
 
-        // [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
-        saveOrUpdateRefreshEntity(requestMember, newRefresh);
-
-        // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        setTokenToResponseCookieV3(response, newAccess, newRefresh);
-
-        response.sendRedirect("http://localhost:3000");
+//        response.sendRedirect("http://localhost:3000");
     }
+
+//    public String toDetailedString() {
+//        return "CustomOAuth2User$1{" +
+//                "prop1=" + prop1 +
+//                ", prop2=" + prop2 +
+//                '}';
+//    }
 
     private static String extractOAuthRole(Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
