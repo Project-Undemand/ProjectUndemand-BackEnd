@@ -148,9 +148,5 @@ public class ProductServiceV1 {
         productColorRepository.delete(color);
     }
 
-    public Page<Product> searchProducts(String keyword) {
-        return productRepository.findByProductNameContainingOrProductInfoContaining(keyword, keyword);
-    }
-
 
 }

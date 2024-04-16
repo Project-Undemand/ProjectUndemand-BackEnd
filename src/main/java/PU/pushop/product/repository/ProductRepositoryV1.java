@@ -23,7 +23,6 @@ public interface ProductRepositoryV1 extends JpaRepository<Product, Long> {
     Page<Product> findByIsDiscountTrue(Pageable pageable); // 할인목록
     Page<Product> findByIsRecommendTrue(Pageable pageable); // 추천목록
 
-    Page<Product> findByProductNameContainingOrProductInfoContaining(String nameKeyword, String descriptionKeyword);
 
 
 
