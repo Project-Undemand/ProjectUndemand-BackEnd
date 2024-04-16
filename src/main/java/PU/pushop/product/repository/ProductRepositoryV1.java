@@ -1,6 +1,7 @@
 package PU.pushop.product.repository;
 
 import PU.pushop.product.entity.Product;
+import PU.pushop.product.entity.enums.ProductType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,6 +23,8 @@ public interface ProductRepositoryV1 extends JpaRepository<Product, Long> {
 
     Page<Product> findByIsDiscountTrue(Pageable pageable); // 할인목록
     Page<Product> findByIsRecommendTrue(Pageable pageable); // 추천목록
+
+    Page<Product> findByProductType(ProductType productType, Pageable pageable);
 
 
 

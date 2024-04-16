@@ -3,6 +3,7 @@ package PU.pushop.product.service;
 
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
+import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.ProductColorDto;
 import PU.pushop.product.model.ProductCreateDto;
 import PU.pushop.product.model.ProductDetailDto;
@@ -93,6 +94,17 @@ public class ProductServiceV1 {
             default:
                 throw new IllegalArgumentException("Invalid condition: " + condition);
         }
+    }
+
+    /**
+     * 상품 타입별 페이징
+     * @param pageable
+     * @param productType
+     * @return
+     */
+    public Page<ProductListDto> getProductsByTypePaged(Pageable pageable, ProductType productType) {
+        return productRepository.findByProductType(productType, pageable)
+                .map(ProductListDto::new);
     }
 
     /**

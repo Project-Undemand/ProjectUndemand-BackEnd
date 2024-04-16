@@ -1,6 +1,7 @@
 package PU.pushop.product.controller;
 
 import PU.pushop.product.entity.Product;
+import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.*;
 import PU.pushop.product.service.ProductServiceV1;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
@@ -62,10 +63,17 @@ public class ProductApiControllerV1 {
     public ResponseEntity<List<ProductListDto>> productList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "new") String condition
+            @RequestParam(defaultValue = "new", required = false) String condition,
+            @RequestParam(required = false) ProductType productType
     ) {
-        Page<ProductListDto> productPage = productServiceV1.getProductsByConditionPaged(PageRequest.of(page, size), condition);
-        return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
+        if (productType != null) { // productType이 제공된 경우
+            Page<ProductListDto> productPage = productServiceV1.getProductsByTypePaged(PageRequest.of(page, size), productType);
+            return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
+        } else {
+            Page<ProductListDto> productPage = productServiceV1.getProductsByConditionPaged(PageRequest.of(page, size), condition);
+            return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
+        }
+
     }
 
     /**
