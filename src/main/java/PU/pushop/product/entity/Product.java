@@ -2,6 +2,8 @@ package PU.pushop.product.entity;
 
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
+import PU.pushop.reviewImg.ReviewImg;
 import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -74,6 +76,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductThumbnail> productThumbnails = new ArrayList<>();
 
     public void setProductId(Long productId) {
         this.productId = productId;

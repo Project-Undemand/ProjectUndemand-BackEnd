@@ -31,13 +31,4 @@ public class InquiryReplyDto {
 
                 );
     }
-
-    public static InquiryReplyDto ReplyFormRequest(InquiryReplyDto request) {
-        InquiryReplyDto replyDto = new InquiryReplyDto();
-
-        replyDto.setReplyBy(request.replyBy);
-        replyDto.setReplyContent(request.replyContent);
-
-        return replyDto;
-    }
 }

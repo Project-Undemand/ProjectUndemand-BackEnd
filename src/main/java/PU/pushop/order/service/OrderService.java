@@ -1,11 +1,11 @@
 package PU.pushop.order.service;
 
 
+import PU.pushop.cart.entity.Cart;
+import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.cart.entity.Cart;
 import PU.pushop.order.entity.Orders;
-import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.order.repository.OrderRepository;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
@@ -15,13 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+
+import static PU.pushop.global.ResponseMessageConstants.MEMBER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -34,15 +35,15 @@ public class OrderService {
 
     /**
      * 주문서 화면에 나타날 정보
-     * @param cartIds
-     * @return
+     * @param cartIds card id 리스트
+     * @return order 객체 반환
      */
     public Orders createOrder(List<Long> cartIds) {
         List<Cart> carts = cartRepository.findByCartIdIn(cartIds);
 
         Long memberId = carts.get(0).getMember().getId();
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
 
         List<ProductManagement> productMgts = new ArrayList<>();
         for (Cart cart : carts) {
@@ -92,7 +93,7 @@ public class OrderService {
     private String getMemberPhoneNumber(List<Cart> carts) {
         Long memberId = carts.get(0).getMember().getId();
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
         return (member != null && member.getPhone() != null) ? member.getPhone() : null;
     }
 
@@ -108,9 +109,9 @@ public class OrderService {
 
     /**
      * 주문 테이블 저장
-     * @param temporaryOrder
-     * @param orders
-     * @return
+     * @param temporaryOrder 세션에 저장된 주문서
+     * @param orders 사용자에게 입력받은 주문 정보
+     * @return 주문 테이블 저장
      */
     public Orders orderConfirm(Orders temporaryOrder, Orders orders) {
 
@@ -125,9 +126,7 @@ public class OrderService {
         temporaryOrder.setPhoneNumber(orders.getPhoneNumber());
         temporaryOrder.setPayMethod(orders.getPayMethod());
 
-        Orders completedOrder = orderRepository.save(temporaryOrder);
-
-        return completedOrder;
+        return orderRepository.save(temporaryOrder);
     }
 
     // 주문번호 생성 메서드
@@ -138,9 +137,8 @@ public class OrderService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDay = today.format(formatter).replace("-", "");
         // 무작위 문자열과 현재 날짜/시간을 조합하여 주문번호 생성
-        String merchantUid = formattedDay +'-'+ uniqueString;
 
-        return merchantUid;
+        return formattedDay +'-'+ uniqueString;
     }
 
 

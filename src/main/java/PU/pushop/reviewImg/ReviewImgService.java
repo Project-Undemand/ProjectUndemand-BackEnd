@@ -35,13 +35,13 @@ public class ReviewImgService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NoSuchElementException("해당 글을 찾을 수 없습니다."));
 
-        String uploadsDir = "src/main/resources/static/uploads/thumbnails/";
+        String uploadsDir = "src/main/resources/static/uploads/reviewimg/";
 
         // 각 이미지 파일에 대해 업로드 및 DB 저장 수행
         for (MultipartFile image : images) {
             String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + image.getOriginalFilename();
             String filePath = uploadsDir + fileName;
-            String dbFilePath = "/uploads/thumbnails/" + fileName;
+            String dbFilePath = "/uploads/reviewimg/" + fileName;
 
             saveImage(image, filePath);
 
@@ -66,7 +66,7 @@ public class ReviewImgService {
         ReviewImg reviewImg = reviewImgRepository.findById(reviewImgId)
                 .orElseThrow(() -> new NoSuchElementException("해당 사진을 찾을 수 없습니다."));
 
-        String imagePath = reviewImg.getReviewImgPath();
+        String imagePath = "src/main/resources/static" + reviewImg.getReviewImgPath();
 
         reviewImgRepository.delete(reviewImg);
 
@@ -99,7 +99,7 @@ public class ReviewImgService {
      * DB에서 이미지 삭제 후 서버에서도 삭제하는 메서드
      * @param imagePath
      */
-    private void deleteImageFile(String imagePath) {
+    public static void deleteImageFile(String imagePath) {
         try {
             Path path = Paths.get(imagePath);
             Files.deleteIfExists(path);
