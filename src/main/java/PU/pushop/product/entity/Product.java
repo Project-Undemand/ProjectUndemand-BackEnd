@@ -4,16 +4,20 @@ import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "products")
+@Table(name = "products_table")
 public class Product {
     @Id
     @SequenceGenerator(
@@ -25,6 +29,7 @@ public class Product {
             strategy = GenerationType.SEQUENCE,
             generator = "product_sequence"
     )
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long productId;
 
@@ -33,9 +38,10 @@ public class Product {
     private ProductType productType;
 
     @Column(nullable = false, name = "product_name")
+    @NotBlank(message = "상품 이름은 필수입니다.")
     private String productName;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false, columnDefinition = "INT CHECK (price >= 0)")
     private Integer price;
 
     @Column(name = "product_info")
@@ -43,18 +49,21 @@ public class Product {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE ON UPDATE CURRENT_DATE")
-    private LocalDate updatedAt;
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
 
     @Column(nullable = false)
     private String manufacturer;
 
-    @Column(name = "is_sale")
-    private Boolean isSale = false;
+    @Column(name = "is_discount")
+    private Boolean isDiscount = false;
 
-    @Column(name = "is_recomment")
+    @Column(name = "discount_rate", nullable = true)
+    private Integer discountRate;
+
+    @Column(name = "is_recommend")
     private Boolean isRecommend = false;
 
     @OneToMany(mappedBy = "product")
@@ -93,8 +102,16 @@ public class Product {
         this. wishLists = wishLists;
     }
 
-    public void setIsSale(Boolean isSale) {
-        this.isSale = isSale;
+    public void setWishListCount(Long wishListCount) {
+        this.wishListCount = wishListCount;
+    }
+
+    public void setisDiscount(Boolean isDiscount) {
+        this.isDiscount = isDiscount;
+    }
+
+    public void setDiscountRate(Integer discountRate) {
+        this.discountRate = discountRate;
     }
 
     public void setIsRecommend(Boolean isRecommend) {
@@ -103,14 +120,15 @@ public class Product {
 
     public Product() {
 
-        this.createdAt = LocalDate.now();
-        this.updatedAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+
 
     }
 
     @PreUpdate
     public void setLastUpdate() {
-        this.updatedAt = LocalDate.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
 }

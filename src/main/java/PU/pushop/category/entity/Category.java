@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "category")
-public class Category {
+public class  Category {
     @Id
     @SequenceGenerator(
             name = "category_sequence",

@@ -3,6 +3,7 @@ package PU.pushop.global.authentication.oauth2.custom.entity;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
 import PU.pushop.members.model.OAuthUserDTO;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -20,9 +21,13 @@ public class CustomOAuth2User implements OAuth2User, Serializable {
 
     // email, username, role, socialType, socialId
     private String email;
+    @Getter
     private String username;
+    @Getter
     private MemberRole role;
+    @Getter
     private SocialType socialType;
+    @Getter
     private String socialId;
 
     public CustomOAuth2User(OAuthUserDTO oAuthUserDTO) {
@@ -65,19 +70,6 @@ public class CustomOAuth2User implements OAuth2User, Serializable {
         return OAuth2User.super.getAttribute(name);
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-
-    public String getSocialType() {
-        // 로그인 이용자의 가상 네임
-        return socialType.toString();
-    }
-
-    public String getSocialId() {
-        return socialId;
-    }
-
+    public Long getMemberId() { return oAuthUserDTO.getMemberId(); } // [2024.04.17 김성우]
 
 }

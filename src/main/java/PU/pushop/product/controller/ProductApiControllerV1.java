@@ -3,13 +3,13 @@ package PU.pushop.product.controller;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.enums.ProductType;
-import PU.pushop.product.model.ProductCreateDto;
-import PU.pushop.product.model.ProductDto;
+import PU.pushop.product.model.*;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,49 +27,28 @@ public class ProductApiControllerV1 {
 
     private final ProductServiceV1 productServiceV1;
 
-    // Response Data
-    @Data
-    private class ProductResponse {
-        private Long productId;
-        private String productName;
-        private Integer price;
-
-        public ProductResponse(Long productId, String productName, Integer price) {
-            this.productId = productId;
-            this.productName = productName;
-            this.price = price;
-        }
-    }
-
     /**
      * 전체 상품 조회
      *
      * @return
      */
     @GetMapping("/products")
-    public ResponseEntity<List<ProductDto>> productList() {
-        List<Product> productList = productServiceV1.allProducts();
-        List<ProductDto> collect = productList.stream()
-                .map(ProductDto::new)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(collect, HttpStatus.OK);
+    public ResponseEntity<List<ProductListDto>> productList() {
+        List<ProductListDto> productList = productServiceV1.allProducts();
+        return new ResponseEntity<>(productList, HttpStatus.OK);
     }
 
     /**
      * 상품 등록
      *
-     * @param request
-     * @return productId, productName, price (테스트용)
+     * @param requestDto
+     * @return productId, productName, price
      */
-    @Secured("ROLE_ADMIN")
+//    @Secured("ROLE_ADMIN")
     @PostMapping("/products/new")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto request) {
-        Product product = ProductCreateDto.requestForm(request);
-
-        Long createProductId = productServiceV1.createProduct(product);
-
-        ProductResponse response = new ProductResponse(createProductId, product.getProductName(), product.getPrice());
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<String> createProduct(@Valid @RequestBody ProductCreateDto requestDto) {
+        ProductResponseDto response = new ProductResponseDto(productServiceV1.createProduct(requestDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. : " + response.getProductName());
     }
 
     /**
@@ -79,10 +58,9 @@ public class ProductApiControllerV1 {
      * @return
      */
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable Long productId) {
-        Product productDetail = productServiceV1.productDetail(productId);
-        ProductDto productDto = new ProductDto(productDetail);
-        return new ResponseEntity<>(productDto, HttpStatus.OK);
+    public ResponseEntity<ProductDetailDto> getProductById(@PathVariable Long productId) {
+        ProductDetailDto productDetail = productServiceV1.productDetail(productId);
+        return new ResponseEntity<>(productDetail, HttpStatus.OK);
     }
 
     /**
@@ -93,13 +71,13 @@ public class ProductApiControllerV1 {
      * @return
      */
     @PutMapping("/products/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductCreateDto request) {
-        Product updatedProduct = ProductCreateDto.requestForm(request);
-        Product updated = productServiceV1.updateProduct(productId, updatedProduct);
-        ProductResponse response = new ProductResponse(updated.getProductId(), updated.getProductName(), updated.getPrice());
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductCreateDto request) {
+        // 상품 정보 업데이트
+        Product updated = productServiceV1.updateProduct(productId, request);
+
+        ProductResponseDto response = new ProductResponseDto(updated);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     /**
@@ -108,14 +86,9 @@ public class ProductApiControllerV1 {
      * @return
      */
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
         productServiceV1.deleteProduct(productId);
         return ResponseEntity.ok().build();
-    }
-
-    @Data
-    static class ColorRequest {
-        private String color;
     }
 
     /**
@@ -123,23 +96,28 @@ public class ProductApiControllerV1 {
      * @param request
      * @return
      */
-    private ProductColor ColorFormRequest(ColorRequest request) {
-        ProductColor productColor = new ProductColor();
-        productColor.setColor(request.getColor());
-        return productColor;
-    }
-
     @PostMapping("/color/new")
-    public ResponseEntity<?> createColor(@Valid @RequestBody ColorRequest request) {
-        ProductColor color = ColorFormRequest(request);
+    public ResponseEntity<String> createColor(@Valid @RequestBody ProductColorDto request) {
 
         try {
-            Long createdColorId = productServiceV1.createColor(color);
+            Long createdColorId = productServiceV1.createColor(request);
             return ResponseEntity.status(HttpStatus.CREATED).body("색상 등록 완료 " + createdColorId);
         } catch (DataIntegrityViolationException e) {
             // 중복된 이름에 대한 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("중복된 이름으로 색상을 등록할 수 없습니다.");
         }
+    }
+
+    /**
+     * 색상 삭제
+     * @param colorId
+     * @return
+     */
+    @DeleteMapping("/color/{colorId}")
+    public ResponseEntity<Void> deleteColor(@PathVariable Long colorId) {
+        productServiceV1.deleteColor(colorId);
+
+        return ResponseEntity.ok().build();
     }
 
 }

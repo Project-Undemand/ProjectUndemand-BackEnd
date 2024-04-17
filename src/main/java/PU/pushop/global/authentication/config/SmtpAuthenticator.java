@@ -1,4 +1,4 @@
-package PU.pushop.global.config;
+package PU.pushop.global.authentication.config;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;

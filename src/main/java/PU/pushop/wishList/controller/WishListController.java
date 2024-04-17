@@ -5,6 +5,7 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
 import PU.pushop.wishList.entity.WishList;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.wishList.model.WishListResponseDto;
 import PU.pushop.wishList.service.WishListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,8 @@ public class WishListController {
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
 
-            WishList wishList = wishListService.createWish(product, member);
-            return ResponseEntity.ok(wishList);
+            Long wishListId = wishListService.createWish(product, member);
+            return ResponseEntity.status(HttpStatus.CREATED).body("찜 완료. Id : "+wishListId);
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -64,8 +65,13 @@ public class WishListController {
         return "삭제완료";
     }
 
+    /**
+     * 내 찜목록 모아보기
+     * @param memberId
+     * @return
+     */
     @GetMapping("/{memberId}")
-    public List<WishList> myWishList(@Valid @PathVariable Long memberId) {
+    public List<WishListResponseDto> myWishList(@Valid @PathVariable Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
 

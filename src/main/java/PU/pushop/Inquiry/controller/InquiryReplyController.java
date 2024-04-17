@@ -5,11 +5,14 @@ import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.service.InquiryReplyService;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/v1/inquiry/reply")
@@ -25,7 +28,7 @@ public class InquiryReplyController {
      * @return
      */
     @PostMapping("/new/{inquiryId}")
-    public ResponseEntity<?> createReply(@Valid @RequestBody InquiryReplyDto request, @PathVariable Long inquiryId) {
+    public ResponseEntity<?> createReply(@Valid @RequestBody InquiryReplyDto request, @PathVariable Long inquiryId) throws Exception {
         InquiryReplyDto reply = InquiryReplyDto.ReplyFormRequest(request);
         Long createdId = replyService.createReply(reply, inquiryId);
 

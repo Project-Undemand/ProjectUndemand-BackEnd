@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -25,28 +26,36 @@ public class PaymentHistory {
             strategy = GenerationType.SEQUENCE,
             generator = "pay_sequence"
     )
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_history_id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member")
+    @JoinColumn(name = "member", nullable = false)
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "orders")
+    @JoinColumn(name = "orders", nullable = false)
     private Orders orders;
 
     @ManyToOne
-    @JoinColumn(name = "product")
+    @JoinColumn(name = "product", nullable = false)
     private Product product;
 
-    @Column(name = "product_price")
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column(name = "product_option")
+    private String productOption;
+
+    @Column(name = "product_price", nullable = false)
     private Integer price;
 
-    @Column(name = "total_price")
+    @Column(name = "total_price", nullable = false)
     private Long totalPrice;
 
-    @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE")
-    private LocalDate paidAt;
+    @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime paidAt;
 
     @Column(name = "status")
     private Boolean status = true;
@@ -56,7 +65,7 @@ public class PaymentHistory {
 
 
     public PaymentHistory() {
-        this.paidAt =  LocalDate.now();
+        this.paidAt =  LocalDateTime.now();
     }
 
 

@@ -1,6 +1,5 @@
-package PU.pushop.global.authentication.jwts.login;
+package PU.pushop.global.authentication.jwts.entity;
 
-import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,6 +29,8 @@ public class CustomUserDetails implements UserDetails {
     public String getUsername() {
         return customMemberDto.getEmail();
     }
+
+    public Long getMemberId() { return customMemberDto.getMemberId(); }
 
     @Override
     public boolean isAccountNonExpired() {

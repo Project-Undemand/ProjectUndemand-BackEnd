@@ -1,4 +1,4 @@
-package PU.pushop.global.authentication.jwts.login.dto;
+package PU.pushop.global.authentication.jwts.entity;
 
 
 import PU.pushop.members.entity.Member;

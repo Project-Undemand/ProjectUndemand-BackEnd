@@ -20,7 +20,7 @@ public class ProductManagementDto {
     private Integer price;
     private String productInfo;
     private String manufacturer;
-    private Boolean isSale;
+    private Boolean isDiscount;
     private Boolean isRecommend;
 
     private Long inventoryId;
@@ -47,7 +47,7 @@ public class ProductManagementDto {
                 productManagement.getProduct().getPrice(),
                 productManagement.getProduct().getProductInfo(),
                 productManagement.getProduct().getManufacturer(),
-                productManagement.getProduct().getIsSale(),
+                productManagement.getProduct().getIsDiscount(),
                 productManagement.getProduct().getIsRecommend(),
                 productManagement.getInventoryId(),
                 productManagement.getProduct().getProductId(),

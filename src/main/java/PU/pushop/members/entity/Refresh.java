@@ -26,8 +26,8 @@ public class Refresh {
     @JoinColumn(name = "member_id")
     private Member member;
 
-//    @Column(columnDefinition = "TIMESTAMP") // MySQL의 경우
-    @Column(columnDefinition = "DATETIME", name = "REFRESH_EXPIRATION") // H2Database의 경우
+//    @Column(columnDefinition = "DATETIME", name = "REFRESH_EXPIRATION") // H2Database의 경우
+    @Column(columnDefinition = "TIMESTAMP") // MySQL의 경우
     private LocalDateTime expiration;
 
     public Refresh(Member member, String refreshToken, LocalDateTime expiration) {

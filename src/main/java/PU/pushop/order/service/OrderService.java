@@ -16,14 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class OrderService {
     public final CartRepository cartRepository;
     public final OrderRepository orderRepository;
@@ -38,10 +40,9 @@ public class OrderService {
     public Orders createOrder(List<Long> cartIds) {
         List<Cart> carts = cartRepository.findByCartIdIn(cartIds);
 
-        List<Cart> cartslist = cartRepository.findAllById(cartIds);
-
         Long memberId = carts.get(0).getMember().getId();
-        Member member = memberRepository.findById(memberId).orElse(null);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
 
         List<ProductManagement> productMgts = new ArrayList<>();
         for (Cart cart : carts) {
@@ -90,7 +91,8 @@ public class OrderService {
     // 회원 전화번호를 가져오는 메서드
     private String getMemberPhoneNumber(List<Cart> carts) {
         Long memberId = carts.get(0).getMember().getId();
-        Member member = memberRepository.findById(memberId).orElse(null);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. Id : " + memberId));
         return (member != null && member.getPhone() != null) ? member.getPhone() : null;
     }
 
@@ -132,11 +134,12 @@ public class OrderService {
     private String generateMerchantUid() {
         // 현재 날짜와 시간을 포함한 고유한 문자열 생성
         String uniqueString = UUID.randomUUID().toString().replace("-", "");
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDay = today.format(formatter).replace("-", "");
         // 무작위 문자열과 현재 날짜/시간을 조합하여 주문번호 생성
         String merchantUid = formattedDay +'-'+ uniqueString;
+
         return merchantUid;
     }
 

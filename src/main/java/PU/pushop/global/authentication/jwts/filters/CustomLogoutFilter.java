@@ -32,12 +32,12 @@ public class CustomLogoutFilter extends GenericFilterBean {
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
         // 1.  /logout POST 요청
-        // 2.  회원의 엑세스 토큰(헤더)과 리프레쉬 토큰(쿠키)을 삭제한다.
+        // 2.  회원의 엑세스 토큰(response.헤더)과 리프레쉬 토큰(response.쿠키)을 삭제한다.
         // 3.  회원 테이블 X Refresh 테이블에 token 값을 삭제해준다.
 
         //path and method verify
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/logout$")) {
+        if (!requestUri.matches("^/logout$")) {
             filterChain.doFilter(request, response);
             return;
         }

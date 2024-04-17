@@ -5,6 +5,7 @@ import PU.pushop.order.entity.Orders;
 import PU.pushop.product.entity.Product;
 import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,17 +29,17 @@ public class Cart {
     private Long cartId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "Product_Mgt_id")
+    @JoinColumn(name = "Product_Mgt_id", nullable = false)
     private ProductManagement productManagement;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private Long price;
 //
 //    @ManyToOne

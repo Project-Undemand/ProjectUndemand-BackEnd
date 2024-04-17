@@ -1,3 +1,6 @@
+application-test.yml
+DummyDataLoader.java
+
 HELP.md
 .gradle
 .yml
@@ -43,3 +46,6 @@ out/
 
 ### gradlew.bat ###
 gradlew.bat
+
+### environ-file ###
+environ-file.env

@@ -31,7 +31,7 @@ public class CartDto {
     private String size;
     private Integer productPrice;
     private String productInfo;
-    private Boolean isSale;
+    private Boolean isDiscount;
     private Boolean isSoldOut;
     private Long quantity;
     private Long totalPrice;
@@ -51,7 +51,7 @@ public class CartDto {
                 cart.getProductManagement().getSize().toString(),
                 cart.getProductManagement().getProduct().getPrice(),
                 cart.getProductManagement().getProduct().getProductInfo(),
-                cart.getProductManagement().getProduct().getIsSale(),
+                cart.getProductManagement().getProduct().getIsDiscount(),
                 cart.getProductManagement().isSoldOut(),
                 cart.getQuantity(),
                 cart.getPrice()
@@ -73,7 +73,7 @@ public class CartDto {
                 .size(cart.getProductManagement().getSize().toString())
                 .productPrice(cart.getProductManagement().getProduct().getPrice())
                 .productInfo(cart.getProductManagement().getProduct().getProductInfo())
-                .isSale(cart.getProductManagement().getProduct().getIsSale())
+                .isDiscount(cart.getProductManagement().getProduct().getIsDiscount())
                 .isSoldOut(cart.getProductManagement().isSoldOut())
                 .quantity(cart.getQuantity())
                 .totalPrice(cart.getPrice())
