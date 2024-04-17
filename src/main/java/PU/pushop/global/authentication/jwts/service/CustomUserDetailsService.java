@@ -1,7 +1,7 @@
 package PU.pushop.global.authentication.jwts.service;
 
-import PU.pushop.global.authentication.jwts.customuserlogin.CustomUserDetails;
-import PU.pushop.global.authentication.jwts.customuserlogin.dto.CustomMemberDto;
+import PU.pushop.global.authentication.jwts.entity.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.entity.CustomMemberDto;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import lombok.RequiredArgsConstructor;

@@ -137,7 +137,7 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
         saveOrUpdateRefreshEntity(memberByEmail, newRefresh);
 
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        setTokenResponseV2(response, newAccess, newRefresh);
+        addResponseDataV2(response, newAccess, newRefresh, email);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
     /**
      * [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
      */
-    private void setTokenResponseV2(HttpServletResponse response, String accessToken, String refreshToken) throws IOException {
+    private void addResponseDataV2(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
         // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
         JsonObject responseData = new JsonObject();
         response.setContentType("application/json");
@@ -183,6 +183,7 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
         // response.data 에 accessToken, refreshToken 두값 설정
         responseData.addProperty("accessToken", accessToken);
         responseData.addProperty("refreshToken", refreshToken);
+        responseData.addProperty("email", email);
         response.getWriter().write(responseData.toString());
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());

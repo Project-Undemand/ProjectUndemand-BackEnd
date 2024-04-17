@@ -65,7 +65,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         saveOrUpdateRefreshEntity(requestMember, newRefresh);
 
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        setTokenResponseV1(response, newAccess, newRefresh);
+        setTokenResponseV2(response, newAccess, newRefresh);
 
         response.sendRedirect("http://localhost:3000");
     }

@@ -2,7 +2,7 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
   profiles:
-    include: jwt, oauth2
+    include: oauth2
   datasource:
     # MySQL
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -1,7 +1,7 @@
 package PU.pushop.global.authentication.jwts.filters;
 
-import PU.pushop.global.authentication.jwts.customuserlogin.CustomUserDetails;
-import PU.pushop.global.authentication.jwts.customuserlogin.dto.CustomMemberDto;
+import PU.pushop.global.authentication.jwts.entity.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.entity.CustomMemberDto;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.enums.MemberRole;
 import jakarta.servlet.FilterChain;

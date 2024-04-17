@@ -1,4 +1,4 @@
-package PU.pushop.global.authentication.jwts.customuserlogin.dto;
+package PU.pushop.global.authentication.jwts.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

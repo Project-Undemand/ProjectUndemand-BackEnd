@@ -63,4 +63,5 @@ public class MemberService {
             throw new UserPrincipalNotFoundException("User not found with email: " + loginRequest.getEmail());
         }
     }
+
 }
