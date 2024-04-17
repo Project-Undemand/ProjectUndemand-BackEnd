@@ -4,7 +4,6 @@ import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.*;
 import PU.pushop.product.service.ProductServiceV1;
-import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +83,7 @@ public class ProductApiControllerV1 {
      * @param requestDto
      * @return productId, productName, price
      */
+//    @Secured("ROLE_ADMIN")
     @PostMapping("/products/new")
     public ResponseEntity<String> createProduct(@Valid @RequestParam("images") List<MultipartFile> images, @ModelAttribute ProductCreateDto requestDto) {
         Long productId = productServiceV1.createProduct(requestDto, images); // 저장한 상품의 pk

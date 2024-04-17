@@ -1,4 +1,4 @@
-package PU.pushop.global.config;
+package PU.pushop.global.authentication.config;
 
 
 import org.springframework.beans.factory.annotation.Value;

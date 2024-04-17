@@ -1,12 +1,9 @@
 package PU.pushop.global.authentication.jwts.filters;
 
-import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
-import PU.pushop.global.authentication.jwts.login.dto.CustomMemberDto;
+import PU.pushop.global.authentication.jwts.entity.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.entity.CustomMemberDto;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
-import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
-import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
-import PU.pushop.members.model.OAuthUserDTO;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,10 +33,10 @@ public class JWTFilterV1 extends OncePerRequestFilter {
 
         // Authorization 헤더 검증
         // Authorization 헤더가 비어있거나 "Bearer " 로 시작하지 않은 경우
-        if(authorization == null || !authorization.startsWith("Bearer ")){
-
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
             log.info("로그인 하지 않은 상태입니다. 액세스토큰 없음");
-            // 토큰이 유효하지 않으므로 request와 response를 다음 필터로 넘겨줌
+            // 토큰이 유효하지 않으므로 클라이언트에게 에러 메시지 전송
+//            sendErrorResponse(response, "액세스 토큰이 없습니다.");
             filterChain.doFilter(request, response);
             // 메서드 종료
             return;
@@ -49,8 +46,10 @@ public class JWTFilterV1 extends OncePerRequestFilter {
         String accessToken = authorization.split(" ")[1];
 
         // 유효기간이 만료한 경우
-        if(jwtUtil.isExpired(accessToken)){
-            log.info("token expired");
+        if (jwtUtil.isExpired(accessToken)) {
+            log.info("토큰이 만료되었습니다.");
+            // 토큰이 만료되었으므로 클라이언트에게 에러 메시지 전송
+//            sendErrorResponse(response, "액세스 토큰이 만료되었습니다.");
             filterChain.doFilter(request, response);
             // 메서드 종료
             return;
@@ -82,5 +81,13 @@ public class JWTFilterV1 extends OncePerRequestFilter {
         CustomUserDetails customOAuth2User = new CustomUserDetails(customMemberDto);
         return new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
     }
+    // 로그인 안된 상태, 토큰 만료되었을 때 response에 담아버리면 , 모든 페이지에서 권한 에러 401 가 뜬다.
+    private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
+        // 클라이언트에게 전송할 에러 메시지와 상태 코드 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"error\": \"" + message + "\"}"); // 에러 메시지 전송
+    }
+
 
 }

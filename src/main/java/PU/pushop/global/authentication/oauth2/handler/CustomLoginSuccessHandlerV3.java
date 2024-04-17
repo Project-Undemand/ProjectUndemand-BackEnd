@@ -8,29 +8,27 @@ import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
-import jakarta.servlet.FilterChain;
+import com.google.gson.JsonObject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomLoginSuccessHandlerV3 extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
     private final MemberRepositoryV1 memberRepositoryV1;
@@ -42,34 +40,26 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getName();
-        String role = extractOAuthRole(authentication);
+        log.info("oAuth2User.PK = {}", oAuth2User.getMemberId());
+        String email = authentication.getName();
+        String memberRole = extractOAuthRole(authentication);
+        String authorization = request.getHeader("Authorization");
+//        String accessToken = authorization.substring(7);
         log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
-        log.info("email = " + email);
-        log.info("role = " + role);
-        log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
-        log.info("============= memberId 를 가져오기 위해, DB 조회 시작 ==============");
-        Member requestMember = memberRepositoryV1.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
-        log.info("============= memberId 를 가져오기 위해, DB 조회 끝 ==============");
-        log.info("requestMember = " + requestMember);
-        // 액세스 토큰을 생성합니다.
-        String accessToken = jwtUtil.createAccessToken("access", String.valueOf(requestMember.getId()), role);
-        // 리프레시 토큰을 생성합니다.
-        String refreshToken = jwtUtil.createRefreshToken("refresh", String.valueOf(requestMember.getId()), role);
-        log.info("accessToken : " + accessToken);
-        log.info("refreshToken : " + refreshToken);
+        log.info("memberRole = {}", memberRole);
+        log.info("email = {}", email);
+        log.info("authorization = {}", authorization + " , accessToken 이 아직 request Header 에 없는 상황");
+        log.info("=============소셜 로그인 성공, 유저 데이터 끝 ==============");
 
-        // [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
-        saveOrUpdateRefreshEntity(requestMember, refreshToken);
-
-        // 액세스 토큰을 HTTP 응답 헤더에 추가합니다.
-        response.addHeader("Authorization", "Bearer " + accessToken);
-        // 리프레시 토큰은 쿠키에 저장합니다.
-        response.addCookie(createCookie("RefreshToken", refreshToken));
-
-        response.sendRedirect("http://localhost:3000");
+//        response.sendRedirect("http://localhost:3000");
     }
+
+//    public String toDetailedString() {
+//        return "CustomOAuth2User$1{" +
+//                "prop1=" + prop1 +
+//                ", prop2=" + prop2 +
+//                '}';
+//    }
 
     private static String extractOAuthRole(Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -86,7 +76,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         cookie.setMaxAge(60*60*60);
         //cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setHttpOnly(true);
+//        cookie.setHttpOnly(true);
 
         return cookie;
     }
@@ -99,7 +89,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             // 로그인 이메일과 같은 이메일을 가지고 있는 Refresh 엔티티에 대해서, refresh 값을 새롭게 업데이트해줌
             Refresh refreshEntity = existedRefresh.get();
             // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
-            RefreshDto refreshDto = RefreshDto.createRefreshDto(member, newRefreshToken, expirationDateTime);
+            RefreshDto refreshDto = RefreshDto.createRefreshDto(newRefreshToken, expirationDateTime);
             // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
             refreshEntity.updateRefreshToken(refreshDto);
             // 저장합니다.
@@ -110,5 +100,37 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             refreshRepository.save(newRefreshEntity);
         }
 
+    }
+
+    private void setTokenToResponseV1(HttpServletResponse response, String accessToken, String refreshToken) {
+        // [reponse Header] : Access Token 추가
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        // [reponse Cookie] : Refresh Token 추가
+        response.addCookie(createCookie("refreshToken", refreshToken));
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
+    }
+
+    private void setTokenToResponseV2(HttpServletResponse response, String accessToken, String refreshToken) throws IOException {
+        // 액세스 토큰을 JSON 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
+        JsonObject responseData = new JsonObject();
+        responseData.addProperty("accessToken", accessToken);
+        responseData.addProperty("refreshToken", refreshToken);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(responseData.toString());
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
+        // 클라이언트 콘솔에 응답 로그 출력
+        log.info("Response sent to client: " + responseData.toString());
+    }
+
+    private void setTokenToResponseCookieV3(HttpServletResponse response, String accessToken, String refreshToken) {
+        // [reponse Cookie] : Access Token 추가
+        response.addCookie(createCookie("Authorization", "Bearer " + accessToken));
+        // [reponse Cookie] : Refresh Token 추가
+        response.addCookie(createCookie("refreshToken", refreshToken));
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
     }
 }

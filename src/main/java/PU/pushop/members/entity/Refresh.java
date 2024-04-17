@@ -4,11 +4,13 @@ package PU.pushop.members.entity;
 import PU.pushop.members.model.RefreshDto;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "REFRESH")
 public class Refresh {
 
@@ -24,8 +26,8 @@ public class Refresh {
     @JoinColumn(name = "member_id")
     private Member member;
 
-//    @Column(columnDefinition = "TIMESTAMP") // MySQL의 경우
-    @Column(columnDefinition = "DATETIME", name = "REFRESH_EXPIRATION") // H2Database의 경우
+//    @Column(columnDefinition = "DATETIME", name = "REFRESH_EXPIRATION") // H2Database의 경우
+    @Column(columnDefinition = "TIMESTAMP") // MySQL의 경우
     private LocalDateTime expiration;
 
     public Refresh(Member member, String refreshToken, LocalDateTime expiration) {
@@ -35,7 +37,6 @@ public class Refresh {
     }
 
     public void updateRefreshToken(RefreshDto refreshDto) {
-        this.member = refreshDto.getMember();
         this.refreshToken = refreshDto.getRefreshToken();
         this.expiration = refreshDto.getExpirationDate();
     }

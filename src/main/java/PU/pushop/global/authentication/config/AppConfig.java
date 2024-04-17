@@ -1,4 +1,4 @@
-package PU.pushop.global.config;
+package PU.pushop.global.authentication.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

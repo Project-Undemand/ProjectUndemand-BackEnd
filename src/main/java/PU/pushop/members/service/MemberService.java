@@ -4,6 +4,7 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,13 +14,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.security.auth.login.CredentialNotFoundException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.Optional;
-import java.util.UUID;
 
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class JoinService {
+@Slf4j
+public class MemberService {
 
     private final MemberRepositoryV1 memberRepositoryV1;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -29,7 +30,6 @@ public class JoinService {
 
         Member newMember = Member.createGeneralMember(
                 member.getEmail(),
-                member.getUsername(),
                 member.getNickname(),
                 passwordEncoder.encode(member.getPassword()),
                 member.getToken()
@@ -54,11 +54,14 @@ public class JoinService {
                 return member;
             } else {
                 // 비밀번호가 일치하지 않을 경우 처리
+                log.info("Invalid password.");
                 throw new CredentialNotFoundException("Invalid password");
             }
         } else {
             // 해당 이메일로 등록된 회원이 없을 경우 처리
+            log.info("User not found with email: " + loginRequest.getEmail());
             throw new UserPrincipalNotFoundException("User not found with email: " + loginRequest.getEmail());
         }
     }
+
 }

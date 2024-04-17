@@ -1,6 +1,6 @@
 package PU.pushop.global.authorization;
 
-import PU.pushop.global.authentication.jwts.login.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.entity.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
