@@ -77,7 +77,7 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductThumbnail> productThumbnails = new ArrayList<>();
 
     public void setProductId(Long productId) {

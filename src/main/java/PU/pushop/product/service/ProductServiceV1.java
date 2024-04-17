@@ -15,6 +15,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import static PU.pushop.product.entity.QProduct.product;
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepository;
     public final ProductColorRepository productColorRepository;
@@ -72,8 +74,15 @@ public class ProductServiceV1 {
     /**
      * 전체 상품 리스트 - 전체 상품 찾기
      */
+//    public List<ProductListDto> allProducts() {
+//        List<Product> products = productRepository.findAll();
+//        return products.stream()
+//                .map(product -> modelMapper.map(product, ProductListDto.class))
+//                .toList();
+//    }
+
     public List<ProductListDto> allProducts() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAllWithThumbnails();
         return products.stream()
                 .map(product -> modelMapper.map(product, ProductListDto.class))
                 .toList();

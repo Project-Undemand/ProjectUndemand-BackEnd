@@ -14,6 +14,9 @@ import java.util.Optional;
 @Repository
 public interface ProductRepositoryV1 extends JpaRepository<Product, Long> {
 
+    @Query("SELECT p FROM Product p JOIN FETCH p.productThumbnails")
+    List<Product> findAllWithThumbnails();
+
     Optional<Product> findByProductName(String productName);
     Optional<Product> findByProductId(Long productId);
 
