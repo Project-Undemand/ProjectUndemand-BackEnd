@@ -7,6 +7,7 @@ import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 @Slf4j
 public class ProductApiControllerV1 {
 
+    public final ModelMapper modelMapper;
     private final ProductServiceV1 productServiceV1;
 
     /**
@@ -156,6 +158,22 @@ public class ProductApiControllerV1 {
         productServiceV1.deleteColor(colorId);
 
         return ResponseEntity.ok().body(DELETE_SUCCESS);
+    }
+
+    @GetMapping("/products/find")
+    public List<ProductListDto> getProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "CreatedAt",required = false) String sortBy,
+            @RequestParam(defaultValue = "1",required = false) int pageNumber,
+            @RequestParam(defaultValue = "10",required = false) int pageSize
+    ) {
+
+
+        List<Product> products = productServiceV1.searchAndFilterProducts(keyword, sortBy, pageNumber, pageSize);
+
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductListDto.class))
+                .toList();
     }
 
 }

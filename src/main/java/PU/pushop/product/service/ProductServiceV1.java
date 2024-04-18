@@ -11,7 +11,12 @@ import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,20 +24,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
+import static PU.pushop.product.entity.QProduct.product;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceV1 {
     public final ProductRepositoryV1 productRepository;
     public final ProductColorRepository productColorRepository;
     public final ModelMapper modelMapper;
     private final ProductThumbnailServiceV1 productThumbnailService;
 
+    private final EntityManager entityManager;
 
     /**
      * 상품 등록
@@ -67,10 +77,27 @@ public class ProductServiceV1 {
     /**
      * 전체 상품 리스트 - 전체 상품 찾기
      */
+//    public List<ProductListDto> allProducts() {
+//        List<Product> products = productRepository.findAll();
+//        return products.stream()
+//                .map(product -> modelMapper.map(product, ProductListDto.class))
+//                .toList();
+//    }
+
     public List<ProductListDto> allProducts() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAllWithThumbnails();
+
         return products.stream()
-                .map(product -> modelMapper.map(product, ProductListDto.class))
+                .map(product -> {
+                    ProductListDto productListDto = modelMapper.map(product, ProductListDto.class);
+                    // ProductThumbnail의 imagePath를 매핑
+                    productListDto.setProductThumbnails(
+                            product.getProductThumbnails().stream()
+                                    .map(ProductThumbnail::getImagePath)
+                                    .collect(Collectors.toList())
+                    );
+                    return productListDto;
+                })
                 .toList();
     }
 
@@ -158,6 +185,51 @@ public class ProductServiceV1 {
         ProductColor color = productColorRepository.findById(colorId)
                 .orElseThrow(() -> new NoSuchElementException("해당 색상을 찾을 수 없습니다. Id : " + colorId));
         productColorRepository.delete(color);
+    }
+
+    /**
+     * 검색 및 필터링
+     * @param keyword
+     * @param sortBy
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
+    public List<Product> searchAndFilterProducts(String keyword, String sortBy, int pageNumber, int pageSize)
+    {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+
+        // 검색 조건
+        BooleanBuilder searchConditions = new BooleanBuilder();
+        if (keyword != null) {
+            searchConditions.or(product.productName.contains(keyword))
+                    .or(product.productInfo.contains(keyword));
+        }
+
+        // 정렬 및 필터링 실행
+        return queryFactory.selectFrom(product)
+                .where(searchConditions)
+                .orderBy(getOrderExpression(sortBy))
+                .offset(pageNumber  * pageSize)
+                .limit(pageSize)
+                .fetch();
+    }
+
+    private com.querydsl.core.types.OrderSpecifier<?> getOrderExpression(String sortBy) {
+        switch (sortBy) {
+            case "new": // 최신순
+                return product.createdAt.desc();
+            case "best": // 인기순
+                return product.wishListCount.desc();
+            case "low-price": // 낮은 가격순
+                return product.price.asc();
+            case "high-price": // 높은 가격순
+                return product.price.desc();
+            case "high-discount-rate": // 할인율 높은순
+                return product.discountRate.desc();
+            default:
+                return product.createdAt.desc();
+        }
     }
 
 

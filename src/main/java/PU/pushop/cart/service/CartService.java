@@ -42,8 +42,7 @@ public class CartService {
         ProductManagement productMgt = productManagementRepository.findById(productMgtId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND + " productMgtId: " + productMgtId));
 
-        Cart existingCart = cartRepository.findByProductManagement(productMgt).orElse(null);
-
+        Cart existingCart = cartRepository.findByProductManagementAndMember(productMgt, member).orElse(null);
 
         if (existingCart != null) { // 이미 담은 상품과 옵션인 경우 수량, 가격을 수정
 

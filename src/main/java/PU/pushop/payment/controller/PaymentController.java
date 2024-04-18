@@ -29,8 +29,6 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class PaymentController {
     private final HttpSession httpSession;
-
-
     public final OrderRepository orderRepository;
     private final PaymentService paymentService;
     private final CartRepository cartRepository;
@@ -48,16 +46,10 @@ public class PaymentController {
     }
 
     @PostMapping("/order/payment/{imp_uid}")
-    public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid, @RequestBody PaymentRequestDto request) {
+    public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid, @RequestBody PaymentRequestDto request) throws IamportResponseException, IOException {
 
-        IamportResponse<Payment> payment = null;
-        try {
-            payment = iamportClient.paymentByImpUid(imp_uid);
-        } catch (IamportResponseException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        IamportResponse<Payment> payment = iamportClient.paymentByImpUid(imp_uid);;
+
         log.info("결제 요청 응답. 결제 내역 - 주문 번호: {}", payment.getResponse().getMerchantUid());
 
         paymentService.processPaymentDone(request);

@@ -6,6 +6,7 @@ import PU.pushop.order.model.OrderResponseDto;
 import PU.pushop.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class OrderController {
     private final OrderService orderService;
     private final HttpSession httpSession;
+    private final ModelMapper modelMapper;
 
     /**
      * 주문서에 나타낼 정보
@@ -36,7 +38,7 @@ public class OrderController {
 
         // 세션에 임시 주문 정보를 저장
         httpSession.setAttribute("temporaryOrder", temporaryOrder);
-        httpSession.setAttribute("cartIds", cartIds);
+        httpSession.setAttribute("cartIds", cartIds); // 장바구니 id 저장
 
         Object cartIdsAttribute = httpSession.getAttribute("cartIds");
 
@@ -52,7 +54,8 @@ public class OrderController {
     @PostMapping("/done")
     public ResponseEntity<Object> completeOrder(@RequestBody OrderDto request) {
 
-        Orders orders = OrderDto.RequestForm(request);
+
+        OrderDto orders = modelMapper.map(request, OrderDto.class);
 
         // 세션에서 임시 주문 정보를 가져옴
         Orders temporaryOrder = (Orders) httpSession.getAttribute("temporaryOrder");
