@@ -1,11 +1,15 @@
 package PU.pushop.global.authentication.oauth2.controller;
 
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.custom.dto.KakaoProfile;
 import PU.pushop.global.authentication.oauth2.custom.dto.OAuthToken;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
+import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -37,8 +42,9 @@ import java.util.Optional;
 public class SocialLoginController {
 
     private final MemberRepositoryV1 memberRepositoryV1;
-    private final MemberService memberService;
+    private final RefreshRepository refreshRepository;
     private final OAuth2ClientProperties oauth2Properties;
+    private final JWTUtil jwtUtil;
     // clientDetails
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -46,6 +52,8 @@ public class SocialLoginController {
     private String kakaoRedirectUri;
     @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
     private String kakaoClientSecret;
+
+    private Long refreshTokenExpirationPeriod = 1209600L;
 
     @GetMapping("/login/oauth2/code/kakao")
     public @ResponseBody void kakaoCallback(@RequestParam String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -152,16 +160,23 @@ public class SocialLoginController {
         // socialId 식별자로 중복 회원을 검사한다. 일반 이메일 회원과 소셜 로그인 회원의 이메일이 중복될 수 있기 때문이다.
         Optional<Member> memberWithSocialId = memberRepositoryV1.findBySocialId(socialId);
         if (memberWithSocialId.isPresent()) {
-            memberRepositoryV1.save(memberWithSocialId.get());
+            Member existedMember = memberWithSocialId.get();
+            memberRepositoryV1.save(existedMember);
+            // response.data에 토큰과 이메일을 넣어준다.
+            String jwtAccessToken = jwtUtil.createAccessToken("access", existedMember.getId().toString(), MemberRole.USER.toString());
+            String jwtRefreshToken = jwtUtil.createRefreshToken("refresh", existedMember.getId().toString(), MemberRole.USER.toString());
+            addResponseData(response, jwtAccessToken, jwtRefreshToken, email);
+            saveRefresh(existedMember, jwtRefreshToken);
         } else {
-            Member member = Member.createSocialMember(email, username, MemberRole.USER, SocialType.KAKAO, socialId);
-            memberRepositoryV1.save(member);
+            Member newMember = Member.createSocialMember(email, username, MemberRole.USER, SocialType.KAKAO, socialId);
+            memberRepositoryV1.save(newMember);
+            // response.data에 토큰과 이메일을 넣어준다.
+            String jwtAccessToken = jwtUtil.createAccessToken("access", newMember.getId().toString(), MemberRole.USER.toString());
+            String jwtRefreshToken = jwtUtil.createRefreshToken("refresh", newMember.getId().toString(), MemberRole.USER.toString());
+            addResponseData(response, jwtAccessToken, jwtRefreshToken, email);
+            saveRefresh(newMember, jwtRefreshToken);
         }
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        String accessToken = oAuthToken.getAccess_token();
-        String refreshToken = oAuthToken.getRefresh_token();
-
-        addResponseData(response, accessToken, refreshToken, email);
     }
 
     /**
@@ -179,6 +194,26 @@ public class SocialLoginController {
         response.getWriter().write(responseData.toString());
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());
+    }
+
+    private void saveRefresh(Member member, String newRefreshToken) {
+        // 멤버의 PK 식별자로, refresh 토큰을 가져옵니다.
+        Optional<Refresh> existedRefresh = refreshRepository.findById(member.getId());
+        LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
+        if (existedRefresh.isPresent()) {
+            // 로그인 이메일과 같은 이메일을 가지고 있는 Refresh 엔티티에 대해서, refresh 값을 새롭게 업데이트해줌
+            Refresh refreshEntity = existedRefresh.get();
+            // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
+            RefreshDto refreshDto = RefreshDto.createRefreshDto(newRefreshToken, expirationDateTime);
+            // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
+            refreshEntity.updateRefreshToken(refreshDto);
+            refreshRepository.save(refreshEntity);
+        } else {
+            // 완전히 새로운 리프레시 토큰을 생성 후 저장
+            Refresh newRefreshEntity = new Refresh(member, newRefreshToken, expirationDateTime);
+            refreshRepository.save(newRefreshEntity);
+        }
+
     }
 
     private OAuthClientDetails getClientDetails(String registrationId) {
