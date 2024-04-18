@@ -11,6 +11,7 @@ import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -23,8 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 import static PU.pushop.product.entity.QProduct.product;
@@ -83,8 +86,18 @@ public class ProductServiceV1 {
 
     public List<ProductListDto> allProducts() {
         List<Product> products = productRepository.findAllWithThumbnails();
+
         return products.stream()
-                .map(product -> modelMapper.map(product, ProductListDto.class))
+                .map(product -> {
+                    ProductListDto productListDto = modelMapper.map(product, ProductListDto.class);
+                    // ProductThumbnail의 imagePath를 매핑
+                    productListDto.setProductThumbnails(
+                            product.getProductThumbnails().stream()
+                                    .map(ProductThumbnail::getImagePath)
+                                    .collect(Collectors.toList())
+                    );
+                    return productListDto;
+                })
                 .toList();
     }
 

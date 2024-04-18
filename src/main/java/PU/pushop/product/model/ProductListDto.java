@@ -3,15 +3,12 @@ package PU.pushop.product.model;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
-import PU.pushop.reviewImg.ReviewImg;
-import PU.pushop.wishList.entity.WishList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
