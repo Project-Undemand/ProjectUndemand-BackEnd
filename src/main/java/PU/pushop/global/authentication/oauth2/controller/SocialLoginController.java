@@ -181,6 +181,8 @@ public class SocialLoginController {
 
     /**
      * [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+     * email도 [response.data] 에 추가하였음.
+     * 목적 : 로그인 성공 시, 클라이언트에 메세지(환영)를 띄워주기위해.
      */
     private void addResponseData(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
         // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환

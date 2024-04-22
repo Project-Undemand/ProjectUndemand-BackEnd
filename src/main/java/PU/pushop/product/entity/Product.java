@@ -80,6 +80,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductThumbnail> productThumbnails = new ArrayList<>();
 
+
+
     public void setProductId(Long productId) {
         this.productId = productId;
     }
@@ -127,8 +129,6 @@ public class Product {
 
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-
-
     }
 
     @PreUpdate
@@ -136,4 +136,42 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * Constructs a new Product object .
+     */
+    public Product(
+            String productName,
+            ProductType productType,
+            int price, String productInfo,
+            String manufacturer,
+            boolean isDiscount,
+            boolean isRecommend) {
+        this.productName = productName;
+        this.productType = productType;
+        this.price = price;
+        this.productInfo = productInfo;
+        this.manufacturer = manufacturer;
+        this.isDiscount = isDiscount;
+        this.isRecommend = isRecommend;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 상품 더미데이터 생성
+    public static Product createDummyProduct(String productName,
+                                             ProductType productType,
+                                             int price, String productInfo,
+                                             String manufacturer,
+                                             boolean isDiscount,
+                                             boolean isRecommend) {
+        return new Product(productName, productType, price, productInfo, manufacturer, isDiscount, isRecommend);
+    }
+
+    public Product(Long productId) {
+        this.productId = productId;
+    }
+
+    public static Product createProductById(Long productId) {
+        return new Product(productId);
+    }
 }

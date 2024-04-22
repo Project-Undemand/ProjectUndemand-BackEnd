@@ -68,4 +68,26 @@ public class ProductManagement {
     public ProductManagement() {
 
     }
+
+    public ProductManagement(Product product, ProductColor color, Category category, Size size, Long initialStock, Long initialStock1, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
+        this.product = product;
+        this.color = color;
+        this.category = category;
+        this.size = size;
+        this.initialStock = initialStock;
+        this.productStock = initialStock1;
+    }
+
+    public ProductManagement(Long initialStock, Long additionalStock, Category categoryById, Product productById, Long productStock, Size size, ProductColor color, boolean isRestockAvailable, boolean isRestocked, boolean isSoldOut) {
+        this.initialStock = initialStock;
+        this.additionalStock = additionalStock;
+        this.category = categoryById;
+        this.product = productById;
+        this.productStock = productStock;
+        this.isRestockAvailable = isRestockAvailable;
+        this.isRestocked = isRestocked;
+        this.isSoldOut = isSoldOut;
+        this.size = size;
+        this.color = color;
+    }
 }

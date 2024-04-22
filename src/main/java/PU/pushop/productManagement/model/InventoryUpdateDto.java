@@ -57,6 +57,5 @@ public class InventoryUpdateDto {
 
         return existingInventory;
 
-
     }
 }
