@@ -34,11 +34,11 @@ public class ProductApiControllerV1 {
      *
      * @return
      */
-    @GetMapping("/products/all")
+/*    @GetMapping("/products/all")
     public ResponseEntity<List<ProductListDto>> productList() {
         List<ProductListDto> productList = productServiceV1.allProducts();
         return new ResponseEntity<>(productList, HttpStatus.OK);
-    }
+    }*/
 
     /**
      * 전체 상품 조회 (페이징 처리)
@@ -160,6 +160,14 @@ public class ProductApiControllerV1 {
         return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 
+    /**
+     * 검색
+     * @param keyword
+     * @param sortBy
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
     @GetMapping("/products/find")
     public List<ProductListDto> getProducts(
             @RequestParam(required = false) String keyword,

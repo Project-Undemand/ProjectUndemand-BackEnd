@@ -84,7 +84,7 @@ public class ProductServiceV1 {
 //                .toList();
 //    }
 
-    public List<ProductListDto> allProducts() {
+/*    public List<ProductListDto> allProducts() {
         List<Product> products = productRepository.findAllWithThumbnails();
 
         return products.stream()
@@ -99,7 +99,7 @@ public class ProductServiceV1 {
                     return productListDto;
                 })
                 .toList();
-    }
+    }*/
 
 
     /**
