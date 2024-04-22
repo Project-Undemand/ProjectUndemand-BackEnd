@@ -3,18 +3,27 @@ package PU.pushop.members.controller;
 
 import PU.pushop.global.mail.service.EmailMemberService;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
+import PU.pushop.profile.Profile;
+import PU.pushop.profile.ProfileRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.login.CredentialNotFoundException;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -27,12 +36,14 @@ public class JoinApiController {
     private final MemberRepositoryV1 memberRepositoryV1;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RefreshRepository refreshRepository;
+    private final ProfileRepository profileRepository;
 
     /**
+     * 2024.04.22 리펙토링 (김성우) - Profile 추가, return : id -> email
      * 일반 회원에 대한 회원가입 진행. (default) MemberRole = USER, SocialType = GENERAL,
      * 이메일 인증 로직 추가.
-     * @param request email, password, username, nickname
-     * @return memberId
+     * @param request email, password, nickname
+     * @return email
      */
     @PostMapping("/join")
     public ResponseEntity<?> joinMemberV1(@RequestBody @Valid JoinMemberRequest request) {
@@ -55,10 +66,14 @@ public class JoinApiController {
         // 멤버 객체를 가지고 회원가입 Join 서비스 진행.
         Long memberId = memberService.joinMember(member);
 
+        // 멤버 데이터로, 마이 프로필 생성
+        Profile profile = Profile.createMemberProfile(member);
+        profileRepository.save(profile);
+
         // 회원가입 완료 후 이메일 인증 메일 전송
         sendVerificationEmail(member.getEmail(), token);
 
-        JoinMemberResponse response = new JoinMemberResponse(memberId);
+        JoinMemberResponse response = new JoinMemberResponse(member.getEmail());
         // 회원가입 진행한 멤버의 id만 return
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -93,6 +108,55 @@ public class JoinApiController {
         }
     }
 
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
+
+        Member member = memberService.memberLogin(loginRequest);
+        if(member == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("email 또는 비밀번호가 일치하지 않습니다!");
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("로그인 성공했습니다");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
+                                    HttpServletResponse response) {
+        System.out.println(refreshToken);
+        if (refreshToken != null) {
+            log.info(refreshToken + "is not null");
+
+            Optional<Member> optionalMember = memberRepositoryV1.findByToken(refreshToken);
+            if (optionalMember.isPresent()) {
+                log.info("optionalMember" + "is Present");
+                // refreshToken을 이용하여 DB에 있는 해당 토큰을 삭제
+                refreshRepository.deleteByRefreshToken(refreshToken);
+
+                // 로그아웃 시 , 멤버의 이메일을 String으로 반환
+                Member member = optionalMember.get();
+                String memberEmail = member.getEmail();
+                return ResponseEntity.status(HttpStatus.OK).body(memberEmail + " 로그아웃 되었습니다");
+            } else {
+                log.info("optionalMember" + "is not Present");
+                return ResponseEntity.status(HttpStatus.OK).body("쿠키에 저장된 리프레쉬토큰의 유저가 존재하지 않습니다.");
+            }
+
+        } else {
+            log.info(refreshToken + "is null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저입니다!");
+        }
+    }
+
+
+    /**
+     * 2024.04.22 리펙토링 (김성우) - Profile 추가, return : id -> email
+     * 어드민 회원에 대한 회원가입 진행. (default) MemberRole = ADMIN, SocialType = GENERAL,
+     * 이메일 인증 로직 제외.
+     * @param request email, password, nickname
+     * @return email
+     */
     @PostMapping("/admin/join")
     public ResponseEntity<?> joinAdmin(@RequestBody @Valid JoinMemberRequest request) {
 //        validatePasswordMatch(request.getPassword(), request.getPassword_certify());
@@ -117,7 +181,12 @@ public class JoinApiController {
         }
         // 멤버 객체를 가지고 회원가입 Join 서비스 진행.
         Member newAdminMember = memberRepositoryV1.save(member);
-        JoinMemberResponse response = new JoinMemberResponse(newAdminMember.getId());
+
+        // 멤버 데이터로, 마이 프로필 생성
+        Profile profile = Profile.createMemberProfile(newAdminMember);
+        profileRepository.save(profile);
+
+        JoinMemberResponse response = new JoinMemberResponse(newAdminMember.getEmail());
         // 회원가입 진행한 멤버의 id만 return
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -143,18 +212,18 @@ public class JoinApiController {
     }
 
     @Data
-    static class JoinMemberRequest {
+    private static class JoinMemberRequest {
         private String email;
         private String nickname;
         private String password;
     }
 
     @Data
-    private class JoinMemberResponse {
-        private Long id;
+    private static class JoinMemberResponse {
+        private String email;
 
-        public JoinMemberResponse(Long id) {
-            this.id = id;
+        public JoinMemberResponse(String email) {
+            this.email = email;
         }
     }
 

@@ -69,7 +69,10 @@ public class ProductManagementController {
      */
     @PostMapping("/new")
     public ResponseEntity<Long> createInventory(@Valid @RequestBody InventoryCreateDto requestDto) {
-        ProductManagement request = InventoryCreateDto.requestForm(requestDto);
+        /**
+         * requestForm 에서 newRequestManagementForm 으로 변경되었습니다
+          */
+        ProductManagement request = InventoryCreateDto.newRequestManagementForm(requestDto);
         Long createdId = managementService.createInventory(request);
         return ResponseEntity.ok(createdId);
     }

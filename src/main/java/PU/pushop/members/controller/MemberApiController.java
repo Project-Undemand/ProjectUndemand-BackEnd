@@ -1,6 +1,8 @@
 package PU.pushop.members.controller;
 
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
@@ -12,11 +14,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.CredentialNotFoundException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -25,8 +29,28 @@ import java.util.Optional;
 public class MemberApiController {
 
     private final MemberRepositoryV1 memberRepositoryV1;
-    private final MemberService memberService;
-    private final RefreshRepository refreshRepository;
+    private final JWTUtil jwtUtil;
+
+    @GetMapping("/api/v1/members")
+    public ResponseEntity<?> getMemberList(HttpServletRequest request) {
+        // Request Header 에 담아준 Authorization 을 가져와서
+        String authorization = request.getHeader("Authorization");
+        // accessToken 을 꺼내주는 방식
+        String accessToken = authorization.substring(7);
+        // accessToken 에 있는 유저 권한을 파싱해서 가져옴
+        MemberRole userRole = jwtUtil.getRole(accessToken);
+
+        if (userRole == MemberRole.ADMIN) {
+            // memberId에 해당하는 Member 정보를 조회합니다.
+            List<Member> allMembers = memberRepositoryV1.findAll();
+
+            // 회원을 찾은 경우 200 OK 응답과 함께 Member 정보를 반환합니다.
+            return ResponseEntity.ok(allMembers);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("관리자페이지에서, 관리자 권한으로만 회원 전체에 대한 조회가 가능합니다.!");
+        }
+    }
+
 
     @GetMapping("/api/v1/members/{memberId}")
     public ResponseEntity<Member> getMember(@PathVariable Long memberId) {
@@ -38,53 +62,6 @@ public class MemberApiController {
         return ResponseEntity.ok(member);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
-
-        Member member = memberService.memberLogin(loginRequest);
-        if(member == null){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("email 또는 비밀번호가 일치하지 않습니다!");
-        }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("로그인 성공했습니다");
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
-                       HttpServletResponse response) {
-        System.out.println(refreshToken);
-        if (refreshToken != null) {
-            log.info(refreshToken + "is not null");
-
-            Optional<Member> optionalMember = memberRepositoryV1.findByToken(refreshToken);
-            if (optionalMember.isPresent()) {
-                log.info("optionalMember" + "is Present");
-                // refreshToken을 이용하여 DB에 있는 해당 토큰을 삭제
-                refreshRepository.deleteByRefreshToken(refreshToken);
-
-                // 로그아웃 시 , 멤버의 이메일을 String으로 반환
-                Member member = optionalMember.get();
-                String memberEmail = member.getEmail();
-                return ResponseEntity.status(HttpStatus.OK).body(memberEmail + " 로그아웃 되었습니다");
-            } else {
-                log.info("optionalMember" + "is not Present");
-                return ResponseEntity.status(HttpStatus.OK).body("쿠키에 저장된 리프레쉬토큰의 유저가 존재하지 않습니다.");
-            }
-
-        } else {
-            log.info(refreshToken + "is null");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저입니다!");
-        }
-    }
-
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-//        cookie.setSecure(true); // HTTPS에서만 쿠키 전송
-        return cookie;
-    }
 
     // 예외 처리를 위한 메소드
     @ExceptionHandler(UsernameNotFoundException.class)

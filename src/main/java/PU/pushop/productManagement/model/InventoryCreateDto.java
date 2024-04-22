@@ -68,5 +68,23 @@ public class InventoryCreateDto {
         return productManagement;
     }
 
+    public static ProductManagement newRequestManagementForm(InventoryCreateDto request) {
+        Product product = Product.createProductById(request.getProductId());
+        ProductColor color = ProductColor.createProductColorById(request.getColorId());
+        Category category = Category.createCategoryById(request.getCategoryId());
+
+        return new ProductManagement(
+                product,
+                color,
+                category,
+                request.getSize(),
+                request.getInitialStock(),
+                request.getInitialStock(), // 상품 재고는 초기재고로 자동 설정
+                request.getIsRestockAvailable(),
+                request.getIsRestocked(),
+                request.getIsSoldOut()
+        );
+    }
+
 
 }
