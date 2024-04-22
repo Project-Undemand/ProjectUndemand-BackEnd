@@ -1,6 +1,8 @@
 package PU.pushop.product.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,19 +11,35 @@ import lombok.Setter;
 @Entity
 @Table(name = "product_color")
 public class ProductColor {
+
     @Id
-    @SequenceGenerator(
-            name = "color_sequence",
-            sequenceName = "color_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "color_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "color_id")
     private Long colorId;
 
+    @NotBlank(message = "색상 이름은 필수입니다.")
     @Column(name = "color", unique = true)
     private String color;
+
+    public static ProductColor createProductColorById(Long colorId) {
+        return new ProductColor(colorId);
+    }
+
+    public void setColor(java.lang.String color) {
+        if (color == null || color.trim().isEmpty()) {
+            throw new IllegalArgumentException("Color cannot be null or blank");
+        }
+        this.color = color;
+    }
+
+    public ProductColor() {
+    }
+
+    public ProductColor(String color) {
+        this.color = color;
+    }
+
+    public ProductColor(Long colorId) {
+        this.colorId = colorId;
+    }
 }

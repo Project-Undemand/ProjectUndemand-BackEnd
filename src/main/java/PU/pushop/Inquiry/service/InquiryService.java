@@ -1,45 +1,76 @@
 package PU.pushop.Inquiry.service;
 
 
-import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
-import PU.pushop.product.entity.Product;
+import PU.pushop.Inquiry.model.InquiryCreateDto;
+import PU.pushop.Inquiry.model.InquiryDto;
+import PU.pushop.Inquiry.model.InquiryUpdateDto;
 import PU.pushop.Inquiry.repository.InquiryRepository;
+import PU.pushop.global.ResponseMessageConstants;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
+import PU.pushop.members.entity.Member;
+import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import PU.pushop.Inquiry.model.InquiryDto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
+import static PU.pushop.global.ResponseMessageConstants.WRITING_NOT_FOUND;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class InquiryService {
     public final InquiryRepository inquiryRepository;
     public final MemberRepositoryV1 memberRepository;
     public final ProductRepositoryV1 productRepository;
+    private final JWTUtil jwtUtil;
+    public final ModelMapper modelMapper;
 
     /**
-     * 문의 등록
+     * 문의 작성
+     * @param requestDto 문의 엔티티 필드
+     * @param productId 문의 작성할 상품
+     * @param request
      * @return
      */
-
     @Transactional
-    public Long createInquiry(Inquiry inquiry, Long productId) {
-        Optional<Product> product = productRepository.findByProductId(productId);
+    public Long createInquiry(InquiryCreateDto requestDto, Long productId, HttpServletRequest request) {
 
-        inquiry.setProduct(product.
-                orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productId: " + productId))
-        );
+        Inquiry inquiry = modelMapper.map(requestDto, Inquiry.class);
+
+        // 멤버 저장
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null) {
+
+            // 로그인 중인 유저의 memberId 찾기
+            Long memberId = MemberAuthorizationUtil.getLoginMemberId();
+
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
+            inquiry.setMember(member);
+            inquiry.setName(member.getUsername());
+            inquiry.setEmail(member.getEmail());
+        } else {
+            inquiry.setMember(null);
+        }
+
+        // 상품 저장
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
+        inquiry.setProduct(product);
+
+        // BD에 저장
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
     }
@@ -77,7 +108,7 @@ public class InquiryService {
      */
     public InquiryDto inquiryDetail(Long inquiryId) {
         Inquiry inquiryDetail = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
 
 
         return InquiryDto.mapInquiryToDto(inquiryDetail, true);
@@ -86,17 +117,18 @@ public class InquiryService {
     /**
      * 문의글 수정
      * @param inquiryId
-     * @param updatedInquiry
+     * @param requestDto
+     * @param password
      * @return
      */
-    public Inquiry updateInquiry(Long inquiryId, Inquiry updatedInquiry, String password) {
+    public Inquiry updateInquiry(Long inquiryId, InquiryUpdateDto requestDto, String password) {
 
         Inquiry existingInquiry = validatePasswordAndGetInquiry(inquiryId, password);
 
-        existingInquiry.setInquiryType(updatedInquiry.getInquiryType());
-        existingInquiry.setInquiryTitle(updatedInquiry.getInquiryTitle());
-        existingInquiry.setInquiryContent(updatedInquiry.getInquiryContent());
-        existingInquiry.setIsSecret(updatedInquiry.getIsSecret());
+        Inquiry newInquiry = modelMapper.map(requestDto, Inquiry.class);
+
+        existingInquiry.setInquiryType(newInquiry.getInquiryType());
+        existingInquiry.setInquiryContent(newInquiry.getInquiryContent());
 
         return inquiryRepository.save(existingInquiry);
     }
@@ -120,7 +152,7 @@ public class InquiryService {
      */
     private Inquiry validatePasswordAndGetInquiry(Long inquiryId, String password) {
         Inquiry existingInquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new IllegalArgumentException("글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
 
         // 비밀번호 검증
         if (!existingInquiry.getPassword().equals(password)) {

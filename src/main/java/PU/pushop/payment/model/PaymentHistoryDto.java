@@ -4,33 +4,38 @@ import PU.pushop.payment.entity.PaymentHistory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.java.Log;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentHistoryDto {
+    private Long paymentId;
     private Long memberId;
     private Long orderId;
     private String product;
+    private String option;
     private Integer productPrice;
-    private LocalDate orderedAt;
+    private LocalDateTime orderedAt;
     private Long totalPrice;
-    private LocalDate payedAte;
+    private LocalDateTime payedAte;
+    private Boolean review;
 
 
     public PaymentHistoryDto(PaymentHistory paymentHistory) {
         this(
+                paymentHistory.getId(),
                 paymentHistory.getMember().getId(),
                 paymentHistory.getOrders().getOrderId(),
                 paymentHistory.getProduct().getProductName(),
+                paymentHistory.getProductOption(),
                 paymentHistory.getProduct().getPrice(),
                 paymentHistory.getOrders().getOrderDay(),
                 paymentHistory.getTotalPrice(),
-                paymentHistory.getPaidAt()
+                paymentHistory.getPaidAt(),
+                paymentHistory.getReview()
         );
     }
+
 }

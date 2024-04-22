@@ -1,15 +1,14 @@
 package PU.pushop.Inquiry.controller;
 
-import PU.pushop.Inquiry.entity.InquiryReply;
 import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.service.InquiryReplyService;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import jakarta.validation.Valid;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
 @RestController
 @RequestMapping("/api/v1/inquiry/reply")
@@ -20,22 +19,21 @@ public class InquiryReplyController {
     /**
      * 문의 답변 등록
      *
-     * @param request
+     * @param replyRequest
      * @param inquiryId
      * @return
      */
     @PostMapping("/new/{inquiryId}")
-    public ResponseEntity<?> createReply(@Valid @RequestBody InquiryReplyDto request, @PathVariable Long inquiryId) {
-        InquiryReplyDto reply = InquiryReplyDto.ReplyFormRequest(request);
-        Long createdId = replyService.createReply(reply, inquiryId);
+    public ResponseEntity<String> createReply(@Valid @RequestBody InquiryReplyDto replyRequest, @PathVariable Long inquiryId) throws Exception {
+        Long createdId = replyService.createReply(replyRequest, inquiryId);
 
-        return ResponseEntity.ok(createdId);
+        return ResponseEntity.status(HttpStatus.CREATED).body("답변 등록 완료 : "+createdId);
 
     }
 
     @DeleteMapping("/{replyId}")
-    public ResponseEntity<?> deleteInquiry(@PathVariable Long replyId) {
+    public ResponseEntity<String> deleteInquiry(@PathVariable Long replyId) {
         replyService.deleteReply(replyId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 }

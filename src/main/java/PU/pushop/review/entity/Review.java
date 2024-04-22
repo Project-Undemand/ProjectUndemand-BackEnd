@@ -1,6 +1,7 @@
 package PU.pushop.review.entity;
 
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.reviewImg.ReviewImg;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -8,7 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -38,24 +40,27 @@ public class Review {
     private String reviewContent;
 
     @Column(name = "rating", nullable = false)
-    @Min(value = 1)
-    @Max(value = 5)
+    @Min(value = 1, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
+    @Max(value = 5, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
     private int rating;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE ON UPDATE CURRENT_DATE")
-    private LocalDate updatedAt;
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewImg> reviewImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "review")
     private List<ReviewReply> replies;
 
 
     public Review() {
-        this.createdAt = LocalDate.now();
-        this.updatedAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
 

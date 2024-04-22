@@ -6,7 +6,6 @@ import PU.pushop.cart.model.CartRequestDto;
 import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
@@ -15,11 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import static PU.pushop.global.ResponseMessageConstants.*;
+
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class CartService {
     private final CartRepository cartRepository;
@@ -37,21 +38,36 @@ public class CartService {
     public Long addCart(CartRequestDto request, Long productMgtId) { // 0408 수정 productId -> productMgtId
 
         Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
         ProductManagement productMgt = productManagementRepository.findById(productMgtId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. productMgtId: " + productMgtId));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND + " productMgtId: " + productMgtId));
 
-        Long price = productMgt.getProduct().getPrice() * request.getQuantity();
+        Cart existingCart = cartRepository.findByProductManagementAndMember(productMgt, member).orElse(null);
 
-        Cart cart = new Cart();
-        cart.setProductManagement(productMgt);
-        cart.setMember(member);
-        cart.setQuantity(request.getQuantity());
-        cart.setPrice(price);
+        if (existingCart != null) { // 이미 담은 상품과 옵션인 경우 수량, 가격을 수정
 
-        cartRepository.save(cart);
+            existingCart.setQuantity(existingCart.getQuantity() + request.getQuantity()); // 현재 수량 + 담은 수량
 
-        return cart.getCartId();
+            existingCart.setPrice(existingCart.getPrice() + productMgt.getProduct().getPrice() * request.getQuantity()); // 현재 가격 + 담은 가격
+
+
+            cartRepository.save(existingCart);
+            return existingCart.getCartId();
+
+        } else {
+            Long price = productMgt.getProduct().getPrice() * request.getQuantity();
+            Cart cart = new Cart();
+
+            cart.setProductManagement(productMgt);
+            cart.setMember(member);
+            cart.setQuantity(request.getQuantity());
+            cart.setPrice(price);
+
+            cartRepository.save(cart);
+            return cart.getCartId();
+
+        }
+
     }
 
     /**
@@ -73,7 +89,7 @@ public class CartService {
      */
     public Cart updateCart(Long cartId, Cart updatedCart) {
         Cart existingCart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         existingCart.setQuantity(updatedCart.getQuantity());
         Long price = existingCart.getProductManagement().getProduct().getPrice() * updatedCart.getQuantity();
@@ -88,7 +104,7 @@ public class CartService {
      */
     public void deleteCart(Long cartId) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         cartRepository.delete(cart);
     }

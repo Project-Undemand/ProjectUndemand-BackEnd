@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +18,7 @@ public class InquiryReplyDto {
     private Long replyBy;
     private String replyTitle;
     private String replyContent;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     public InquiryReplyDto(InquiryReply inquiryReply) {
         this(
@@ -30,14 +30,5 @@ public class InquiryReplyDto {
                 inquiryReply.getCreatedAt()
 
                 );
-    }
-
-    public static InquiryReplyDto ReplyFormRequest(InquiryReplyDto request) {
-        InquiryReplyDto replyDto = new InquiryReplyDto();
-
-        replyDto.setReplyBy(request.replyBy);
-        replyDto.setReplyContent(request.replyContent);
-
-        return replyDto;
     }
 }

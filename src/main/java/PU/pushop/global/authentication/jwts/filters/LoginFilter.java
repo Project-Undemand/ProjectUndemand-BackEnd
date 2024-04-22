@@ -8,6 +8,7 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -78,27 +80,34 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
             String password = usernamePasswordMap.get("password");
 
             // 사용자 정보에서 isCertifyByMail 필드 확인
-            Member member = memberRepositoryV1.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
-            boolean isCertifyByMail = member.isCertifyByMail();
-            log.info("[LoginFilter] 회원 이메일인증 여부 = " + isCertifyByMail);
+//            Member member = memberRepositoryV1.findByEmail(email)
+//                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
 
-            if (!isCertifyByMail) {
-                // 이메일이 인증되지 않은 경우 로그인 실패 처리
-                throw new AuthenticationServiceException("Email is not certified yet.");
-            }
+//            Optional<Member> byEmail = memberRepositoryV1.findByEmail(email);
+//            if (byEmail.isPresent()) {
+//                Member member = byEmail.get();
+//                if (!passwordEncoder.matches(password, member.getPassword())) {
+//                    throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+//                }
+//                boolean isCertifyByMail = member.isCertifyByMail();
+//                log.info("[LoginFilter] 회원 이메일인증 여부 = " + isCertifyByMail);
+//
+//                if (!isCertifyByMail) {
+//                    // 이메일이 인증되지 않은 경우 로그인 실패 처리
+//                    throw new AuthenticationServiceException("Email is not certified yet.");
+//                }
+//            } else {
+//                throw new UsernameNotFoundException("해당 이메일이 존재하지 않습니다.");
+//            }
+
 
             // Principal(인증-유저이메일), Credentials(권한), Authenticated 등의 정보
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
             log.info(String.valueOf(authToken.toString()));
-            log.info(String.valueOf(authToken.getPrincipal()));
-            log.info(String.valueOf(authToken.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList())));
-            //token검증을 위한 AuthenticationManager로 전달
             return this.getAuthenticationManager().authenticate(authToken);
-        } catch (IOException e) {
-            throw new AuthenticationServiceException("Error while attempting authentication.", e);
+        } catch (AuthenticationServiceException e) {
+            log.info("로그인에 실패했습니다. 원인: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -124,15 +133,11 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
         String newAccess = jwtUtil.createAccessToken("access", memberId, role);
         String newRefresh = jwtUtil.createRefreshToken("refresh", memberId, role);
 
-        // [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
+        // [Refresh 토큰 - DB 에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
         saveOrUpdateRefreshEntity(memberByEmail, newRefresh);
 
-        response.setCharacterEncoding("UTF-8");
-        // 로그인 성공시 -> [reponse Header] : Access Token 추가, [reponse Cookie] : Refresh Token 추가
-        setTokenResponse(response, newAccess, newRefresh);
-        //로그인 성공에 대한 추가 정보를 response body에 담음
-        response.getWriter().write("로그인에 성공했습니다.");
-
+        // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+        addResponseDataV2(response, newAccess, newRefresh, email);
     }
 
     @Override
@@ -153,7 +158,12 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
                 .orElse("ROLE_USER"); // 기본 권한 설정. [따로 설정하지 않았을때]
     }
 
-    private void setTokenResponse(HttpServletResponse response, String accessToken, String refreshToken) {
+    /**
+     * 로그인 성공시 -> [reponse Header] : Access Token 추가, [reponse Cookie] : Refresh Token 추가
+      */
+    private void setTokenResponseV1(HttpServletResponse response, String accessToken, String refreshToken) {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         // [reponse Header] : Access Token 추가
         response.addHeader("Authorization", "Bearer " + accessToken);
         // [reponse Cookie] : Refresh Token 추가
@@ -162,6 +172,29 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
         response.setStatus(HttpStatus.OK.value());
     }
 
+    /**
+     * [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+     */
+    private void addResponseDataV2(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
+        // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
+        JsonObject responseData = new JsonObject();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        // response.data 에 accessToken, refreshToken 두값 설정
+        responseData.addProperty("accessToken", accessToken);
+        responseData.addProperty("refreshToken", refreshToken);
+        responseData.addProperty("email", email);
+        response.getWriter().write(responseData.toString());
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
+    }
+
+    /**
+     * [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
+     * 로그인에 성공했을 때, 이미 가지고 있던 리프레쉬 토큰 or 처음 로그인한 유저에 대해 리프레쉬 토큰을 DB에 업데이트합니다.
+     * @param member 회원의 PK로, member의 refresh Token를 조회.
+     * @param newRefreshToken
+     */
     private void saveOrUpdateRefreshEntity(Member member, String newRefreshToken) {
         // 멤버의 PK 식별자로, refresh 토큰을 가져옵니다.
         Optional<Refresh> existedRefresh = refreshRepository.findById(member.getId());
@@ -170,7 +203,8 @@ public class LoginFilter extends CustomJsonUsernamePasswordAuthenticationFilter{
             // 로그인 이메일과 같은 이메일을 가지고 있는 Refresh 엔티티에 대해서, refresh 값을 새롭게 업데이트해줌
             Refresh refreshEntity = existedRefresh.get();
             // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
-            RefreshDto refreshDto = RefreshDto.createRefreshDto(member, newRefreshToken, expirationDateTime);
+            // 2024.04.11 Dto 에서 member 를 생성할 필요는 없어서 삭제했습니다.
+            RefreshDto refreshDto = RefreshDto.createRefreshDto(newRefreshToken, expirationDateTime);
             // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
             refreshEntity.updateRefreshToken(refreshDto);
             // 저장합니다.

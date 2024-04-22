@@ -21,7 +21,7 @@ import java.util.List;
 public class Member {
 
     @Id
-    @Column(name = "MEMBER_ID")
+    @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -99,13 +99,13 @@ public class Member {
     }
 
     // General Member 생성
-    public static Member createGeneralMember(String email, String username, String nickname, String password, String token) {
-        return new Member(email, password, username, nickname, MemberRole.USER, SocialType.GENERAL, null, token, false);
+    public static Member createGeneralMember(String email, String nickname, String password, String token) {
+        return new Member(email, password, null, nickname, MemberRole.USER, SocialType.GENERAL, null, token, false);
     }
 
     // Admin Member 생성
-    public static Member createAdminMember(String email, String username, String nickname, String password, String token) {
-        return new Member(email, password, username, nickname, MemberRole.ADMIN, SocialType.GENERAL, null, token, true);
+    public static Member createAdminMember(String email, String nickname, String password, String token) {
+        return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, null, token, true);
     }
 
     public static Member createTokenMember(Long memberId, MemberRole role) {

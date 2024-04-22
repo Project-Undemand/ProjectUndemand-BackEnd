@@ -1,10 +1,8 @@
 package PU.pushop.order.entity;
 
-import PU.pushop.cart.entity.Cart;
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.enums.PayMethod;
 import PU.pushop.payment.entity.PaymentHistory;
-import PU.pushop.product.entity.Product;
 import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,7 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,15 +33,19 @@ public class Orders {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
 /*    @OneToMany
     @JoinColumn(name = "carts")
     private List<Cart> carts = new ArrayList<>();*/
 
-    @OneToMany
-    @JoinColumn(name = "product_management")
+    @ManyToMany
+    @JoinTable(
+            name = "orders_product_management",
+            joinColumns = @JoinColumn(name = "orders_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_management_id")
+    )
     private List<ProductManagement> productManagements = new ArrayList<>();
 
 /*
@@ -81,7 +83,7 @@ public class Orders {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDate orderDay;
+    private LocalDateTime orderDay;
 
     @Column(name = "payment_status")
     private Boolean paymentStatus = false;
@@ -90,6 +92,6 @@ public class Orders {
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
     public Orders() {
-        this.orderDay = LocalDate.now();
+        this.orderDay = LocalDateTime.now();
     }
 }

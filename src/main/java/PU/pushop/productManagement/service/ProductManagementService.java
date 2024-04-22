@@ -1,15 +1,19 @@
 package PU.pushop.productManagement.service;
 
 import PU.pushop.productManagement.entity.ProductManagement;
+import PU.pushop.productManagement.model.InventoryUpdateDto;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+
+import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
 public class ProductManagementService {
     public final ProductManagementRepository productManagementRepository;
@@ -17,14 +21,19 @@ public class ProductManagementService {
 
     /**
      * 상품관리 등록
-     *
-     * @param productManagement
+     * @param request
      * @return
      */
-    @Transactional
-    public Long createInventory(ProductManagement productManagement) {
-        productManagementRepository.save(productManagement);
-        return productManagement.getInventoryId();
+    public Long createInventory(ProductManagement request) {
+
+        ProductManagement existingInventory = productManagementRepository.findByProductAndColorAndCategoryAndSize(request.getProduct(), request.getColor(), request.getCategory(), request.getSize()).orElse(null);
+
+        if (existingInventory != null) {
+            throw new IllegalArgumentException("이미 존재하는 상품입니다.");
+        }
+
+        productManagementRepository.save(request);
+        return request.getInventoryId();
     }
 
     /**
@@ -44,21 +53,12 @@ public class ProductManagementService {
         return productManagementRepository.findAll();
     }
 
-    public ProductManagement updateInventory(Long inventoryId, ProductManagement updatedInventory) {
-        ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+    public ProductManagement updateInventory(Long inventoryId, InventoryUpdateDto updatedInventory) {
 
-        // 기존 상품 관리 업데이트
-        existingInventory.setProduct(updatedInventory.getProduct());
-        existingInventory.setColor(updatedInventory.getColor());
-        existingInventory.setProductStock(updatedInventory.getProductStock());
-        existingInventory.setCategory(updatedInventory.getCategory());
-        existingInventory.setSize(updatedInventory.getSize());
-        existingInventory.setAdditionalStock(updatedInventory.getAdditionalStock());
-        existingInventory.setInitialStock(updatedInventory.getInitialStock());
-        existingInventory.setRestockAvailable(updatedInventory.isRestockAvailable());
-        existingInventory.setRestocked(updatedInventory.isRestocked());
-        existingInventory.setSoldOut(updatedInventory.isSoldOut());
+        ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
+
+        InventoryUpdateDto.updateInventoryForm(existingInventory, updatedInventory);
 
         return productManagementRepository.save(existingInventory);
     }
@@ -69,7 +69,7 @@ public class ProductManagementService {
      */
     public void deleteInventory(Long inventoryId) {
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
         productManagementRepository.delete(existingInventory);
 
     }
