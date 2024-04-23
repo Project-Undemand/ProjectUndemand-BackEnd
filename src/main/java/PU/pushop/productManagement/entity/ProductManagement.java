@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "product_management")
 public class ProductManagement {
@@ -89,5 +88,42 @@ public class ProductManagement {
         this.isSoldOut = isSoldOut;
         this.size = size;
         this.color = color;
+    }
+
+
+    public void setColor(ProductColor color) {
+        this.color = color;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setSize(Size size) {
+        this.size = size;
+    }
+
+    public void setAdditionalStock(Long additionalStock) {
+        this.additionalStock = additionalStock;
+    }
+
+    public void setProductStock(Long productStock) {
+        this.productStock = productStock;
+    }
+
+    public void setSoldOut(boolean soldOut) {
+        isSoldOut = soldOut;
+    }
+
+    public void setRestockAvailable(boolean restockAvailable) {
+        isRestockAvailable = restockAvailable;
+    }
+
+    public void setRestocked(boolean restocked) {
+        isRestocked = restocked;
+    }
+
+    public void setOrders(List<Orders> orders) {
+        this.orders = orders;
     }
 }

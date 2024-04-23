@@ -89,7 +89,7 @@ public class ProductManagementController {
         ProductManagement updated = managementService.updateInventory(inventoryId, request);
         UpdateResponse response = new UpdateResponse(updated.getInventoryId(), updated.getProduct());
 
-        return ResponseEntity.ok().body("수정 완료");
+        return ResponseEntity.ok().body("수정 완료"+response);
 
     }
 

@@ -39,15 +39,12 @@ public class InventoryUpdateDto {
 
     public static ProductManagement updateInventoryForm(ProductManagement existingInventory, InventoryUpdateDto request) {
 
-        existingInventory.setProduct(existingInventory.getProduct());
-
-        ProductColor color = new ProductColor();
-        color.setColorId(request.getColorId());
+        ProductColor color = ProductColor.createProductColorById(request.getColorId());
         existingInventory.setColor(color);
 
-        Category category = new Category();
-        category.setCategoryId(request.getCategoryId());
+        Category category = Category.createCategoryById(request.getCategoryId());
         existingInventory.setCategory(category);
+
         existingInventory.setSize(request.getSize());
         existingInventory.setAdditionalStock(request.getAdditionalStock());
         existingInventory.setProductStock(existingInventory.getInitialStock() + request.getAdditionalStock()); // 상품 재고는 초기재고 + 추가재고로 자동 설정
