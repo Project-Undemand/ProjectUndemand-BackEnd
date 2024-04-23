@@ -47,7 +47,11 @@ public class InquiryService {
     public Long createInquiry(InquiryCreateDto requestDto, Long productId, HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
 
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
+
         Inquiry inquiry = Inquiry.builder()
+                .product(product)
                 .inquiryType(requestDto.getInquiryType())
                 .inquiryTitle(requestDto.getInquiryTitle())
                 .inquiryContent(requestDto.getInquiryContent())
@@ -59,17 +63,12 @@ public class InquiryService {
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
 
-            inquiry.setMember(member);
-            inquiry.setName(member.getNickname());
-            inquiry.setEmail(member.getEmail());
-        } else {
-            inquiry.setName(requestDto.getName()); // 요청에서 받은 이름으로 설정
-            inquiry.setEmail(requestDto.getEmail()); // 요청에서 받은 이메일로 설정
-        }
+            inquiry.createInquiryWriter(member,member.getNickname(), member.getEmail());
 
-        Product product = productRepository.findByProductId(productId)
-                .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
-        inquiry.setProduct(product);
+        } else {
+            inquiry.createInquiryWriter(null,requestDto.getName(), requestDto.getEmail());
+
+        }
 
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();

@@ -54,12 +54,16 @@ public class ProductServiceV1 {
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
+        System.out.println("어디서");
         // DTO를 엔티티로 매핑
 //        Product product = modelMapper.map(requestDto, Product.class);
-        Product product = Product.createProduct(requestDto);
+        Product product = new Product(requestDto);
+        System.out.println("에러가");
         productRepository.save(product);
         // 추가 - 썸네일 저장 메서드 실행
+        System.out.println("나는");
         productThumbnailService.uploadThumbnail(product, images);
+        System.out.println("거죠");
         return product.getProductId();
     }
 

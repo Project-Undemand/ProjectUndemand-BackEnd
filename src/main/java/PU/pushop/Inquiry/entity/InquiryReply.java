@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "inquiry_reply")
 public class InquiryReply {
@@ -55,5 +54,8 @@ public class InquiryReply {
         this.replyBy = replyBy;
         this.replyTitle = replyTitle;
         this.replyContent = replyContent;
+        this.createdAt = LocalDateTime.now();
+
     }
+
 }

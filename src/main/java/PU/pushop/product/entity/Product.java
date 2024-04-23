@@ -159,39 +159,17 @@ public class Product {
     }
 
     // 상품 생성 메서드에서 사용하는 생성자
-    public Product(
-            String productName,
-            ProductType productType,
-            int price, String productInfo,
-            String manufacturer,
-            boolean isDiscount,
-            Integer discountRate,
-            boolean isRecommend) {
-        this.productName = productName;
-        this.productType = productType;
-        this.price = price;
-        this.productInfo = productInfo;
-        this.manufacturer = manufacturer;
-        this.isDiscount = isDiscount;
-        this.discountRate = discountRate;
-        this.isRecommend = isRecommend;
+    public Product(ProductCreateDto productCreateDto) {
+        this.productName = productCreateDto.getProductName();
+        this.productType = productCreateDto.getProductType();
+        this.price = productCreateDto.getPrice();
+        this.productInfo = productCreateDto.getProductInfo();
+        this.manufacturer = productCreateDto.getManufacturer();
+        this.isDiscount = productCreateDto.getIsDiscount();
+        this.discountRate = Boolean.TRUE.equals(productCreateDto.getIsDiscount()) ? productCreateDto.getDiscountRate() : null;
+        this.isRecommend = productCreateDto.getIsRecommend();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // DTO로 상품 생성
-    public static Product createProduct(ProductCreateDto productCreateDto) {
-
-        Integer discountRate = Boolean.TRUE.equals(productCreateDto.getIsDiscount()) ? productCreateDto.getDiscountRate() : null;
-
-        return new Product(productCreateDto.getProductName(),
-            productCreateDto.getProductType(),
-            productCreateDto.getPrice(),
-            productCreateDto.getProductInfo(),
-            productCreateDto.getManufacturer(),
-            productCreateDto.getIsDiscount(),
-            discountRate,
-            productCreateDto.getIsRecommend());
     }
 
     public void updateProduct(ProductCreateDto productCreateDto) {

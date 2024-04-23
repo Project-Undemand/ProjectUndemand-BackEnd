@@ -88,7 +88,13 @@ public class Inquiry {
 
     }
 
-    public void setMember(Member member) {
+    public void createInquiryWriter(Member member, String name, String email) {
+        this.member = member;
+        this.name = name;
+        this.email = email;
+    }
+
+/*    public void setMember(Member member) {
         this.member = member;
     }
 
@@ -102,7 +108,7 @@ public class Inquiry {
 
     public void setEmail(String email) {
         this.email = email;
-    }
+    }*/
 
     public void setResponse(Boolean response) {
         isResponse = response;
