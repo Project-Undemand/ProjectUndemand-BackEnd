@@ -56,12 +56,14 @@ public class  Category {
         this.children = children;
     }
 
+    // 자식 카테고리 생성
     public Category(Category parent, Long depth, String name) {
         this.parent = parent;
         this.depth = depth;
         this.name = name;
     }
 
+    // 부모 카테고리 생성
     public Category(Long depth, String name) {
         this.depth = depth;
         this.name = name;

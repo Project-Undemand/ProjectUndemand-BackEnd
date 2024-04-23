@@ -7,6 +7,7 @@ import PU.pushop.cart.service.CartService;
 import PU.pushop.global.ResponseMessageConstants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
+    private final ModelMapper modelMapper;
 
     /**
      * 장바구니 담기
@@ -50,7 +52,7 @@ public class CartController {
      */
     @PutMapping("/{cartId}")
     public ResponseEntity<CartDto> updateCart(@PathVariable Long cartId, @Valid @RequestBody CartRequestDto request) {
-        Cart updatedCart = CartRequestDto.updateRequestForm(request);
+        Cart updatedCart = modelMapper.map(request, Cart.class);
         CartDto updatedCartDto = new CartDto(cartService.updateCart(cartId, updatedCart));
 
         return ResponseEntity.ok(updatedCartDto);
@@ -61,13 +63,5 @@ public class CartController {
         cartService.deleteCart(cartId);
         return ResponseEntity.ok(ResponseMessageConstants.DELETE_SUCCESS);
     }
-
-/*    @PostMapping("")
-    public ResponseEntity<?> deleteCartList(@RequestBody Map<String, Object> payload) {
-        List<Long> cartIds = (List<Long>) payload.get("cartIds");
-        cartService.deleteCartList(cartIds);
-        return ResponseEntity.ok().build();
-
-    }*/
 
 }

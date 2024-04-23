@@ -56,12 +56,7 @@ public class CartService {
 
         } else {
             Long price = productMgt.getProduct().getPrice() * request.getQuantity();
-            Cart cart = new Cart();
-
-            cart.setProductManagement(productMgt);
-            cart.setMember(member);
-            cart.setQuantity(request.getQuantity());
-            cart.setPrice(price);
+            Cart cart = new Cart(member, productMgt, request.getQuantity(), price);
 
             cartRepository.save(cart);
             return cart.getCartId();

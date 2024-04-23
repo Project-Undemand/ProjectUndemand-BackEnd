@@ -11,7 +11,6 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "cart")
 public class Cart {
 
@@ -41,9 +40,24 @@ public class Cart {
 
     @Column(name = "price", nullable = false)
     private Long price;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "order_id")
-//    private Orders order;
+
+    public Cart(Member member, ProductManagement productManagement, Long quantity, Long price) {
+        this.member = member;
+        this.productManagement = productManagement;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    public Cart() {
+
+    }
+
+    public void setQuantity(Long quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
 
 }
