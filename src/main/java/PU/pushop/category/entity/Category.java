@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 //@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "category")
@@ -57,6 +56,17 @@ public class  Category {
         this.children = children;
     }
 
+    public Category(Category parent, Long depth, String name) {
+        this.parent = parent;
+        this.depth = depth;
+        this.name = name;
+    }
+
+    public Category(Long depth, String name) {
+        this.depth = depth;
+        this.name = name;
+    }
+
     // ===================== 생성자 끝 =======================
 
     public static Category createCategoryById(Long categoryId) {
@@ -74,6 +84,30 @@ public class  Category {
 
     public static Category createChildCategory(Long categoryId, String name, Long depth, List<Category> children) {
         return new Category(categoryId, name, depth, children);
+    }
+
+/*
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+*/
+
+    public void setParent(Category parent) {
+        this.parent = parent;
+    }
+
+/*
+    public void setDepth(Long depth) {
+        this.depth = depth;
+    }
+*/
+
+    public void setChildren(List<Category> children) {
+        this.children = children;
     }
 }
 

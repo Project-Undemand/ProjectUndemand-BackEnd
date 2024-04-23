@@ -38,18 +38,19 @@ public class CategoryServiceV1 {
      * @param parentId
      * @return
      */
-    public Long createCategory(Category category, Long parentId){
+    public Long createCategory(Category request, Long parentId){
+        Category category = new Category();
         if (parentId != null) {
             // 부모 카테고리가 지정된 경우
             Category parentCategory = categoryRepository.findById(parentId)
                     .orElseThrow(() -> new NoSuchElementException("해당 카테고리를 찾을 수 없습니다."));
 
-            category.setParent(parentCategory);
-            category.setDepth(parentCategory.getDepth() + 1); // 자식 카테고리의 depth를 설정
+            category = new Category(parentCategory, parentCategory.getDepth() + 1, request.getName());
+
             parentCategory.getChildren().add(category);
         } else {
             // 부모 카테고리가 지정되지 않은 경우 최상위 카테고리로 설정
-            category.setDepth(0L);
+            category = new Category(0L, request.getName());
         }
 
         Category savedCategory = categoryRepository.save(category);
