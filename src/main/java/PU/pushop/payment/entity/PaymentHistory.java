@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "payment_history")
 public class PaymentHistory {
 
@@ -68,5 +67,19 @@ public class PaymentHistory {
         this.paidAt =  LocalDateTime.now();
     }
 
+    public PaymentHistory(Member member, Orders orders, Product product, String productName, String productOption, Integer price, Long totalPrice) {
+        this.member = member;
+        this.orders = orders;
+        this.product = product;
+        this.productName = productName;
+        this.productOption = productOption;
+        this.price = price;
+        this.totalPrice = totalPrice;
+        this.paidAt =  LocalDateTime.now();
+    }
 
+
+    public void setReview(Boolean review) {
+        this.review = review;
+    }
 }
