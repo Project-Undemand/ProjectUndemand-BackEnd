@@ -91,17 +91,17 @@ public class ProductManagement {
     }
 
 
-    public void setColor(ProductColor color) {
-        this.color = color;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public void setSize(Size size) {
-        this.size = size;
-    }
+//    public void setColor(ProductColor color) {
+//        this.color = color;
+//    }
+//
+//    public void setCategory(Category category) {
+//        this.category = category;
+//    }
+//
+//    public void setSize(Size size) {
+//        this.size = size;
+//    }
 
     public void setAdditionalStock(Long additionalStock) {
         this.additionalStock = additionalStock;
@@ -123,7 +123,7 @@ public class ProductManagement {
         isRestocked = restocked;
     }
 
-    public void setOrders(List<Orders> orders) {
-        this.orders = orders;
-    }
+//    public void setOrders(List<Orders> orders) {
+//        this.orders = orders;
+//    }
 }
