@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "review_reply")
 public class ReviewReply {
@@ -45,4 +44,19 @@ public class ReviewReply {
         this.createdAt = LocalDateTime.now();
     }
 
+    public ReviewReply(Review review, Member replyBy, String replyContent) {
+        this.review = review;
+        this.replyBy = replyBy;
+        this.replyContent = replyContent;
+        this.createdAt = LocalDateTime.now();
+    }
+
+
+    public void setReview(Review review) {
+        this.review = review;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

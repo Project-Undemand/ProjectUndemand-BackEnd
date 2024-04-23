@@ -41,8 +41,8 @@ public class ReviewService {
     /**
      * 리뷰 작성
      * @param request reviewTitle, reviewContent, rating
-     * @param paymentId
-     * @return
+     * @param paymentId paymentHistoryId
+     * @return message
      */
     public Review createReview(ReviewCreateDto request, @Nullable List<MultipartFile> images, Long paymentId) {
         PaymentHistory paymentHistory = paymentRepository.findById(paymentId)
@@ -75,7 +75,7 @@ public class ReviewService {
     public List<ReviewDto> allReview() {
         List<Review> reviews = reviewRepository.findAll();
         if (reviews.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         return reviews.stream().map(ReviewDto::new).toList();
     }
@@ -141,8 +141,6 @@ public class ReviewService {
 
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
-//        Review updatedreview = modelMapper.map(updateRequest, Review.class);
-
         // 로그인 중인 유저의 memberId 찾기
         Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
 
@@ -151,8 +149,6 @@ public class ReviewService {
         }
 
         currentReview.updateReview(updateRequest.getReviewContent(), updateRequest.getRating());
-//        currentReview.setReviewContent(updatedreview.getReviewContent());
-//        currentReview.setRating(updatedreview.getRating());
 
         return reviewRepository.save(currentReview);
     }
@@ -178,7 +174,6 @@ public class ReviewService {
         }
 
         List<ReviewImg> reviewImgList = reviewImgRepository.findByReview_ReviewId(reviewId);
-        System.out.println("dlalwl" + reviewImgList);
 
         if (reviewImgList != null) {
             for (ReviewImg reviewImg : reviewImgList) {
