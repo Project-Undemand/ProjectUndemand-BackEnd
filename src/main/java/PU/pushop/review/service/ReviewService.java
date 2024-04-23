@@ -52,11 +52,15 @@ public class ReviewService {
             throw new IllegalStateException("이미 후기가 작성되었습니다.");
         }
 
-        Review review = modelMapper.map(request, Review.class);
 
-        review.setPaymentHistory(paymentHistory);
+
+//        Review review = modelMapper.map(request, Review.class);
+//        review.setPaymentHistory(paymentHistory);
+        Review review = new Review(paymentHistory, request.getReviewContent(), request.getRating());
+
         reviewRepository.save(review);
-        
+
+
         // 결제내역에서 리뷰 작성 여부 true 로 변환
         paymentHistory.setReview(true);
 
@@ -141,7 +145,7 @@ public class ReviewService {
 
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
-        Review updatedreview = modelMapper.map(updateRequest, Review.class);
+//        Review updatedreview = modelMapper.map(updateRequest, Review.class);
 
         // 로그인 중인 유저의 memberId 찾기
         Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
@@ -150,8 +154,9 @@ public class ReviewService {
             throw new SecurityException(ACCESS_DENIED);
         }
 
-        currentReview.setReviewContent(updatedreview.getReviewContent());
-        currentReview.setRating(updatedreview.getRating());
+        currentReview.updateReview(updateRequest.getReviewContent(), updateRequest.getRating());
+//        currentReview.setReviewContent(updatedreview.getReviewContent());
+//        currentReview.setRating(updatedreview.getRating());
 
         return reviewRepository.save(currentReview);
     }

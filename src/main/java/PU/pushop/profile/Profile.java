@@ -33,14 +33,14 @@ public class Profile {
 
     @Lob
     private String introduction;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "wishlist_id")
-    private List<WishList> wishLists = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "review_id")
-    private List<Review> reviews = new ArrayList<>();
+//
+//    @OneToMany(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "wishlist_id")
+//    private List<WishList> wishLists = new ArrayList<>();
+//
+//    @OneToMany(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "review_id")
+//    private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
     private List<Address> addresses = new ArrayList<>();
@@ -54,8 +54,8 @@ public class Profile {
         this.introduction = introduction;
         this.profileImgName = profileImgName;
         this.profileImgPath = profileImgPath;
-        this.wishLists = wishLists;
-        this.reviews = reviews;
+//        this.wishLists = wishLists;
+//        this.reviews = reviews;
         this.addresses = addresses;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();

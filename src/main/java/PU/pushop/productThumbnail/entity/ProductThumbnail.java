@@ -10,7 +10,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "product_thumbnails")
 @NoArgsConstructor // 디폴트 생성자
@@ -40,5 +39,17 @@ public class ProductThumbnail {
 
     public void updateItemImg(String imagePath){
         this.imagePath = imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

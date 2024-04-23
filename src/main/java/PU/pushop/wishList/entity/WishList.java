@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "wish_list")
 public class WishList {
@@ -40,4 +39,5 @@ public class WishList {
     public WishList() {
 
     }
+
 }

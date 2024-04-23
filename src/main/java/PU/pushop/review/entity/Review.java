@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "review")
 public class Review {
@@ -60,6 +59,20 @@ public class Review {
 
     public Review() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public Review(PaymentHistory paymentHistory, String reviewContent, int rating) {
+        this.paymentHistory = paymentHistory;
+        this.reviewContent = reviewContent;
+        this.rating = rating;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateReview(String reviewContent, int rating) {
+        this.reviewContent = reviewContent;
+        this.rating = rating;
         this.updatedAt = LocalDateTime.now();
     }
 

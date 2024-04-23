@@ -70,14 +70,6 @@ public class PaymentService {
 
             PaymentHistory paymentHistory = new PaymentHistory(member, order, product, product.getProductName(),option,product.getPrice(),totalPrice);
 
-           /* paymentHistory.setProduct(product);
-            paymentHistory.setProductName(product.getProductName());
-            paymentHistory.setProductOption(option);
-            paymentHistory.setOrders(order);
-            paymentHistory.setMember(member);
-            paymentHistory.setTotalPrice(totalPrice);
-            paymentHistory.setPrice(product.getPrice());*/
-
             paymentRepository.save(paymentHistory);
 
         }
