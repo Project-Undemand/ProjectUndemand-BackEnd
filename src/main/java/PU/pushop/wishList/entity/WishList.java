@@ -31,4 +31,13 @@ public class WishList {
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    public WishList(Member member, Product product) {
+        this.member = member;
+        this.product = product;
+    }
+
+    public WishList() {
+
+    }
 }

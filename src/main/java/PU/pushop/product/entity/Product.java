@@ -82,9 +82,9 @@ public class Product {
 
 
 
-    public void setProductId(Long productId) {
+/*    public void setProductId(Long productId) {
         this.productId = productId;
-    }
+    }*/
     public void setProductName(String productName) {
         this.productName = productName;
     }
@@ -105,9 +105,9 @@ public class Product {
         this.manufacturer = manufacturer;
     }
 
-    public void setWishLists(List<WishList> wishLists) {
+/*    public void setWishLists(List<WishList> wishLists) {
         this. wishLists = wishLists;
-    }
+    }*/
 
     public void setWishListCount(Long wishListCount) {
         this.wishListCount = wishListCount;
