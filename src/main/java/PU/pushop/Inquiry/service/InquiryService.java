@@ -45,32 +45,32 @@ public class InquiryService {
      */
     @Transactional
     public Long createInquiry(InquiryCreateDto requestDto, Long productId, HttpServletRequest request) {
-
-        Inquiry inquiry = modelMapper.map(requestDto, Inquiry.class);
-
-        // 멤버 저장
         String authHeader = request.getHeader("Authorization");
 
+        Inquiry inquiry = Inquiry.builder()
+                .inquiryType(requestDto.getInquiryType())
+                .inquiryTitle(requestDto.getInquiryTitle())
+                .inquiryContent(requestDto.getInquiryContent())
+                .password(requestDto.getPassword())
+                .build();
+
         if (authHeader != null) {
-
-            // 로그인 중인 유저의 memberId 찾기
             Long memberId = MemberAuthorizationUtil.getLoginMemberId();
-
             Member member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
+
             inquiry.setMember(member);
-            inquiry.setName(member.getUsername());
+            inquiry.setName(member.getNickname());
             inquiry.setEmail(member.getEmail());
         } else {
-            inquiry.setMember(null);
+            inquiry.setName(requestDto.getName()); // 요청에서 받은 이름으로 설정
+            inquiry.setEmail(requestDto.getEmail()); // 요청에서 받은 이메일로 설정
         }
 
-        // 상품 저장
         Product product = productRepository.findByProductId(productId)
                 .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
         inquiry.setProduct(product);
 
-        // BD에 저장
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
     }
@@ -125,10 +125,7 @@ public class InquiryService {
 
         Inquiry existingInquiry = validatePasswordAndGetInquiry(inquiryId, password);
 
-        Inquiry newInquiry = modelMapper.map(requestDto, Inquiry.class);
-
-        existingInquiry.setInquiryType(newInquiry.getInquiryType());
-        existingInquiry.setInquiryContent(newInquiry.getInquiryContent());
+        inquiryRepository.updateInquiryFields(inquiryId, requestDto.getInquiryType(), requestDto.getInquiryContent());
 
         return inquiryRepository.save(existingInquiry);
     }

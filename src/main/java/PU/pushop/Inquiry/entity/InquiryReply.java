@@ -49,4 +49,11 @@ public class InquiryReply {
         this.createdAt = LocalDateTime.now();
 
     }
+
+    public InquiryReply(Inquiry inquiry, Member replyBy, String replyTitle, String replyContent) {
+        this.inquiry = inquiry;
+        this.replyBy = replyBy;
+        this.replyTitle = replyTitle;
+        this.replyContent = replyContent;
+    }
 }
