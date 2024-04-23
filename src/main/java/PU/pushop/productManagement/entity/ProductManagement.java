@@ -90,6 +90,14 @@ public class ProductManagement {
         this.color = color;
     }
 
+    public void updateInventory(Long additionalStock, Long productStock, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
+        this.additionalStock = additionalStock;
+        this.productStock = productStock;
+        this.isRestockAvailable = isRestockAvailable;
+        this.isRestocked = isRestocked;
+        this.isSoldOut = isSoldOut;
+    }
+
 
 //    public void setColor(ProductColor color) {
 //        this.color = color;
@@ -103,27 +111,28 @@ public class ProductManagement {
 //        this.size = size;
 //    }
 
-    public void setAdditionalStock(Long additionalStock) {
-        this.additionalStock = additionalStock;
-    }
-
-    public void setProductStock(Long productStock) {
-        this.productStock = productStock;
-    }
-
-    public void setSoldOut(boolean soldOut) {
-        isSoldOut = soldOut;
-    }
-
-    public void setRestockAvailable(boolean restockAvailable) {
-        isRestockAvailable = restockAvailable;
-    }
-
-    public void setRestocked(boolean restocked) {
-        isRestocked = restocked;
-    }
+//    public void setAdditionalStock(Long additionalStock) {
+//        this.additionalStock = additionalStock;
+//    }
+//
+//    public void setProductStock(Long productStock) {
+//        this.productStock = productStock;
+//    }
+//
+//    public void setSoldOut(boolean soldOut) {
+//        isSoldOut = soldOut;
+//    }
+//
+//    public void setRestockAvailable(boolean restockAvailable) {
+//        isRestockAvailable = restockAvailable;
+//    }
+//
+//    public void setRestocked(boolean restocked) {
+//        isRestocked = restocked;
+//    }
 
 //    public void setOrders(List<Orders> orders) {
 //        this.orders = orders;
 //    }
+
 }

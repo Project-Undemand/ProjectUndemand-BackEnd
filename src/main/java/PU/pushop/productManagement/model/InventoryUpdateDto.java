@@ -36,11 +36,14 @@ public class InventoryUpdateDto {
                 productManagement.isSoldOut()
         );
     }
+/*
 
     public static ProductManagement updateInventoryForm(ProductManagement existingInventory, InventoryUpdateDto request) {
         // 색상 및 카테고리 설정
+*/
 /*        existingInventory.setColor(ProductColor.createProductColorById(request.getColorId()));
-        existingInventory.setCategory(Category.createCategoryById(request.getCategoryId()));*/
+        existingInventory.setCategory(Category.createCategoryById(request.getCategoryId()));*//*
+
 
         // 사이즈, 추가 재고 설정
 //        existingInventory.setSize(request.getSize());
@@ -56,6 +59,7 @@ public class InventoryUpdateDto {
         return existingInventory;
     }
 
+*/
 
 
 }

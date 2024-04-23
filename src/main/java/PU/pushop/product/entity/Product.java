@@ -2,6 +2,7 @@ package PU.pushop.product.entity;
 
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.product.model.ProductCreateDto;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.reviewImg.ReviewImg;
 import PU.pushop.wishList.entity.WishList;
@@ -85,25 +86,25 @@ public class Product {
 /*    public void setProductId(Long productId) {
         this.productId = productId;
     }*/
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
+//    public void setProductName(String productName) {
+//        this.productName = productName;
+//    }
+//
+//    public void setProductType(ProductType productType) {
+//        this.productType = productType;
+//    }
+//
+//    public void setPrice(Integer price) {
+//        this.price = price;
+//    }
+//
+//    public void setProductInfo(String productInfo) {
+//        this.productInfo = productInfo;
+//    }
 
-    public void setProductType(ProductType productType) {
-        this.productType = productType;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public void setProductInfo(String productInfo) {
-        this.productInfo = productInfo;
-    }
-
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
-    }
+//    public void setManufacturer(String manufacturer) {
+//        this.manufacturer = manufacturer;
+//    }
 
 /*    public void setWishLists(List<WishList> wishLists) {
         this. wishLists = wishLists;
@@ -113,17 +114,17 @@ public class Product {
         this.wishListCount = wishListCount;
     }
 
-    public void setisDiscount(Boolean isDiscount) {
-        this.isDiscount = isDiscount;
-    }
-
-    public void setDiscountRate(Integer discountRate) {
-        this.discountRate = discountRate;
-    }
-
-    public void setIsRecommend(Boolean isRecommend) {
-        this.isRecommend = isRecommend;
-    }
+//    public void setisDiscount(Boolean isDiscount) {
+//        this.isDiscount = isDiscount;
+//    }
+//
+//    public void setDiscountRate(Integer discountRate) {
+//        this.discountRate = discountRate;
+//    }
+//
+//    public void setIsRecommend(Boolean isRecommend) {
+//        this.isRecommend = isRecommend;
+//    }
 
     public Product() {
 
@@ -154,6 +155,54 @@ public class Product {
         this.isDiscount = isDiscount;
         this.isRecommend = isRecommend;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 상품 생성 메서드에서 사용하는 생성자
+    public Product(
+            String productName,
+            ProductType productType,
+            int price, String productInfo,
+            String manufacturer,
+            boolean isDiscount,
+            Integer discountRate,
+            boolean isRecommend) {
+        this.productName = productName;
+        this.productType = productType;
+        this.price = price;
+        this.productInfo = productInfo;
+        this.manufacturer = manufacturer;
+        this.isDiscount = isDiscount;
+        this.discountRate = discountRate;
+        this.isRecommend = isRecommend;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // DTO로 상품 생성
+    public static Product createProduct(ProductCreateDto productCreateDto) {
+
+        Integer discountRate = Boolean.TRUE.equals(productCreateDto.getIsDiscount()) ? productCreateDto.getDiscountRate() : null;
+
+        return new Product(productCreateDto.getProductName(),
+            productCreateDto.getProductType(),
+            productCreateDto.getPrice(),
+            productCreateDto.getProductInfo(),
+            productCreateDto.getManufacturer(),
+            productCreateDto.getIsDiscount(),
+            discountRate,
+            productCreateDto.getIsRecommend());
+    }
+
+    public void updateProduct(ProductCreateDto productCreateDto) {
+        this.productName = productCreateDto.getProductName();
+        this.productType = productCreateDto.getProductType();
+        this.price = productCreateDto.getPrice();
+        this.productInfo = productCreateDto.getProductInfo();
+        this.manufacturer = productCreateDto.getManufacturer();
+        this.isDiscount = productCreateDto.getIsDiscount();
+        this.discountRate = productCreateDto.getIsDiscount() ? productCreateDto.getDiscountRate() : null;
+        this.isRecommend = productCreateDto.getIsRecommend();
         this.updatedAt = LocalDateTime.now();
     }
 
