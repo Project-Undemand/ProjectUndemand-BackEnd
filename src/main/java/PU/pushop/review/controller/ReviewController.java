@@ -30,7 +30,7 @@ public class ReviewController {
      * @return
      */
     @PostMapping("/new/{paymentId}")
-    public ResponseEntity<String> createReview(@RequestParam("images") List<MultipartFile> images, @ModelAttribute ReviewCreateDto request, @PathVariable Long paymentId) {
+    public ResponseEntity<String> createReview(@RequestParam(value = "images", required = false) List<MultipartFile> images, @ModelAttribute ReviewCreateDto request, @PathVariable Long paymentId) {
 
         reviewService.createReview(request, images,paymentId);
 

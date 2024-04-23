@@ -15,6 +15,7 @@ import PU.pushop.review.repository.ReviewRepository;
 import PU.pushop.reviewImg.ReviewImg;
 import PU.pushop.reviewImg.ReviewImgRepository;
 import PU.pushop.reviewImg.ReviewImgService;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class ReviewService {
      * @param paymentId
      * @return
      */
-    public Review createReview(ReviewCreateDto request, List<MultipartFile> images, Long paymentId) {
+    public Review createReview(ReviewCreateDto request, @Nullable List<MultipartFile> images, Long paymentId) {
         PaymentHistory paymentHistory = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NoSuchElementException("해당 주문 내역을 찾을 수 없습니다."));
 
@@ -52,20 +53,15 @@ public class ReviewService {
             throw new IllegalStateException("이미 후기가 작성되었습니다.");
         }
 
-
-
-//        Review review = modelMapper.map(request, Review.class);
-//        review.setPaymentHistory(paymentHistory);
         Review review = new Review(paymentHistory, request.getReviewContent(), request.getRating());
 
         reviewRepository.save(review);
-
 
         // 결제내역에서 리뷰 작성 여부 true 로 변환
         paymentHistory.setReview(true);
 
         // 이미지파일에 이미지가 있을 경우에만
-        if (!Objects.equals(images.get(0).getOriginalFilename(), "")) {
+        if (images != null && !Objects.equals(images.get(0).getOriginalFilename(), "")) {
             // 이미지 업로드
             reviewImgService.uploadReviewImg(review.getReviewId(), images.stream().toList());
         }
@@ -78,9 +74,9 @@ public class ReviewService {
      */
     public List<ReviewDto> allReview() {
         List<Review> reviews = reviewRepository.findAll();
-       /* if (reviews.isEmpty()) {
-            throw new IllegalStateException("리뷰가 없습니다.");
-        }*/
+        if (reviews.isEmpty()) {
+            return null;
+        }
         return reviews.stream().map(ReviewDto::new).toList();
     }
 
