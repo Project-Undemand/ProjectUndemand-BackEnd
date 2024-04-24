@@ -5,7 +5,9 @@ import PU.pushop.reviewImg.ReviewImg;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review")
 public class Review {
     @Id
@@ -55,11 +58,6 @@ public class Review {
     @OneToMany(mappedBy = "review")
     private List<ReviewReply> replies;
 
-
-    public Review() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
 
     public Review(PaymentHistory paymentHistory, String reviewContent, int rating) {
         this.paymentHistory = paymentHistory;

@@ -4,7 +4,9 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.product.entity.Product;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "payment_history")
 public class PaymentHistory {
 

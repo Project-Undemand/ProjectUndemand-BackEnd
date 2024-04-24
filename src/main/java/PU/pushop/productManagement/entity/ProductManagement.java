@@ -7,7 +7,9 @@ import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.enums.Size;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product_management")
 public class ProductManagement {
     @Id
@@ -64,10 +67,6 @@ public class ProductManagement {
     @ManyToMany(mappedBy = "productManagements")
     private List<Orders> orders = new ArrayList<>();
 
-    public ProductManagement() {
-
-    }
-
     public ProductManagement(Product product, ProductColor color, Category category, Size size, Long initialStock, Long initialStock1, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
         this.product = product;
         this.color = color;
@@ -99,40 +98,6 @@ public class ProductManagement {
     }
 
 
-//    public void setColor(ProductColor color) {
-//        this.color = color;
-//    }
-//
-//    public void setCategory(Category category) {
-//        this.category = category;
-//    }
-//
-//    public void setSize(Size size) {
-//        this.size = size;
-//    }
 
-//    public void setAdditionalStock(Long additionalStock) {
-//        this.additionalStock = additionalStock;
-//    }
-//
-//    public void setProductStock(Long productStock) {
-//        this.productStock = productStock;
-//    }
-//
-//    public void setSoldOut(boolean soldOut) {
-//        isSoldOut = soldOut;
-//    }
-//
-//    public void setRestockAvailable(boolean restockAvailable) {
-//        isRestockAvailable = restockAvailable;
-//    }
-//
-//    public void setRestocked(boolean restocked) {
-//        isRestocked = restocked;
-//    }
-
-//    public void setOrders(List<Orders> orders) {
-//        this.orders = orders;
-//    }
 
 }

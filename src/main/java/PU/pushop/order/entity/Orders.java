@@ -36,10 +36,6 @@ public class Orders {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-/*    @OneToMany
-    @JoinColumn(name = "carts")
-    private List<Cart> carts = new ArrayList<>();*/
-
     @ManyToMany
     @JoinTable(
             name = "orders_product_management",
@@ -48,11 +44,6 @@ public class Orders {
     )
     private List<ProductManagement> productManagements = new ArrayList<>();
 
-/*
-    @OneToMany
-    @JoinColumn(name = "products")
-    private List<Product> products = new ArrayList<>();
-*/
 
     @Column(name = "order_name")
     private String ordererName;
@@ -113,10 +104,11 @@ public class Orders {
         this.ordererName = orderDto.getOrdererName();
         this.phoneNumber = orderDto.getPhoneNumber();
         this.payMethod = orderDto.getPayMethod();
+        this.orderDay = LocalDateTime.now();
 
     }
 
-    public void setMember(Member member) {
+/*    public void setMember(Member member) {
         this.member = member;
     }
 
@@ -126,7 +118,7 @@ public class Orders {
 
     public void setAddress(String address) {
         this.address = address;
-    }
+    }*/
 
     public void setPaymentStatus(Boolean paymentStatus) {
         this.paymentStatus = paymentStatus;

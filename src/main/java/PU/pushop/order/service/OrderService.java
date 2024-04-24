@@ -62,15 +62,6 @@ public class OrderService {
             return null;
         }
 
-        // 사용자에게 입력받지 않고 자동으로 가져올 값들
-        /*Orders order = new Orders();
-        order.setProductManagements(productMgts);
-        order.setTotalPrice(calculateTotalPrice(carts));
-        order.setProductName(getProductNames(carts));
-        order.setPhoneNumber(getMemberPhoneNumber(carts));
-        order.setMember(member);
-        order.setOrdererName(member.getUsername());*/
-
         // 주문 반환
         return new Orders(member, productMgts,member.getUsername(),getProductNames(carts),calculateTotalPrice(carts),getMemberPhoneNumber(carts));
 
@@ -124,13 +115,6 @@ public class OrderService {
 
         // 세션 주문서와 사용자에게 입력받은 정보 합치기
         temporaryOrder.orderConfirm(merchantUid, orders);
-//        temporaryOrder.setMerchantUid(merchantUid);
-//        temporaryOrder.setPostCode(orders.getPostCode());
-//        temporaryOrder.setAddress(orders.getAddress());
-//        temporaryOrder.setDetailAddress(orders.getDetailAddress());
-//        temporaryOrder.setOrdererName(orders.getOrdererName());
-//        temporaryOrder.setPhoneNumber(orders.getPhoneNumber());
-//        temporaryOrder.setPayMethod(orders.getPayMethod());
 
         return orderRepository.save(temporaryOrder);
     }

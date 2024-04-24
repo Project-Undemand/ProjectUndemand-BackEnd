@@ -41,10 +41,6 @@ public class ReviewReplyService {
 
         ReviewReply reviewReply = new ReviewReply(review, member, replyDto.getReplyContent());
 
-//        reviewReply.setReview(review);
-//        reviewReply.setReplyBy(member);
-//        reviewReply.setReplyContent(replyDto.getReplyContent());
-
         reviewReplyRepository.save(reviewReply);
 
         return reviewReply.getReviewReplyId();
