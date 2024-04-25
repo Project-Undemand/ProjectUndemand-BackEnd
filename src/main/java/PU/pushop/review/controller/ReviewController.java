@@ -26,11 +26,11 @@ public class ReviewController {
     /**
      * 리뷰 작성
      * @param request   reviewTitle, reviewContent, rating
-     * @param paymentId
-     * @return
+     * @param paymentId 리뷰 작성할 상품
+     * @return 작성 완료 메시지
      */
     @PostMapping("/new/{paymentId}")
-    public ResponseEntity<String> createReview(@RequestParam("images") List<MultipartFile> images, @ModelAttribute ReviewCreateDto request, @PathVariable Long paymentId) {
+    public ResponseEntity<String> createReview(@RequestParam(value = "images", required = false) List<MultipartFile> images, @ModelAttribute ReviewCreateDto request, @PathVariable Long paymentId) {
 
         reviewService.createReview(request, images,paymentId);
 
@@ -39,7 +39,7 @@ public class ReviewController {
 
     /**
      * 모든 리뷰 모아보기
-     * @return
+     * @return review list
      */
     @GetMapping("/all")
     public List<ReviewDto> allReview() {
@@ -48,8 +48,8 @@ public class ReviewController {
 
     /**
      * 특정 상품의 리뷰 모아보기
-     * @param productId
-     * @return
+     * @param productId productId
+     * @return review List
      */
     @GetMapping("/product/{productId}")
     public List<ReviewDto> productReview(@Valid @PathVariable Long productId) {
@@ -59,8 +59,8 @@ public class ReviewController {
 
     /**
      * 특정 회원의 리뷰 모아보기
-     * @param memberId
-     * @return
+     * @param memberId 작성자
+     * @return review list
      */
     @GetMapping("/user/{memberId}")
     public List<ReviewDto> userReview(@Valid @PathVariable Long memberId) {
@@ -70,8 +70,8 @@ public class ReviewController {
 
     /**
      * 리뷰 상세보기
-     * @param reviewId
-     * @return
+     * @param reviewId reviewId
+     * @return review detail
      */
     @GetMapping("/{reviewId}")
     public ReviewDto reviewDatail(@Valid @PathVariable Long reviewId) {
@@ -80,9 +80,9 @@ public class ReviewController {
 
     /**
      * 리뷰 수정
-     * @param reviewId
-     * @param request
-     * @return
+     * @param reviewId review id
+     * @param request review detail
+     * @return review detail
      */
     @PutMapping("/{reviewId}/{memberId}")
     public ResponseEntity<ReviewDto> updateReview(@Valid @PathVariable Long reviewId, @PathVariable Long memberId, @RequestBody ReviewCreateDto request) {
@@ -95,8 +95,8 @@ public class ReviewController {
 
     /**
      * 리뷰 삭제
-     * @param reviewId
-     * @return
+     * @param reviewId review id
+     * @return none
      */
     @DeleteMapping("/{reviewId}/{memberId}")
     public ResponseEntity<String> deleteReview(@PathVariable Long reviewId, @PathVariable Long memberId) {

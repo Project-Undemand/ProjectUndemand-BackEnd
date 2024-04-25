@@ -34,14 +34,12 @@ public class ReviewReplyService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NoSuchElementException("해당 리뷰를 찾을 수 없습니다. reviewId: " + reviewId));
 
-        ReviewReply reviewReply = new ReviewReply();
+//        ReviewReply reviewReply = new ReviewReply();
 
         Member member = memberRepository.findById(replyDto.getReplyBy())
                 .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
 
-        reviewReply.setReview(review);
-        reviewReply.setReplyBy(member);
-        reviewReply.setReplyContent(replyDto.getReplyContent());
+        ReviewReply reviewReply = new ReviewReply(review, member, replyDto.getReplyContent());
 
         reviewReplyRepository.save(reviewReply);
 

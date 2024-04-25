@@ -15,7 +15,7 @@ public class ReviewImg {
     @Column(name = "review_img_id")
     private Long reviewImgId;
 
-    @Column(name = "review_image_path", nullable = false)
+    @Column(name = "review_image_path")
     private String reviewImgPath;
 
     @ManyToOne

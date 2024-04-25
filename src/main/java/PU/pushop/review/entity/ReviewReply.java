@@ -2,15 +2,17 @@ package PU.pushop.review.entity;
 
 import PU.pushop.members.entity.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review_reply")
 public class ReviewReply {
     @Id
@@ -41,8 +43,19 @@ public class ReviewReply {
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-    public ReviewReply() {
+    public ReviewReply(Review review, Member replyBy, String replyContent) {
+        this.review = review;
+        this.replyBy = replyBy;
+        this.replyContent = replyContent;
         this.createdAt = LocalDateTime.now();
     }
 
+
+    public void setReview(Review review) {
+        this.review = review;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

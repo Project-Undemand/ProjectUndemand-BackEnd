@@ -15,6 +15,7 @@ import PU.pushop.review.repository.ReviewRepository;
 import PU.pushop.reviewImg.ReviewImg;
 import PU.pushop.reviewImg.ReviewImgRepository;
 import PU.pushop.reviewImg.ReviewImgService;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -40,10 +41,10 @@ public class ReviewService {
     /**
      * 리뷰 작성
      * @param request reviewTitle, reviewContent, rating
-     * @param paymentId
-     * @return
+     * @param paymentId paymentHistoryId
+     * @return message
      */
-    public Review createReview(ReviewCreateDto request, List<MultipartFile> images, Long paymentId) {
+    public Review createReview(ReviewCreateDto request, @Nullable List<MultipartFile> images, Long paymentId) {
         PaymentHistory paymentHistory = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NoSuchElementException("해당 주문 내역을 찾을 수 없습니다."));
 
@@ -52,20 +53,15 @@ public class ReviewService {
             throw new IllegalStateException("이미 후기가 작성되었습니다.");
         }
 
-
-
-//        Review review = modelMapper.map(request, Review.class);
-//        review.setPaymentHistory(paymentHistory);
         Review review = new Review(paymentHistory, request.getReviewContent(), request.getRating());
 
         reviewRepository.save(review);
-
 
         // 결제내역에서 리뷰 작성 여부 true 로 변환
         paymentHistory.setReview(true);
 
         // 이미지파일에 이미지가 있을 경우에만
-        if (!Objects.equals(images.get(0).getOriginalFilename(), "")) {
+        if (images != null && !Objects.equals(images.get(0).getOriginalFilename(), "")) {
             // 이미지 업로드
             reviewImgService.uploadReviewImg(review.getReviewId(), images.stream().toList());
         }
@@ -78,9 +74,9 @@ public class ReviewService {
      */
     public List<ReviewDto> allReview() {
         List<Review> reviews = reviewRepository.findAll();
-       /* if (reviews.isEmpty()) {
-            throw new IllegalStateException("리뷰가 없습니다.");
-        }*/
+        if (reviews.isEmpty()) {
+            return Collections.emptyList();
+        }
         return reviews.stream().map(ReviewDto::new).toList();
     }
 
@@ -145,8 +141,6 @@ public class ReviewService {
 
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
-//        Review updatedreview = modelMapper.map(updateRequest, Review.class);
-
         // 로그인 중인 유저의 memberId 찾기
         Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
 
@@ -155,8 +149,6 @@ public class ReviewService {
         }
 
         currentReview.updateReview(updateRequest.getReviewContent(), updateRequest.getRating());
-//        currentReview.setReviewContent(updatedreview.getReviewContent());
-//        currentReview.setRating(updatedreview.getRating());
 
         return reviewRepository.save(currentReview);
     }
@@ -182,7 +174,6 @@ public class ReviewService {
         }
 
         List<ReviewImg> reviewImgList = reviewImgRepository.findByReview_ReviewId(reviewId);
-        System.out.println("dlalwl" + reviewImgList);
 
         if (reviewImgList != null) {
             for (ReviewImg reviewImg : reviewImgList) {

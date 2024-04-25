@@ -10,7 +10,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -20,6 +22,7 @@ import java.util.List;
 
 @Getter
 @Entity
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "products_table")
 public class Product {
 //    @SequenceGenerator(
@@ -81,50 +84,10 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductThumbnail> productThumbnails = new ArrayList<>();
 
-
-
-/*    public void setProductId(Long productId) {
-        this.productId = productId;
-    }*/
-//    public void setProductName(String productName) {
-//        this.productName = productName;
-//    }
-//
-//    public void setProductType(ProductType productType) {
-//        this.productType = productType;
-//    }
-//
-//    public void setPrice(Integer price) {
-//        this.price = price;
-//    }
-//
-//    public void setProductInfo(String productInfo) {
-//        this.productInfo = productInfo;
-//    }
-
-//    public void setManufacturer(String manufacturer) {
-//        this.manufacturer = manufacturer;
-//    }
-
-/*    public void setWishLists(List<WishList> wishLists) {
-        this. wishLists = wishLists;
-    }*/
-
     public void setWishListCount(Long wishListCount) {
         this.wishListCount = wishListCount;
     }
 
-//    public void setisDiscount(Boolean isDiscount) {
-//        this.isDiscount = isDiscount;
-//    }
-//
-//    public void setDiscountRate(Integer discountRate) {
-//        this.discountRate = discountRate;
-//    }
-//
-//    public void setIsRecommend(Boolean isRecommend) {
-//        this.isRecommend = isRecommend;
-//    }
 
     public Product() {
 
@@ -179,7 +142,7 @@ public class Product {
         this.productInfo = productCreateDto.getProductInfo();
         this.manufacturer = productCreateDto.getManufacturer();
         this.isDiscount = productCreateDto.getIsDiscount();
-        this.discountRate = productCreateDto.getIsDiscount() ? productCreateDto.getDiscountRate() : null;
+        this.discountRate = Boolean.TRUE.equals(productCreateDto.getIsDiscount()) ? productCreateDto.getDiscountRate() : null;
         this.isRecommend = productCreateDto.getIsRecommend();
         this.updatedAt = LocalDateTime.now();
     }
