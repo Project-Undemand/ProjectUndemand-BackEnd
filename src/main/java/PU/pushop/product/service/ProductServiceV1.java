@@ -1,32 +1,36 @@
 package PU.pushop.product.service;
 
 
+import PU.pushop.global.queries.Condition;
+import PU.pushop.global.queries.OrderBy;
 import PU.pushop.global.queries.ProductQueryHelper;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
-import PU.pushop.product.entity.enums.ProductType;
-import PU.pushop.product.model.*;
+import PU.pushop.product.entity.QProduct;
+import PU.pushop.product.model.ProductColorDto;
+import PU.pushop.product.model.ProductCreateDto;
+import PU.pushop.product.model.ProductDetailDto;
+import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 import static PU.pushop.product.entity.QProduct.product;
@@ -77,36 +81,6 @@ public class ProductServiceV1 {
         return modelMapper.map(product, ProductDetailDto.class);
     }
 
-    /**
-     * 검색 및 정렬
-     * @param keyword
-     * @param sortBy
-     * @param pageNumber
-     * @param pageSize
-     * @return
-     */
-    public List<ProductListDto> searchAndFilterProducts(String keyword, String sortBy, int pageNumber, int pageSize) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-
-        // 검색 조건
-        BooleanBuilder searchConditions = new BooleanBuilder();
-        if (keyword != null) {
-            searchConditions.or(product.productName.contains(keyword))
-                    .or(product.productInfo.contains(keyword));
-        }
-
-        // 정렬 및 페이징
-        List<Product> productList= queryFactory.selectFrom(product)
-                .where(searchConditions)
-                .orderBy(ProductQueryHelper.getOrderSpecifier(sortBy, product))
-                .offset(pageNumber * pageSize)
-                .limit(pageSize)
-                .fetch();
-
-        return productList.stream()
-                .map(ProductListDto::new) // Product를 ProductListDto로 매핑
-                .collect(Collectors.toList());
-    }
 
     /**
      * 필터링 및 정렬
@@ -116,65 +90,43 @@ public class ProductServiceV1 {
      * @param order
      * @return
      */
-    public Page<ProductListDto> getFilteredAndSortedProducts(int page, int size, String condition, String order, Long category) {
-        BooleanBuilder predicate = createPredicate(condition, category);
+    public Page<ProductListDto> getFilteredAndSortedProducts(int page, int size, Condition condition, OrderBy order, Long category, String keyword) {
+        // 필터링
+        BooleanBuilder filterBuilder = ProductQueryHelper.createFilterBuilder(condition, category, keyword, QProduct.product);
 
+        // 정렬
         OrderSpecifier<?> orderSpecifier = getOrderSpecifier(order);
 
-        List<Product> results = queryFactory.selectFrom(product)
-                .where(predicate)
-                .orderBy(orderSpecifier)
-                .offset(page * size)
-                .limit(size)
-                .fetch();
+        // 필터링 및 정렬 적용
+        List<Product> results = getFilteredAndSortedResults(orderSpecifier, filterBuilder, page, size);
 
+        // 전체 카운트 조회 쿼리
         long totalCount = queryFactory.selectFrom(product)
-                .where(predicate)
+                .where(filterBuilder)
                 .fetchCount();
 
-        List<ProductListDto> productList = results.stream()
+        // ProductListDto로 변환
+        List<ProductListDto> productList = mapToProductListDto(results);
+
+        /*List<ProductListDto> productList = results.stream()
                 .map(ProductListDto::new)
                 .collect(Collectors.toList());
+*/
 
         return new PageImpl<>(productList, PageRequest.of(page, size), totalCount);
     }
 
-    private BooleanBuilder createPredicate(String condition, Long category) {
-        BooleanBuilder predicate = new BooleanBuilder();
-
-        if (condition != null) {
-            switch (condition) {
-                case Conditions.NEW:
-                    predicate.and(product.createdAt.after(LocalDateTime.now().minusMonths(1)));
-                    break;
-                case Conditions.BEST:
-                    predicate.and(product.wishListCount.goe(30L));
-                    break;
-                case Conditions.DISCOUNT:
-                    predicate.and(product.isDiscount.isTrue());
-                    break;
-                case Conditions.RECOMMEND:
-                    predicate.and(product.isRecommend.isTrue());
-                    break;
-                case Conditions.MAN:
-                case Conditions.WOMAN:
-                case Conditions.UNISEX:
-                    predicate.and(product.productType.eq(ProductType.valueOf(condition)));
-                    break;
-                default:
-                    predicate.and(product.createdAt.after(LocalDateTime.now().minusMonths(1)));
-                    break;
-            }
-        }
-
-        if (category != null) {
-            predicate.and(product.productManagements.any().category.categoryId.eq(category));
-        }
-
-        return predicate;
+    // 필터링 및 정렬 수행하는 메서드
+    private List<Product> getFilteredAndSortedResults(OrderSpecifier orderSpecifier, BooleanBuilder filterBuilder, int page, int size) {
+        return queryFactory.selectFrom(product)
+                .leftJoin(product.productThumbnails).fetchJoin()
+                .where(filterBuilder)
+                .orderBy(orderSpecifier)
+                .offset(page * size)
+                .limit(size)
+                .fetch();
     }
-
-    private OrderSpecifier<?> getOrderSpecifier(String order) {
+    private OrderSpecifier<?> getOrderSpecifier(OrderBy order) {
         if (order == null) {
             return ProductQueryHelper.getOrderSpecifier(null, product);
         } else {
@@ -182,73 +134,21 @@ public class ProductServiceV1 {
         }
     }
 
-    private static class Conditions {
-        static final String NEW = "new";
-        static final String BEST = "best";
-        static final String DISCOUNT = "discount";
-        static final String RECOMMEND = "recommend";
-        static final String MAN = "MAN";
-        static final String WOMAN = "WOMAN";
-        static final String UNISEX = "UNISEX";
-
-    }
-
-    /**
-     * 전체 상품 리스트 - 전체 상품 찾기
-     */
-/*    public List<ProductListDto> allProducts() {
-        List<Product> products = productRepository.findAllWithThumbnails();
-
-        return products.stream()
-                .map(product -> {
+    // Product 리스트 -> ProductListDto 리스트로 변환 메서드
+    private List<ProductListDto> mapToProductListDto(List<Product> results) {
+        return results.stream()
+                .map(product -> { // Product -> ProductListDto 변환
                     ProductListDto productListDto = modelMapper.map(product, ProductListDto.class);
                     // ProductThumbnail의 imagePath를 매핑
                     productListDto.setProductThumbnails(
                             product.getProductThumbnails().stream()
                                     .map(ProductThumbnail::getImagePath)
-                                    .collect(Collectors.toList())
+                                    .toList()
                     );
                     return productListDto;
                 })
                 .toList();
-    }*/
-
-    /**
-     * 조건별 상품 리스트 페이징
-     * @param pageable
-     * @param condition
-     * @return
-     */
-//    public Page<ProductListDto> getProductsByConditionPaged(Pageable pageable, String condition) {
-//        LocalDateTime oneMonthAgo = LocalDateTime.now().minus(1, ChronoUnit.MONTHS);
-//
-//        switch (condition) {
-//            case "new":
-//                return productRepository.findByCreatedAtAfterOrderByCreatedAtDesc(oneMonthAgo, pageable)
-//                        .map(ProductListDto::new);
-//            case "best":
-//                return productRepository.findByWishListCountGreaterThanOrderByWishListCountDesc(30, pageable)
-//                        .map(ProductListDto::new);
-//            case "discount":
-//                return productRepository.findByIsDiscountTrue(pageable).map(ProductListDto::new);
-//            case "recommend":
-//                return productRepository.findByIsRecommendTrue(pageable).map(ProductListDto::new);
-//            default:
-//                throw new IllegalArgumentException("Invalid condition: " + condition);
-//        }
-//    }
-
-
-    /**
-     * 상품 타입별 페이징
-     * @param pageable
-     * @param productType
-     * @return
-     */
-//    public Page<ProductListDto> getProductsByTypePaged(Pageable pageable, ProductType productType) {
-//        return productRepository.findByProductType(productType, pageable) // productType : enum - MAN, WOMAN,UNISEX
-//                .map(ProductListDto::new);
-//    }
+    }
 
     /**
      * 상품 정보 수정

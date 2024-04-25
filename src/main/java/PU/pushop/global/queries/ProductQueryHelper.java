@@ -1,27 +1,91 @@
 package PU.pushop.global.queries;
 
 import PU.pushop.product.entity.QProduct;
+import PU.pushop.product.entity.enums.ProductType;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 
+import java.time.LocalDateTime;
+
+import static PU.pushop.product.entity.QProduct.product;
+
 public class ProductQueryHelper {
-    public static OrderSpecifier<?> getOrderSpecifier(String order, QProduct product) {
+
+    /**
+     * 정렬 수행
+     * @param order 정렬 조건
+     * @param product
+     * @return
+     */
+    public static OrderSpecifier<?> getOrderSpecifier(OrderBy order, QProduct product) {
         if (order == null) {
             // order가 null인 경우 기본 정렬 기준으로 처리
             return product.createdAt.desc();
         }
         switch (order) {
-            case "new":
+            case LATEST:
                 return product.createdAt.desc();
-            case "best":
+            case POPULAR:
                 return product.wishListCount.desc();
-            case "low-price":
+            case LOW_PRICE:
                 return product.price.asc();
-            case "high-price":
+            case HIGH_PRICE:
                 return product.price.desc();
-            case "high-discount-rate":
+            case HIGH_DISCOUNT_RATE:
                 return product.discountRate.desc();
             default:
                 return product.createdAt.desc();
         }
     }
+
+    /**
+     * 필터링 수행
+     * @param condition
+     * @param category
+     * @param keyword
+     * @return
+     */
+    public static BooleanBuilder createFilterBuilder(Condition condition, Long category, String keyword, QProduct product) {
+        BooleanBuilder filterBuilder = new BooleanBuilder();
+
+        // 조건에 따른 필터링
+        if (condition != null) {
+            switch (condition) {
+                case NEW:
+                    filterBuilder.and(product.createdAt.after(LocalDateTime.now().minusMonths(1)));
+                    break;
+                case BEST:
+                    filterBuilder.and(product.wishListCount.goe(30L));
+                    break;
+                case DISCOUNT:
+                    filterBuilder.and(product.isDiscount.isTrue());
+                    break;
+                case RECOMMEND:
+                    filterBuilder.and(product.isRecommend.isTrue());
+                    break;
+                case MAN, WOMAN, UNISEX:
+                    filterBuilder.and(product.productType.eq(ProductType.valueOf(condition.name())));
+                    break;
+                default:
+                    filterBuilder.and(product.createdAt.after(LocalDateTime.now().minusMonths(1)));
+                    break;
+            }
+        }
+
+        // 카테고리 필터링
+        if (category != null) {
+            filterBuilder.and(product.productManagements.any().category.categoryId.eq(category));
+        }
+
+        // 검색 조건
+        if (keyword != null) {
+            filterBuilder.and(
+                    product.productName.containsIgnoreCase(keyword)
+                            .or(product.productInfo.containsIgnoreCase(keyword))
+            );
+        }
+
+        return filterBuilder;
+    }
+
 }

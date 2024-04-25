@@ -1,25 +1,21 @@
 package PU.pushop.product.controller;
 
+import PU.pushop.global.queries.Condition;
+import PU.pushop.global.queries.OrderBy;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.*;
 import PU.pushop.product.service.ProductServiceV1;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
@@ -34,71 +30,26 @@ public class ProductApiControllerV1 {
     private final ProductServiceV1 productServiceV1;
 
 
-
     /**
-     * 전체 상품 조회 (페이징 처리)
-     */
-/*    @GetMapping("/products")
-    public ResponseEntity<List<ProductListDto>> productList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Page<ProductListDto> productPage = productServiceV1.allProductsPaged(page, size);
-        return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
-    }*/
-
-
-    /**
-     * 조건별 상품 리스트 페이징
+     * 상품 목록 (카테고리/조건별 필터링, 조건별 정렬, 검색 통합)
      * @param page
      * @param size
      * @param condition
+     * @param category
+     * @param order
+     * @param keyword
      * @return
      */
-//    @GetMapping("/products")
-//    public ResponseEntity<List<ProductListDto>> productList(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            @RequestParam(defaultValue = "new", required = false) String condition,
-//            @RequestParam(required = false) ProductType productType
-//    ) {
-//        if (productType != null) { // productType이 제공된 경우
-//            Page<ProductListDto> productPage = productServiceV1.getProductsByTypePaged(PageRequest.of(page, size), productType);
-//            return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
-//        } else {
-//            Page<ProductListDto> productPage = productServiceV1.getProductsByConditionPaged(PageRequest.of(page, size), condition);
-//            return new ResponseEntity<>(productPage.getContent(), HttpStatus.OK);
-//        }
-//
-//    }
     @GetMapping("/products")
     public Page<ProductListDto> getFilteredAndSortedProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String condition,
+            @RequestParam(required = false) Condition condition,
             @RequestParam(required = false) Long category,
-            @RequestParam(required = false) String order) {
-        return productServiceV1.getFilteredAndSortedProducts(page, size, condition, order, category);
-    }
-
-    /**
-     * 검색
-     * @param keyword
-     * @param sortBy
-     * @param pageNumber
-     * @param pageSize
-     * @return
-     */
-    @GetMapping("/products/find")
-    public List<ProductListDto> getProducts(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "CreatedAt",required = false) String sortBy,
-            @RequestParam(defaultValue = "1",required = false) int pageNumber,
-            @RequestParam(defaultValue = "10",required = false) int pageSize
+            @RequestParam(required = false) OrderBy order,
+            @RequestParam(required = false) String keyword
     ) {
-
-
-        return productServiceV1.searchAndFilterProducts(keyword, sortBy, pageNumber, pageSize);
+        return productServiceV1.getFilteredAndSortedProducts(page, size, condition, order, category, keyword);
     }
 
     /**
@@ -106,8 +57,8 @@ public class ProductApiControllerV1 {
      * @param requestDto
      * @return productId, productName, price
      */
-//    @Secured("ROLE_ADMIN")
     @PostMapping("/products/new")
+//    @Secured("ROLE_ADMIN")
     public ResponseEntity<String> createProduct(@Valid @RequestParam("images") List<MultipartFile> images, @ModelAttribute ProductCreateDto requestDto) {
         Long productId = productServiceV1.createProduct(requestDto, images); // 저장한 상품의 pk
 
@@ -182,7 +133,4 @@ public class ProductApiControllerV1 {
 
         return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
-
-
-
 }
