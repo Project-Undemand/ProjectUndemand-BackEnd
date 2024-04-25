@@ -89,7 +89,8 @@ public class ProductManagement {
         this.color = color;
     }
 
-    public void updateInventory(Long additionalStock, Long productStock, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
+    public void updateInventory(Category category, Long additionalStock, Long productStock, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
+        this.category = category;
         this.additionalStock = additionalStock;
         this.productStock = productStock;
         this.isRestockAvailable = isRestockAvailable;
