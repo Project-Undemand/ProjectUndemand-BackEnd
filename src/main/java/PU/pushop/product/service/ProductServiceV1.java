@@ -116,24 +116,11 @@ public class ProductServiceV1 {
      * @param order
      * @return
      */
-    public Page<ProductListDto> getFilteredAndSortedProducts(int page, int size, String condition, String order) {
-        BooleanBuilder predicate = new BooleanBuilder();
+    public Page<ProductListDto> getFilteredAndSortedProducts(int page, int size, String condition, String order, Long category) {
+        BooleanBuilder predicate = createPredicate(condition, category);
 
-        // 필터링 조건 추가
-//        if (condition != null) {
-            predicate.and(getFilterCondition(condition));
-//        }
+        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(order);
 
-        // 정렬 조건 추가
-        OrderSpecifier<?> orderSpecifier = null;
-        if (order == null) {
-            // order가 null인 경우 기본 정렬 기준으로 설정
-            orderSpecifier = ProductQueryHelper.getOrderSpecifier(null, product);
-        } else {
-            orderSpecifier = ProductQueryHelper.getOrderSpecifier(order, product);
-        }
-
-        // 쿼리 실행
         List<Product> results = queryFactory.selectFrom(product)
                 .where(predicate)
                 .orderBy(orderSpecifier)
@@ -141,40 +128,68 @@ public class ProductServiceV1 {
                 .limit(size)
                 .fetch();
 
-        // 총 개수 조회
         long totalCount = queryFactory.selectFrom(product)
                 .where(predicate)
                 .fetchCount();
 
-        Page<Product> productPage = new PageImpl<>(results, PageRequest.of(page, size), totalCount);
-
-
-        List<ProductListDto> productList = productPage.getContent().stream()
-                .map(ProductListDto::new) // Product를 ProductListDto로 매핑
+        List<ProductListDto> productList = results.stream()
+                .map(ProductListDto::new)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(productList, PageRequest.of(page, size), totalCount);
     }
-    private BooleanExpression getFilterCondition(String condition) {
-        switch (condition) {
-            case "new":
-                return product.createdAt.after(LocalDateTime.now().minusMonths(1));
-            case "best":
-                return product.wishListCount.goe(30L);
-            case "discount":
-                return product.isDiscount.isTrue();
-            case "recommend":
-                return product.isRecommend.isTrue();
-            case "MAN":
-                return product.productType.eq(ProductType.MAN);
-            case "WOMAN":
-                return product.productType.eq(ProductType.WOMAN);
-            case "UNISEX":
-                return product.productType.eq(ProductType.UNISEX);
-            default:
-                return product.createdAt.after(LocalDateTime.now().minusMonths(1));
+
+    private BooleanBuilder createPredicate(String condition, Long category) {
+        BooleanBuilder predicate = new BooleanBuilder();
+
+        if (condition != null) {
+            switch (condition) {
+                case Conditions.NEW:
+                    predicate.and(product.createdAt.after(LocalDateTime.now().minusMonths(1)));
+                    break;
+                case Conditions.BEST:
+                    predicate.and(product.wishListCount.goe(30L));
+                    break;
+                case Conditions.DISCOUNT:
+                    predicate.and(product.isDiscount.isTrue());
+                    break;
+                case Conditions.RECOMMEND:
+                    predicate.and(product.isRecommend.isTrue());
+                    break;
+                case Conditions.MAN:
+                case Conditions.WOMAN:
+                case Conditions.UNISEX:
+                    predicate.and(product.productType.eq(ProductType.valueOf(condition)));
+                    break;
+                default:
+                    predicate.and(product.createdAt.after(LocalDateTime.now().minusMonths(1)));
+                    break;
+            }
         }
 
+        if (category != null) {
+            predicate.and(product.productManagements.any().category.categoryId.eq(category));
+        }
+
+        return predicate;
+    }
+
+    private OrderSpecifier<?> getOrderSpecifier(String order) {
+        if (order == null) {
+            return ProductQueryHelper.getOrderSpecifier(null, product);
+        } else {
+            return ProductQueryHelper.getOrderSpecifier(order, product);
+        }
+    }
+
+    private static class Conditions {
+        static final String NEW = "new";
+        static final String BEST = "best";
+        static final String DISCOUNT = "discount";
+        static final String RECOMMEND = "recommend";
+        static final String MAN = "MAN";
+        static final String WOMAN = "WOMAN";
+        static final String UNISEX = "UNISEX";
 
     }
 

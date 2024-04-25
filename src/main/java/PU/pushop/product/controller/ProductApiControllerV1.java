@@ -76,8 +76,9 @@ public class ProductApiControllerV1 {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String condition,
+            @RequestParam(required = false) Long category,
             @RequestParam(required = false) String order) {
-        return productServiceV1.getFilteredAndSortedProducts(page, size, condition, order);
+        return productServiceV1.getFilteredAndSortedProducts(page, size, condition, order, category);
     }
 
     /**
@@ -98,10 +99,6 @@ public class ProductApiControllerV1 {
 
 
         return productServiceV1.searchAndFilterProducts(keyword, sortBy, pageNumber, pageSize);
-
-       /* return products.stream()
-                .map(product -> modelMapper.map(product, ProductListDto.class))
-                .toList();*/
     }
 
     /**

@@ -3,6 +3,7 @@ package PU.pushop.product.entity;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.ProductCreateDto;
+import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.reviewImg.ReviewImg;
 import PU.pushop.wishList.entity.WishList;
@@ -77,6 +78,9 @@ public class Product {
 
     @Column(name = "wishlist_count")
     private Long wishListCount;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductManagement> productManagements = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
