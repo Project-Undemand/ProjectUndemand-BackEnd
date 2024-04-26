@@ -1,11 +1,15 @@
 package PU.pushop.global.authentication.oauth2.controller;
 
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.custom.dto.KakaoProfile;
 import PU.pushop.global.authentication.oauth2.custom.dto.OAuthToken;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
+import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -37,8 +42,9 @@ import java.util.Optional;
 public class SocialLoginController {
 
     private final MemberRepositoryV1 memberRepositoryV1;
-    private final MemberService memberService;
+    private final RefreshRepository refreshRepository;
     private final OAuth2ClientProperties oauth2Properties;
+    private final JWTUtil jwtUtil;
     // clientDetails
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -46,6 +52,8 @@ public class SocialLoginController {
     private String kakaoRedirectUri;
     @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
     private String kakaoClientSecret;
+
+    private Long refreshTokenExpirationPeriod = 1209600L;
 
     @GetMapping("/login/oauth2/code/kakao")
     public @ResponseBody void kakaoCallback(@RequestParam String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -152,20 +160,29 @@ public class SocialLoginController {
         // socialId 식별자로 중복 회원을 검사한다. 일반 이메일 회원과 소셜 로그인 회원의 이메일이 중복될 수 있기 때문이다.
         Optional<Member> memberWithSocialId = memberRepositoryV1.findBySocialId(socialId);
         if (memberWithSocialId.isPresent()) {
-            memberRepositoryV1.save(memberWithSocialId.get());
+            Member existedMember = memberWithSocialId.get();
+            memberRepositoryV1.save(existedMember);
+            // response.data에 토큰과 이메일을 넣어준다.
+            String jwtAccessToken = jwtUtil.createAccessToken("access", existedMember.getId().toString(), MemberRole.USER.toString());
+            String jwtRefreshToken = jwtUtil.createRefreshToken("refresh", existedMember.getId().toString(), MemberRole.USER.toString());
+            addResponseData(response, jwtAccessToken, jwtRefreshToken, email);
+            saveRefresh(existedMember, jwtRefreshToken);
         } else {
-            Member member = Member.createSocialMember(email, username, MemberRole.USER, SocialType.KAKAO, socialId);
-            memberRepositoryV1.save(member);
+            Member newMember = Member.createSocialMember(email, username, MemberRole.USER, SocialType.KAKAO, socialId);
+            memberRepositoryV1.save(newMember);
+            // response.data에 토큰과 이메일을 넣어준다.
+            String jwtAccessToken = jwtUtil.createAccessToken("access", newMember.getId().toString(), MemberRole.USER.toString());
+            String jwtRefreshToken = jwtUtil.createRefreshToken("refresh", newMember.getId().toString(), MemberRole.USER.toString());
+            addResponseData(response, jwtAccessToken, jwtRefreshToken, email);
+            saveRefresh(newMember, jwtRefreshToken);
         }
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        String accessToken = oAuthToken.getAccess_token();
-        String refreshToken = oAuthToken.getRefresh_token();
-
-        addResponseData(response, accessToken, refreshToken, email);
     }
 
     /**
      * [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+     * email도 [response.data] 에 추가하였음.
+     * 목적 : 로그인 성공 시, 클라이언트에 메세지(환영)를 띄워주기위해.
      */
     private void addResponseData(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
         // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
@@ -179,6 +196,25 @@ public class SocialLoginController {
         response.getWriter().write(responseData.toString());
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());
+    }
+
+    private void saveRefresh(Member member, String newRefreshToken) {
+        // [24.04.25] 잘못된 예외처리 리펙토링 : findById -> findByMemberId
+        Optional<Refresh> existedRefresh = refreshRepository.findByMemberId(member.getId());
+        LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
+
+        // 멤버의 Refresh 토큰이 존재하지 않는 경우, 새 refreshToken을 생성하고 저장합니다.
+        if (existedRefresh.isEmpty()) {
+            Refresh newRefreshEntity = new Refresh(member, newRefreshToken, expirationDateTime);
+            refreshRepository.save(newRefreshEntity);
+        }
+        // 멤버의 Refresh 토큰이 이미 존재하는 경우, 기존 토큰을 업데이트하고 저장합니다.
+        else {
+            Refresh refreshEntity = existedRefresh.get();
+            RefreshDto refreshDto = RefreshDto.createRefreshDto(newRefreshToken, expirationDateTime);
+            refreshEntity.updateRefreshToken(refreshDto);
+            refreshRepository.save(refreshEntity);
+        }
     }
 
     private OAuthClientDetails getClientDetails(String registrationId) {

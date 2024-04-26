@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,30 +27,27 @@ public class CategoryServiceV1 {
 
 
     public List<CategoryDto> getCategoryList() {
-        List<CategoryDto> results = categoryRepository.findAll().stream().map(CategoryDto::of).collect(Collectors.toList());
-        return results;
+        return categoryRepository.findAll().stream().map(CategoryDto::of).collect(Collectors.toList());
     }
 
     /**
      * 카테고리 생성
      * parentId 파라미터가 없는 경우 - 부모 카테고리를 만든다.
      * 있는 경우 - 해당하는 부모 카테고리 밑에 자식 카테고리를 만든다.
-     * @param category
-     * @param parentId
-     * @return
      */
-    public Long createCategory(Category category, Long parentId){
+    public Long createCategory(Category request, Long parentId){
+        Category category;
         if (parentId != null) {
             // 부모 카테고리가 지정된 경우
             Category parentCategory = categoryRepository.findById(parentId)
                     .orElseThrow(() -> new NoSuchElementException("해당 카테고리를 찾을 수 없습니다."));
 
-            category.setParent(parentCategory);
-            category.setDepth(parentCategory.getDepth() + 1); // 자식 카테고리의 depth를 설정
+            category = new Category(parentCategory, parentCategory.getDepth() + 1, request.getName());
+
             parentCategory.getChildren().add(category);
         } else {
             // 부모 카테고리가 지정되지 않은 경우 최상위 카테고리로 설정
-            category.setDepth(0L);
+            category = new Category(0L, request.getName());
         }
 
         Category savedCategory = categoryRepository.save(category);

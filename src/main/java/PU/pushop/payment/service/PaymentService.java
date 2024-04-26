@@ -1,5 +1,6 @@
 package PU.pushop.payment.service;
 
+import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.order.entity.Orders;
@@ -12,7 +13,6 @@ import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
-import com.siot.IamportRestClient.response.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,6 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final MemberRepositoryV1 memberRepository;
     private final PaymentRepository paymentRepository;
-    private final ProductRepositoryV1 productRepository;
     private final ProductManagementRepository productMgtRepository;
 
     public void processPaymentDone(PaymentRequestDto request) {
@@ -37,51 +36,45 @@ public class PaymentService {
         Long orderId = request.getOrderId();
         Long memberId = request.getMemberId();
         Long totalPrice = request.getPrice();
-        List<Long> inventoryIdList = request.getInventoryIdList();
+        List<Long> productMgtIdList = request.getInventoryIdList();
 
         //orders 테이블에서 해당 부분 결제true 처리
-        Orders nowOrder = orderRepository.findById(orderId)
+        Orders currentOrder = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("주문 정보를 찾을 수 없습니다."));
+        currentOrder.setPaymentStatus(true);
 
-        nowOrder.setPaymentStatus(true);
+        // PaymentHistory 테이블에 저장할 Member 객체
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
 
-        // PaymentHistory 테이블 생성
-        Member member = null;
-        if (memberId != null) {
+        // PaymentHistory 테이블에 저장할 Orders 객체
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoSuchElementException("해당 주문서를 찾을 수 없습니다. Id : " + orderId));
 
-            member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다. Id : " + memberId));
-        }
-        Orders order = null;
-        if (orderId != null) {
-            order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new NoSuchElementException("해당 주문서를 찾을 수 없습니다. Id : " + orderId));
-        }
+        // 주문한 상품들에 대해 각각 결제내역 저장
+        createPaymentHistory(productMgtIdList, order, member, totalPrice);
 
-        for (Long inventoryId : inventoryIdList) {
-            PaymentHistory paymentHistory = new PaymentHistory();
+    }
 
-            ProductManagement inventory = productMgtRepository.findById(inventoryId)
-                    .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. Id : " + inventoryId));
+    // 결제내역 저장하는 메서드
+    private void createPaymentHistory(List<Long> productMgtIdList, Orders order, Member member, Long totalPrice) {
+        for (Long productMgtId : productMgtIdList) {
 
-            Product product = inventory.getProduct();
+//            PaymentHistory paymentHistory = new PaymentHistory();
 
-            String option = inventory.getColor().getColor() + ", " + inventory.getSize().toString();
+            ProductManagement productMgt = productMgtRepository.findById(productMgtId)
+                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
 
-            paymentHistory.setProduct(product);
-            paymentHistory.setProductName(product.getProductName());
-            paymentHistory.setProductOption(option);
-            paymentHistory.setOrders(order);
-            paymentHistory.setMember(member);
-            paymentHistory.setTotalPrice(totalPrice);
-            paymentHistory.setPrice(product.getPrice());
+            Product product = productMgt.getProduct();
+            String option = productMgt.getColor().getColor() + ", " + productMgt.getSize().toString(); // 상품옵션 문자열로 저장
+
+            PaymentHistory paymentHistory = new PaymentHistory(member, order, product, product.getProductName(),option,product.getPrice(),totalPrice);
 
             paymentRepository.save(paymentHistory);
 
-
         }
-
     }
+
 
     public List<PaymentHistoryDto> paymentHistoryList(Long memberId) {
         List<PaymentHistory> paymentHistories = paymentRepository.findByMemberId(memberId);

@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class InventoryUpdateDto {
-    private Long colorId;
-    private Long categoryId;
-    private Size size;
+//    private Long colorId;
+//    private Long categoryId;
+//    private Size size;
 //    private Long initialStock; // 수정할 땐 초기 재고 수정 불가
     private Long additionalStock;
     private Long productStock;
@@ -26,9 +26,9 @@ public class InventoryUpdateDto {
 
     public InventoryUpdateDto(ProductManagement productManagement) {
         this(
-                productManagement.getColor().getColorId(),
-                productManagement.getCategory().getCategoryId(),
-                productManagement.getSize(),
+//                productManagement.getColor().getColorId(),
+//                productManagement.getCategory().getCategoryId(),
+//                productManagement.getSize(),
                 productManagement.getAdditionalStock(),
                 productManagement.getProductStock(),
                 productManagement.isRestockAvailable(),
@@ -36,27 +36,30 @@ public class InventoryUpdateDto {
                 productManagement.isSoldOut()
         );
     }
+/*
 
     public static ProductManagement updateInventoryForm(ProductManagement existingInventory, InventoryUpdateDto request) {
+        // 색상 및 카테고리 설정
+*/
+/*        existingInventory.setColor(ProductColor.createProductColorById(request.getColorId()));
+        existingInventory.setCategory(Category.createCategoryById(request.getCategoryId()));*//*
 
-        existingInventory.setProduct(existingInventory.getProduct());
 
-        ProductColor color = new ProductColor();
-        color.setColorId(request.getColorId());
-        existingInventory.setColor(color);
+        // 사이즈, 추가 재고 설정
+//        existingInventory.setSize(request.getSize());
+        Long additionalStock = request.getAdditionalStock();
+        existingInventory.setAdditionalStock(additionalStock);
 
-        Category category = new Category();
-        category.setCategoryId(request.getCategoryId());
-        existingInventory.setCategory(category);
-        existingInventory.setSize(request.getSize());
-        existingInventory.setAdditionalStock(request.getAdditionalStock());
-        existingInventory.setProductStock(existingInventory.getInitialStock() + request.getAdditionalStock()); // 상품 재고는 초기재고 + 추가재고로 자동 설정
+        // 상품 재고 및 재고 관련 설정
+        existingInventory.setProductStock(existingInventory.getInitialStock() + additionalStock);
         existingInventory.setRestockAvailable(request.getIsRestockAvailable());
         existingInventory.setRestocked(request.getIsRestocked());
         existingInventory.setSoldOut(request.getIsSoldOut());
 
         return existingInventory;
-
-
     }
+
+*/
+
+
 }

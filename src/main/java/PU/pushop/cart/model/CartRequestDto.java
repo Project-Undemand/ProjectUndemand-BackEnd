@@ -18,11 +18,4 @@ public class CartRequestDto {
                 cart.getQuantity()
         );
     }
-
-    public static Cart updateRequestForm(CartRequestDto requestDto) {
-        Cart cart = new Cart();
-        cart.setQuantity(requestDto.getQuantity());
-
-        return cart;
-    }
 }

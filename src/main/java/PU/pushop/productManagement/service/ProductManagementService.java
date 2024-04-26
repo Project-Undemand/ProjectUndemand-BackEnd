@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
@@ -51,12 +53,22 @@ public class ProductManagementService {
         return productManagementRepository.findAll();
     }
 
-    public ProductManagement updateInventory(Long inventoryId, InventoryUpdateDto updatedInventory) {
+    /**
+     * 상품 관리 수정
+     * @param inventoryId
+     * @param request
+     * @return
+     */
+    public ProductManagement updateInventory(Long inventoryId, InventoryUpdateDto request) {
 
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
-        InventoryUpdateDto.updateInventoryForm(existingInventory, updatedInventory);
+        Long productStock = existingInventory.getProductStock() + request.getAdditionalStock();
+
+        existingInventory.updateInventory(request.getAdditionalStock(), productStock, request.getIsRestockAvailable(), request.getIsRestocked(),request.getIsSoldOut());
+
+//        InventoryUpdateDto.updateInventoryForm(existingInventory, request);
 
         return productManagementRepository.save(existingInventory);
     }
@@ -67,7 +79,7 @@ public class ProductManagementService {
      */
     public void deleteInventory(Long inventoryId) {
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
-                .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
         productManagementRepository.delete(existingInventory);
 
     }

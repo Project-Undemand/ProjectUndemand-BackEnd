@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
+import static PU.pushop.global.ResponseMessageConstants.MEMBER_NOT_FOUND;
+import static PU.pushop.global.ResponseMessageConstants.WRITING_NOT_FOUND;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
@@ -31,14 +34,12 @@ public class ReviewReplyService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NoSuchElementException("해당 리뷰를 찾을 수 없습니다. reviewId: " + reviewId));
 
-        ReviewReply reviewReply = new ReviewReply();
+//        ReviewReply reviewReply = new ReviewReply();
 
         Member member = memberRepository.findById(replyDto.getReplyBy())
-                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다. memberId: " + replyDto.getReplyBy()));
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
 
-        reviewReply.setReview(review);
-        reviewReply.setReplyBy(member);
-        reviewReply.setReplyContent(replyDto.getReplyContent());
+        ReviewReply reviewReply = new ReviewReply(review, member, replyDto.getReplyContent());
 
         reviewReplyRepository.save(reviewReply);
 
@@ -51,7 +52,7 @@ public class ReviewReplyService {
      */
     public void deleteReply(Long replyId) {
         ReviewReply currentReply = reviewReplyRepository.findById(replyId)
-                .orElseThrow(() -> new NoSuchElementException("해당 글을 찾을 수 없습니다. Id : " + replyId));
+                .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));
         reviewReplyRepository.delete(currentReply);
 
     }

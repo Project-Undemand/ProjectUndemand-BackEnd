@@ -36,18 +36,4 @@ public class OrderDto {
                 order.getPayMethod()
         );
     }
-
-    public static Orders RequestForm(OrderDto request){
-        Orders orders = new Orders();
-
-        orders.setPostCode(request.getPostCode());
-        orders.setAddress(request.getAddress());
-        orders.setDetailAddress(request.getDetailAddress());
-        orders.setOrdererName(request.getOrdererName());
-        orders.setPhoneNumber(request.getPhoneNumber());
-        orders.setPayMethod(request.getPayMethod());
-
-        return orders;
-    }
-
 }

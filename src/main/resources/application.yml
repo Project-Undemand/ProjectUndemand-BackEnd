@@ -2,6 +2,11 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
   profiles:
+    # develop : develop 환경에서 application run 을 실행
+    # production : 실 사용자가 사용하는 환경에서 application run 을 실행
+    # staging : 실 사용자는 없지만, 마지막 테스트 환경에서 application run 을 실행
+    active: none # <develop, production, staging, none> 옵션
+    # application-oauth2.yml 파일을 별도로 관리
     include: oauth2
   datasource:
     # MySQL
@@ -23,9 +28,6 @@ spring:
   #  main:
   #    allow-bean-definition-overriding: true
 
-  resources:
-    static-locations: classpath:/static/,file:/static/
-
   #  create	기존테이블을 삭제하고 다시 생성
   #  create-drop 기존테이블을 삭제하고 다시생성. 종료 시점에 테이블삭제
   #  update	변경된 스키마 적용 (운영 DB 에서 사용X)
@@ -40,11 +42,16 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 1000 #최적화 옵션
-    show_sql: true
+
+#    show_sql: true
   data:
     redis:
       host: localhost
       port: 995
+  web:
+    resources:
+      static-locations: classpath:/static/,file:/static/
+
 
 #    open-in-view: false
 

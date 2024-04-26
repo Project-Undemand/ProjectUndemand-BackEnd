@@ -1,19 +1,22 @@
 package PU.pushop.review.entity;
 
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.reviewImg.ReviewImg;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review")
 public class Review {
     @Id
@@ -49,12 +52,24 @@ public class Review {
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewImg> reviewImages = new ArrayList<>();
+
     @OneToMany(mappedBy = "review")
     private List<ReviewReply> replies;
 
 
-    public Review() {
+    public Review(PaymentHistory paymentHistory, String reviewContent, int rating) {
+        this.paymentHistory = paymentHistory;
+        this.reviewContent = reviewContent;
+        this.rating = rating;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateReview(String reviewContent, int rating) {
+        this.reviewContent = reviewContent;
+        this.rating = rating;
         this.updatedAt = LocalDateTime.now();
     }
 

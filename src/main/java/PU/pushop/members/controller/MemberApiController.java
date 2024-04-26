@@ -1,22 +1,20 @@
 package PU.pushop.members.controller;
 
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
-import PU.pushop.members.model.LoginRequest;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.members.repository.RefreshRepository;
-import PU.pushop.members.service.MemberService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.CredentialNotFoundException;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -25,8 +23,27 @@ import java.util.Optional;
 public class MemberApiController {
 
     private final MemberRepositoryV1 memberRepositoryV1;
-    private final MemberService memberService;
-    private final RefreshRepository refreshRepository;
+    private final JWTUtil jwtUtil;
+
+    @GetMapping("/api/v1/members")
+    public ResponseEntity<?> getMemberList(HttpServletRequest request) {
+        // Request Header 에 담아준 Authorization 을 가져와서
+        String authorization = request.getHeader("Authorization");
+        // accessToken 을 꺼내주는 방식
+        String accessToken = authorization.substring(7);
+        // accessToken 에 있는 유저 권한을 파싱해서 가져옴
+        MemberRole userRole = jwtUtil.getRole(accessToken);
+
+        if (userRole == MemberRole.ADMIN) {
+            // memberId에 해당하는 Member 정보를 조회합니다.
+            List<Member> allMembers = memberRepositoryV1.findAll();
+
+            // 회원을 찾은 경우 200 OK 응답과 함께 Member 정보를 반환합니다.
+            return ResponseEntity.ok(allMembers);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("관리자페이지에서, 관리자 권한으로만 회원 전체에 대한 조회가 가능합니다.!");
+        }
+    }
 
     @GetMapping("/api/v1/members/{memberId}")
     public ResponseEntity<Member> getMember(@PathVariable Long memberId) {
@@ -38,52 +55,114 @@ public class MemberApiController {
         return ResponseEntity.ok(member);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
-
-        Member member = memberService.memberLogin(loginRequest);
-        if(member == null){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("email 또는 비밀번호가 일치하지 않습니다!");
-        }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("로그인 성공했습니다");
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
-                       HttpServletResponse response) {
-        System.out.println(refreshToken);
-        if (refreshToken != null) {
-            log.info(refreshToken + "is not null");
-
-            Optional<Member> optionalMember = memberRepositoryV1.findByToken(refreshToken);
-            if (optionalMember.isPresent()) {
-                log.info("optionalMember" + "is Present");
-                // refreshToken을 이용하여 DB에 있는 해당 토큰을 삭제
-                refreshRepository.deleteByRefreshToken(refreshToken);
-
-                // 로그아웃 시 , 멤버의 이메일을 String으로 반환
-                Member member = optionalMember.get();
-                String memberEmail = member.getEmail();
-                return ResponseEntity.status(HttpStatus.OK).body(memberEmail + " 로그아웃 되었습니다");
-            } else {
-                log.info("optionalMember" + "is not Present");
-                return ResponseEntity.status(HttpStatus.OK).body("쿠키에 저장된 리프레쉬토큰의 유저가 존재하지 않습니다.");
+    @PostMapping("api/v1/members/deactive/{memberId}")
+    public ResponseEntity<?> deactiveMember(@PathVariable Long memberId, HttpServletRequest request) {
+        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 재활성화 할 수 있는 권한이 없습니다.");
+        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // memberId 로 회원 조회
+        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
+        if (optionalMember.isPresent()) {
+            Member existingMember = optionalMember.get();
+            boolean isActive = existingMember.getIsActive();
+            // 계정이 이미 비활성화 된 경우
+            if (!isActive) {
+                return ResponseEntity.ok().body("이미 비활성화 된 계정입니다!");
             }
+            // 계정이 비활성화 된 경우가 아닐때
+            existingMember.deActivateMember();
+            return ResponseEntity.ok().body("계정이 비활성화 되었습니다. ");
+        }
+        // 엑세스 토큰으로부터 가져온 memberId 에 해당하는 회원이 없을 때
+        return ResponseEntity.badRequest().body("존재하지 않는 Id 에 대한 비활성화 요청입니다. ");
+    }
 
-        } else {
-            log.info(refreshToken + "is null");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저입니다!");
+    @PostMapping("api/v1/members/reactivate/{memberId}")
+    public ResponseEntity<?> reActivateMember(@PathVariable Long memberId, HttpServletRequest request) {
+        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 재활성화 할 수 있는 권한이 없습니다.");
+        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // memberId 로 회원 조회
+        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
+        if (optionalMember.isPresent()) {
+            Member existingMember = optionalMember.get();
+            boolean isActive = existingMember.getIsActive();
+            if (isActive) {
+                return ResponseEntity.ok().body("이미 활성화된 계정입니다!");
+            }
+            existingMember.activateMember();
+            return ResponseEntity.ok().body("계정이 활성화되었습니다. ");
+        }
+        return ResponseEntity.badRequest().body("존재하지 않는 Id 로의 활성화 요청입니다. ");
+    }
+
+    /**
+     * 1. 로그인 유저의 id와 경로에 있는 PathVariable memberId 가 같아야, 비밀번호 재설정이 가능합니다.
+     * 2. url 경로의 memberId 가 , 회원가입되어 있는 유저인지 확인합니다.
+     * 3. 입력한 비밀번호가, DB의 비밀번호와 일치하는지 확인합니다.
+     * 4. 새롭게 입력한 newPassword와 newPassword_confirmation 가 같으면, 유저의 비밀번호를 갱신합니다.
+     * @param memberId
+     * @param request
+     * @param passwordRequest
+     * @return
+     */
+    @PostMapping("api/v1/members/repassword/{memberId}")
+    public ResponseEntity<?> rePasswordMember(@PathVariable Long memberId, HttpServletRequest request, @RequestBody ResetPasswordRequest passwordRequest) {
+        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 비밀번호를 변경할 수 있는 권한이 없습니다.");
+        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // memberId 로 회원 조회
+        Member existingMember = findExistingMember(memberId);
+        if(existingMember == null){
+            return responseStatusAndMessage(HttpStatus.BAD_REQUEST, "회원가입 되지 않은 유저입니다. 해당 url의 memberId는 서버에 존재하지 않습니다.");
+        }
+
+        if (!isPasswordCorrect(passwordRequest.getPassword(), existingMember)) {
+            return responseStatusAndMessage(HttpStatus.BAD_REQUEST, "입력하신 비밀번호가 잘못되었습니다. 다른 비밀번호입니다.");
+        }
+
+        resetMemberPassword(passwordRequest, existingMember);
+        return responseStatusAndMessage(HttpStatus.OK, "계정의 비밀번호가 재설정되었습니다.");
+
+    }
+
+    private @Nullable ResponseEntity<?> validateMemberAuthorization(HttpServletRequest request, Long memberId, String message) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            return responseStatusAndMessage(HttpStatus.UNAUTHORIZED, "인증 헤더가 필요합니다. 로그인을 진행해주세요.");
+        }
+
+        String accessToken = authorization.substring(7);
+        String memberIdFromToken = getMemberIdFromToken(accessToken);
+        if (!memberIdFromToken.equals(memberId.toString())) {
+            return responseStatusAndMessage(HttpStatus.UNAUTHORIZED, message);
+        }
+        return null;
+    }
+
+    private ResponseEntity<?> responseStatusAndMessage(HttpStatus status, String message) {
+        return ResponseEntity.status(status).body(message);
+    }
+
+    private String getMemberIdFromToken(String accessToken) {
+        return jwtUtil.getMemberId(accessToken);
+    }
+
+    private Member findExistingMember(Long memberId) {
+        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
+        return optionalMember.orElse(null);
+    }
+
+    private boolean isPasswordCorrect(String password, Member existingMember) {
+        return existingMember.getPassword().equals(password);
+    }
+
+    private void resetMemberPassword(ResetPasswordRequest passwordRequest, Member existingMember) {
+        if (isNewPasswordsMatch(passwordRequest)) {
+            existingMember.reSetPassword(passwordRequest.getNew_password());
+            memberRepositoryV1.save(existingMember);
         }
     }
 
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-//        cookie.setSecure(true); // HTTPS에서만 쿠키 전송
-        return cookie;
+    private boolean isNewPasswordsMatch(ResetPasswordRequest passwordRequest) {
+        return passwordRequest.getNew_password().equals(passwordRequest.getNew_password_confirmation());
     }
 
     // 예외 처리를 위한 메소드
@@ -91,6 +170,13 @@ public class MemberApiController {
     public ResponseEntity<String> handleUsernameNotFoundException(UsernameNotFoundException e) {
         // 회원을 찾지 못한 경우 404 Not Found 응답과 함께 예외 메시지를 반환합니다.
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @Data
+    private static class ResetPasswordRequest {
+        private String password;
+        private String new_password;
+        private String new_password_confirmation;
     }
 
 }

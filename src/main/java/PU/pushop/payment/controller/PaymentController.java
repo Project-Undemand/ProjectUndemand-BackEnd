@@ -2,15 +2,14 @@ package PU.pushop.payment.controller;
 
 import PU.pushop.cart.entity.Cart;
 import PU.pushop.cart.repository.CartRepository;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.order.repository.OrderRepository;
+import PU.pushop.payment.model.PaymentHistoryDto;
 import PU.pushop.payment.model.PaymentRequestDto;
-import PU.pushop.payment.repository.PaymentRepository;
 import PU.pushop.payment.service.PaymentService;
 import com.siot.IamportRestClient.IamportClient;
-import com.siot.IamportRestClient.response.Payment;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
+import com.siot.IamportRestClient.response.Payment;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +29,6 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class PaymentController {
     private final HttpSession httpSession;
-
-
     public final OrderRepository orderRepository;
     private final PaymentService paymentService;
     private final CartRepository cartRepository;
@@ -49,16 +46,10 @@ public class PaymentController {
     }
 
     @PostMapping("/order/payment/{imp_uid}")
-    public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid, @RequestBody PaymentRequestDto request) {
+    public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid, @RequestBody PaymentRequestDto request) throws IamportResponseException, IOException {
 
-        IamportResponse<Payment> payment = null;
-        try {
-            payment = iamportClient.paymentByImpUid(imp_uid);
-        } catch (IamportResponseException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        IamportResponse<Payment> payment = iamportClient.paymentByImpUid(imp_uid);;
+
         log.info("결제 요청 응답. 결제 내역 - 주문 번호: {}", payment.getResponse().getMerchantUid());
 
         paymentService.processPaymentDone(request);
@@ -83,7 +74,7 @@ public class PaymentController {
     }
 
     @GetMapping("/paymenthistory/{memberId}")
-    public ResponseEntity<?> paymentList(@PathVariable Long memberId) {
+    public ResponseEntity<List<PaymentHistoryDto>> paymentList(@PathVariable Long memberId) {
         return ResponseEntity.status(HttpStatus.OK).body(paymentService.paymentHistoryList(memberId));
     }
 

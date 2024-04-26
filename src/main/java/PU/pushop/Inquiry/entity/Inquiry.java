@@ -5,14 +5,13 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.product.entity.Product;
 import PU.pushop.Inquiry.entity.enums.InquiryType;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "inquiry_table")
 public class Inquiry {
@@ -73,4 +72,45 @@ public class Inquiry {
     public Inquiry() {
         this.createdAt = LocalDateTime.now();
     }
+
+    @Builder
+    public Inquiry(Member member, Product product, String name, String email, InquiryType inquiryType, String inquiryTitle, String inquiryContent, String password) {
+        this.member = member;
+        this.product = product;
+        this.name = name;
+        this.email = email;
+        this.inquiryType = inquiryType;
+        this.inquiryTitle = inquiryTitle;
+        this.inquiryContent = inquiryContent;
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
+
+    }
+
+    public void createInquiryWriter(Member member, String name, String email) {
+        this.member = member;
+        this.name = name;
+        this.email = email;
+    }
+
+/*    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }*/
+
+    public void setResponse(Boolean response) {
+        isResponse = response;
+    }
+
 }

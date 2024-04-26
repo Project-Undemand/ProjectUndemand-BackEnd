@@ -1,5 +1,7 @@
 application-test.yml
 DummyDataLoader.java
+### environ-file ###
+environ-file.env
 
 HELP.md
 .gradle
@@ -46,6 +48,3 @@ out/
 
 ### gradlew.bat ###
 gradlew.bat
-
-### environ-file ###
-environ-file.env

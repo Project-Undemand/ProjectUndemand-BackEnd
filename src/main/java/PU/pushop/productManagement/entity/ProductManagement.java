@@ -6,16 +6,16 @@ import PU.pushop.category.entity.Category;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.enums.Size;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product_management")
 public class ProductManagement {
     @Id
@@ -65,7 +65,50 @@ public class ProductManagement {
     @ManyToMany(mappedBy = "productManagements")
     private List<Orders> orders = new ArrayList<>();
 
-    public ProductManagement() {
-
+    public ProductManagement(Product product, ProductColor color, Category category, Size size, Long initialStock, Long initialStock1, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
+        this.product = product;
+        this.color = color;
+        this.category = category;
+        this.size = size;
+        this.initialStock = initialStock;
+        this.productStock = initialStock1;
     }
+
+    public ProductManagement(Long initialStock, Long additionalStock, Category categoryById, Product productById, Long productStock, Size size, ProductColor color, boolean isRestockAvailable, boolean isRestocked, boolean isSoldOut) {
+        this.initialStock = initialStock;
+        this.additionalStock = additionalStock;
+        this.category = categoryById;
+        this.product = productById;
+        this.productStock = productStock;
+        this.isRestockAvailable = isRestockAvailable;
+        this.isRestocked = isRestocked;
+        this.isSoldOut = isSoldOut;
+        this.size = size;
+        this.color = color;
+    }
+
+    public ProductManagement(long initialStock, long additionalStock, Category subCategory, Product product, long productStock, Size size, ProductColor productColor, boolean isRestockAvailable, boolean isRestocked, boolean isSoldOut) {
+        this.initialStock = initialStock;
+        this.additionalStock = additionalStock;
+        this.category = subCategory;
+        this.product = product;
+        this.productStock = productStock;
+        this.isRestockAvailable = isRestockAvailable;
+        this.isRestocked = isRestocked;
+        this.isSoldOut = isSoldOut;
+        this.size = size;
+        this.color = productColor;
+    }
+
+    public void updateInventory(Long additionalStock, Long productStock, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
+        this.additionalStock = additionalStock;
+        this.productStock = productStock;
+        this.isRestockAvailable = isRestockAvailable;
+        this.isRestocked = isRestocked;
+        this.isSoldOut = isSoldOut;
+    }
+
+
+
+
 }

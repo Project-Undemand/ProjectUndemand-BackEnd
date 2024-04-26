@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
+
 @RestController
 @RequestMapping("/api/v1/categorys")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class CategoryControllerV1 {
      * @return
      */
     @GetMapping("")
-    public ResponseEntity<?> getCategoryList() {
+    public ResponseEntity<List<CategoryDto>> getCategoryList() {
         List<Category> topLevelCategories = categoryServiceV1.getTopLevelCategories(); // 최상위 부모 카테고리만 가져오는 메서드
 
         // 부모 카테고리 리스트를 DTO로 변환
@@ -80,7 +82,7 @@ public class CategoryControllerV1 {
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
         categoryServiceV1.deleteCategory(categoryId);
-        return ResponseEntity.ok("카테고리 삭제 완료");
+        return ResponseEntity.ok(DELETE_SUCCESS);
     }
 
 }

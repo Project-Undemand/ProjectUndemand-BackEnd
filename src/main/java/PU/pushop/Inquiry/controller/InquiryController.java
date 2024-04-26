@@ -1,11 +1,13 @@
 package PU.pushop.Inquiry.controller;
 
-import PU.pushop.Inquiry.model.InquiryCreateDto;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.Inquiry.entity.Inquiry;
+import PU.pushop.Inquiry.model.InquiryCreateDto;
 import PU.pushop.Inquiry.model.InquiryDto;
+import PU.pushop.Inquiry.model.InquiryUpdateDto;
 import PU.pushop.Inquiry.service.InquiryService;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.members.repository.MemberRepositoryV1;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,7 +16,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
 @RestController
 @RequestMapping("/api/v1/inquiry")
@@ -22,6 +25,7 @@ import java.util.NoSuchElementException;
 public class InquiryController {
     private final InquiryService inquiryService;
     private final MemberRepositoryV1 memberRepository;
+    private final JWTUtil jwtUtil;
 
 
     /**
@@ -45,16 +49,15 @@ public class InquiryController {
 
     /**
      * 문의글 작성
-     * @param request
+     * @param requestDto
      * @param productId
      * @return
      */
     @PostMapping("/new/{productId}")
-    public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryCreateDto request, @PathVariable Long productId) {
+    public ResponseEntity<String> createInquiry(@Valid @RequestBody InquiryCreateDto requestDto, @PathVariable Long productId , HttpServletRequest request) {
         try {
-            InquiryCreateDto inquiry = InquiryCreateDto.requestForm(request);
 
-            Long createdId = inquiryService.createInquiry(inquiry, productId);
+            Long createdId = inquiryService.createInquiry(requestDto, productId, request);
             return ResponseEntity.status(HttpStatus.CREATED).body("문의 등록 완료. Id : "+createdId);
         } catch (HttpMessageNotReadableException e) {
             return ResponseEntity.badRequest().body("유효하지 않은 문의 유형입니다.");
@@ -69,7 +72,7 @@ public class InquiryController {
      * @return
      */
     @GetMapping("/{inquiryId}")
-    public ResponseEntity<?> getInquiryById(@PathVariable Long inquiryId) {
+    public ResponseEntity<Object> getInquiryById(@PathVariable Long inquiryId) {
         try {
             InquiryDto inquiryDetail = inquiryService.inquiryDetail(inquiryId);
             return new ResponseEntity<>(inquiryDetail, HttpStatus.OK);
@@ -81,14 +84,13 @@ public class InquiryController {
     /**
      * 문의글 수정
      * @param inquiryId
-     * @param request
+     * @param requestDto
      * @return
      */
     @PutMapping("/{inquiryId}")
-    public ResponseEntity<?> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryCreateDto request) {
-        InquiryCreateDto updatedInquiry = InquiryCreateDto.requestForm(request);
-        Inquiry updated = inquiryService.updateInquiry(inquiryId, updatedInquiry, request.getPassword());
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<String> updateInquiry(@PathVariable Long inquiryId, @Valid @RequestBody InquiryUpdateDto requestDto) {
+        Inquiry updated = inquiryService.updateInquiry(inquiryId, requestDto, requestDto.getPassword());
+        return ResponseEntity.ok("수정 완료 : "+ updated.getInquiryId());
     }
 
     /**
@@ -98,9 +100,9 @@ public class InquiryController {
      * @return
      */
     @DeleteMapping("/{inquiryId}")
-    public ResponseEntity<?> deleteInquiry(@PathVariable Long inquiryId, @RequestHeader("password") String password) {
+    public ResponseEntity<String> deleteInquiry(@PathVariable Long inquiryId, @RequestHeader("password") String password) {
         inquiryService.deleteInquiry(inquiryId, password);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 
 
