@@ -141,10 +141,10 @@ public class ReviewService {
 
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
-        // 로그인 중인 유저의 memberId 찾기
-        Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
+        // 로그인 중인 유저의 memberId와 파라미터로 받은 memberId 가 같은지 확인
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
 
-        if (!loginMemberId.equals(memberId) || !memberId.equals(reviewWriterId)) {
+        if (!memberId.equals(reviewWriterId)) {
             throw new SecurityException(ACCESS_DENIED);
         }
 
@@ -166,10 +166,10 @@ public class ReviewService {
 
         paymentHistory.setReview(false);
 
-        // 로그인 중인 유저의 memberId 찾기
-        Long loginMemberId = MemberAuthorizationUtil.getLoginMemberId();
+        // 로그인 중인 유저의 memberId와 파라미터로 받은 memberId 가 같은지 확인
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
 
-        if (!loginMemberId.equals(memberId) || !memberId.equals(reviewWriterId)) {
+        if (!memberId.equals(reviewWriterId)) {
             throw new SecurityException(ACCESS_DENIED);
         }
 

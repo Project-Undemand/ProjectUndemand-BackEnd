@@ -1,10 +1,12 @@
 package PU.pushop.product.service;
 
 
-import PU.pushop.category.entity.Category;
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
+import PU.pushop.global.authorization.RequiresRole;
 import PU.pushop.global.queries.Condition;
 import PU.pushop.global.queries.OrderBy;
 import PU.pushop.global.queries.ProductQueryHelper;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.QProduct;
@@ -14,7 +16,6 @@ import PU.pushop.product.model.ProductDetailDto;
 import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import com.querydsl.core.BooleanBuilder;
@@ -58,7 +59,9 @@ public class ProductServiceV1 {
      * @param requestDto
      * @return productId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Long createProduct(ProductCreateDto requestDto, List<MultipartFile> images) {
+
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
@@ -154,6 +157,7 @@ public class ProductServiceV1 {
      * @param updatedDto
      * @return
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Product updateProduct(Long productId, ProductCreateDto updatedDto) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
@@ -171,6 +175,7 @@ public class ProductServiceV1 {
      *
      * @param productId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteProduct(Long productId) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
@@ -184,6 +189,7 @@ public class ProductServiceV1 {
      * @param request
      * @return
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Long createColor(ProductColorDto request) {
         ProductColor color = modelMapper.map(request, ProductColor.class);
         productColorRepository.save(color);
@@ -195,13 +201,11 @@ public class ProductServiceV1 {
      *
      * @param colorId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteColor(Long colorId) {
         ProductColor color = productColorRepository.findById(colorId)
                 .orElseThrow(() -> new NoSuchElementException("해당 색상을 찾을 수 없습니다. Id : " + colorId));
         productColorRepository.delete(color);
     }
-
-
-
 
 }
