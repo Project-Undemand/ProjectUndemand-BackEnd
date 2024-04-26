@@ -1,14 +1,14 @@
 package PU.pushop.address;
 
 
-import PU.pushop.profile.Profile;
+import PU.pushop.profile.MemberProfile;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "address")
-public class Address {
+@Table(name = "addresses")
+public class Addresses {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +26,5 @@ public class Address {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
-    private Profile profile;
+    private MemberProfile profile;
 }

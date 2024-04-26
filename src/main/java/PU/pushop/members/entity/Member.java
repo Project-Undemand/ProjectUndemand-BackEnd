@@ -75,7 +75,7 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
 
-    // 생성자를 통해 멤버 생성
+    // 1. 생성자를 통해 멤버 생성
     public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, String token, boolean isCertifyByMail) {
         this.email = email;
         this.password = password;
@@ -85,6 +85,16 @@ public class Member {
         this.socialType = socialType;
         this.socialId = socialId;
         this.token = token;
+        this.isCertifyByMail = isCertifyByMail;
+    }
+    // 2. Profile 에 멤버를 담을 때, 민감한 정보(비밀번호, 토큰) 등을 담아주지 않기 위한 생성자
+    public Member(String email, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, boolean isCertifyByMail) {
+        this.email = email;
+        this.username = username;
+        this.nickname = nickname;
+        this.memberRole = memberRole;
+        this.socialType = socialType;
+        this.socialId = socialId;
         this.isCertifyByMail = isCertifyByMail;
     }
 
@@ -110,6 +120,10 @@ public class Member {
 
     public static Member createTokenMember(Long memberId, MemberRole role) {
         return null;
+    }
+
+    public static Member createProfileMember(Member member) {
+        return new Member(member.getEmail(), member.getUsername(), member.getNickname(), member.getMemberRole(), member.getSocialType(), member.getSocialId(), member.isCertifyByMail);
     }
 
 
@@ -154,5 +168,21 @@ public class Member {
 
     public void verifyAdminUser() {
         this.isAdmin = true;
+    }
+
+    public void deActivateMember() {
+        this.isActive = false;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void activateMember() {
+        this.isActive = true;
+    }
+
+    public void reSetPassword(String newPassword) {
+        this.password = newPassword;
     }
 }

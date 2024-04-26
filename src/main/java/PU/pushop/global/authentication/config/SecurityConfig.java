@@ -47,7 +47,6 @@ public class SecurityConfig {
     private final CustomLoginSuccessHandlerV2 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
-
     @Bean
     @Primary
     public AuthenticationConfiguration authenticationConfiguration() {
@@ -165,6 +164,9 @@ public class SecurityConfig {
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         http
                 .addFilterBefore(new JWTFilterV1(jwtUtil), CustomLogoutFilter.class);
+
+//        http
+//                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilterV1.class);
         http
                 .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository, objectMapper, memberRepositoryV1, passwordEncoder()), JWTFilterV1.class);
 

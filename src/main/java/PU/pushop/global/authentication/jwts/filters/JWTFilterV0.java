@@ -3,7 +3,9 @@ package PU.pushop.global.authentication.jwts.filters;
 import PU.pushop.global.authentication.jwts.entity.CustomUserDetails;
 import PU.pushop.global.authentication.jwts.entity.CustomMemberDto;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
+import PU.pushop.members.repository.MemberRepositoryV1;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -22,6 +25,7 @@ import java.io.PrintWriter;
 public class JWTFilterV0 extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final MemberRepositoryV1 memberRepositoryV1;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,9 +52,11 @@ public class JWTFilterV0 extends OncePerRequestFilter {
             // accessToken 으로부터 username, role 값을 획득
             String memberId = jwtUtil.getMemberId(accessToken);
             MemberRole role = jwtUtil.getRole(accessToken);
+            Member member = memberRepositoryV1.findById(Long.valueOf(memberId))
+                    .orElseThrow(() -> new UsernameNotFoundException("id에 맞는 해당 회원이 존재하지 않습니다."));
 
             // 멤버 엔터티 생성
-            CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), role, true);
+            CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), member, role, true);
 
             // 멤버 엔터티를 CustomUserDetails 로 변환
             CustomUserDetails customUserDetails = new CustomUserDetails(customMemberDto);

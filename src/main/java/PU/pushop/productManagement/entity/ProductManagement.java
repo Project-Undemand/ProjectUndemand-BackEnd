@@ -89,6 +89,19 @@ public class ProductManagement {
         this.color = color;
     }
 
+    public ProductManagement(long initialStock, long additionalStock, Category subCategory, Product product, long productStock, Size size, ProductColor productColor, boolean isRestockAvailable, boolean isRestocked, boolean isSoldOut) {
+        this.initialStock = initialStock;
+        this.additionalStock = additionalStock;
+        this.category = subCategory;
+        this.product = product;
+        this.productStock = productStock;
+        this.isRestockAvailable = isRestockAvailable;
+        this.isRestocked = isRestocked;
+        this.isSoldOut = isSoldOut;
+        this.size = size;
+        this.color = productColor;
+    }
+
     public void updateInventory(Category category, Long additionalStock, Long productStock, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {
         this.category = category;
         this.additionalStock = additionalStock;
@@ -97,8 +110,5 @@ public class ProductManagement {
         this.isRestocked = isRestocked;
         this.isSoldOut = isSoldOut;
     }
-
-
-
 
 }

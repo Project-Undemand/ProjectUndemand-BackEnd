@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ProfileRepository extends JpaRepository<Profile, Long> {
+public interface ProfileRepository extends JpaRepository<MemberProfile, Long> {
 
-    Optional<Profile> findByMemberId(Long memberId);
+    Optional<MemberProfile> findByMemberId(Long memberId);
 }

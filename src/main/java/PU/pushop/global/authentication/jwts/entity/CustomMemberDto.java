@@ -30,7 +30,11 @@ public class CustomMemberDto {
     }
 
     public static CustomMemberDto createCustomMember(Member member) {
-        return new CustomMemberDto(member.getId(), member.getEmail(), member.getUsername(), member.getPassword(), member.getMemberRole(), member.isActive());
+        return new CustomMemberDto(member.getId(), member.getEmail(), member.getUsername(), member.getPassword(), member.getMemberRole(), member.getIsActive());
+    }
+
+    public static CustomMemberDto createCustomMember(Long memberId, Member member, MemberRole role, boolean isActive) {
+        return new CustomMemberDto(memberId, member.getEmail(), member.getUsername(), member.getPassword(), role, isActive);
     }
 
     public static CustomMemberDto createCustomMember(Long memberId, MemberRole role, boolean isActive) {
