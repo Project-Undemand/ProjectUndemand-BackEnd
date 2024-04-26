@@ -11,15 +11,15 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "REFRESH")
+@Table(name = "refresh")
 public class Refresh {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REFRESH_ID")
+    @Column(name = "refresh_id")
     private Long id;
 
-    @Column(name = "REFRESH_TOKEN")
+    @Column(name = "refresh_token")
     private String refreshToken;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

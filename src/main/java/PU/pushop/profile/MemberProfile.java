@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "MEMBER_PROFILE")
+@Table(name = "member_profile")
 public class MemberProfile {
 
     @Id
@@ -32,7 +32,7 @@ public class MemberProfile {
     @Lob
     private String introduction;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "memberProfile", cascade = CascadeType.ALL)
     private List<Addresses> addresses = new ArrayList<>();
 
     private LocalDateTime createdAt;

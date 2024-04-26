@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "MEMBER")
+@Table(name = "member")
 public class Member {
 
     @Id
@@ -38,38 +38,39 @@ public class Member {
 
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "MEMBER_ROLE")
+    @Column(name = "member_role")
     @JsonProperty("member_role")
     private MemberRole memberRole;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "SOCIAL_TYPE")
+    @Column(name = "social_type")
     @JsonProperty("social_type")
     private SocialType socialType;
 
-    @Column(name = "SOCIAL_ID")
+    @Column(name = "social_id")
     @JsonProperty("social_id")
     private String socialId; // Provider + prividerId 형식
 
-    @Column(name = "JOINED_AT")
+    @Column(name = "joined_at")
     @JsonProperty("joined_at")
     private LocalDateTime joinedAt = LocalDateTime.now();
 
-    @Column(name = "IS_ACTIVE")
+    @Column(name = "is_active")
     private boolean isActive = true;
 
-    @Column(name = "IS_ADMIN")
+    @Column(name = "is_admin")
     private boolean isAdmin = false;
 
-    @Column(name = "MAIL_TOKEN")
+    @Column(name = "email_token")
     @JsonProperty("email_token")
     private String token;
 
-    @Column(name = "IS_CERTIFY")
+    @Column(name = "is_certified_email")
     private boolean isCertifyByMail = false;
 
     @OneToMany
-    @JoinColumn(name = "wish_list")
+    @JoinColumn(name = "wishlist_id")
+    @Column(name = "wish_lists")
     private List<WishList> wishLists;
 
     @OneToMany(mappedBy = "member")

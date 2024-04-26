@@ -26,5 +26,5 @@ public class Addresses {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
-    private MemberProfile profile;
+    private MemberProfile memberProfile;
 }
