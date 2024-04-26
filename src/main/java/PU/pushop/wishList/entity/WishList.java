@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "wish_list")
 public class WishList {
@@ -31,4 +30,14 @@ public class WishList {
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    public WishList(Member member, Product product) {
+        this.member = member;
+        this.product = product;
+    }
+
+    public WishList() {
+
+    }
+
 }

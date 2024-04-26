@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "product_color")
 public class ProductColor {
@@ -42,4 +41,5 @@ public class ProductColor {
     public ProductColor(Long colorId) {
         this.colorId = colorId;
     }
+
 }

@@ -4,7 +4,9 @@ import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.product.entity.Product;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -12,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "payment_history")
 public class PaymentHistory {
 
@@ -68,5 +70,19 @@ public class PaymentHistory {
         this.paidAt =  LocalDateTime.now();
     }
 
+    public PaymentHistory(Member member, Orders orders, Product product, String productName, String productOption, Integer price, Long totalPrice) {
+        this.member = member;
+        this.orders = orders;
+        this.product = product;
+        this.productName = productName;
+        this.productOption = productOption;
+        this.price = price;
+        this.totalPrice = totalPrice;
+        this.paidAt =  LocalDateTime.now();
+    }
 
+
+    public void setReview(Boolean review) {
+        this.review = review;
+    }
 }

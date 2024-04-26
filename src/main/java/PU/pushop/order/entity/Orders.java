@@ -2,6 +2,7 @@ package PU.pushop.order.entity;
 
 import PU.pushop.members.entity.Member;
 import PU.pushop.order.entity.enums.PayMethod;
+import PU.pushop.order.model.OrderDto;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "orders")
 public class Orders {
@@ -36,10 +36,6 @@ public class Orders {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-/*    @OneToMany
-    @JoinColumn(name = "carts")
-    private List<Cart> carts = new ArrayList<>();*/
-
     @ManyToMany
     @JoinTable(
             name = "orders_product_management",
@@ -48,11 +44,6 @@ public class Orders {
     )
     private List<ProductManagement> productManagements = new ArrayList<>();
 
-/*
-    @OneToMany
-    @JoinColumn(name = "products")
-    private List<Product> products = new ArrayList<>();
-*/
 
     @Column(name = "order_name")
     private String ordererName;
@@ -94,4 +85,44 @@ public class Orders {
     public Orders() {
         this.orderDay = LocalDateTime.now();
     }
+
+    public Orders(Member member, List<ProductManagement> productManagements, String ordererName, String productName, BigDecimal totalPrice, String phoneNumber) {
+        this.member = member;
+        this.productManagements = productManagements;
+        this.ordererName = ordererName;
+        this.productName = productName;
+        this.totalPrice = totalPrice;
+        this.phoneNumber = phoneNumber;
+    }
+
+
+    public void orderConfirm(String merchantUid, OrderDto orderDto) {
+        this.merchantUid = merchantUid;
+        this.postCode = orderDto.getPostCode();
+        this.address = orderDto.getAddress();
+        this.detailAddress = orderDto.getDetailAddress();
+        this.ordererName = orderDto.getOrdererName();
+        this.phoneNumber = orderDto.getPhoneNumber();
+        this.payMethod = orderDto.getPayMethod();
+        this.orderDay = LocalDateTime.now();
+
+    }
+
+/*    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }*/
+
+    public void setPaymentStatus(Boolean paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+
 }

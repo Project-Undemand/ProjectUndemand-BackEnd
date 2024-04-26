@@ -51,17 +51,17 @@ public class InquiryReplyService {
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND + " inquiryId: " + inquiryId));
 
-        InquiryReply reply = new InquiryReply();
+        InquiryReply reply = new InquiryReply(inquiry, member, inquiry.getInquiryTitle(), replyRequest.getReplyContent());
 
-        reply.setInquiry(inquiry);
-        reply.setReplyBy(member);
-        reply.setReplyTitle(inquiry.getInquiryTitle()); // 답변 제목은 문의 제목과 동일
-        reply.setReplyContent(replyRequest.getReplyContent());
+//        reply.setInquiry(inquiry);
+//        reply.setReplyBy(member);
+//        reply.setReplyTitle(inquiry.getInquiryTitle()); // 답변 제목은 문의 제목과 동일
+//        reply.setReplyContent(replyRequest.getReplyContent());
 
         inquiryReplyRepository.save(reply);
 
         // Inquiry 테이블 의 isResponse -> true
-        inquiry.setIsResponse(true);
+        inquiry.setResponse(true);
         // 답변 메일
         sendReplyNotice(inquiry, reply);
 

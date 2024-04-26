@@ -45,32 +45,31 @@ public class InquiryService {
      */
     @Transactional
     public Long createInquiry(InquiryCreateDto requestDto, Long productId, HttpServletRequest request) {
-
-        Inquiry inquiry = modelMapper.map(requestDto, Inquiry.class);
-
-        // 멤버 저장
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null) {
-
-            // 로그인 중인 유저의 memberId 찾기
-            Long memberId = MemberAuthorizationUtil.getLoginMemberId();
-
-            Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
-            inquiry.setMember(member);
-            inquiry.setName(member.getUsername());
-            inquiry.setEmail(member.getEmail());
-        } else {
-            inquiry.setMember(null);
-        }
-
-        // 상품 저장
         Product product = productRepository.findByProductId(productId)
                 .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
-        inquiry.setProduct(product);
 
-        // BD에 저장
+        Inquiry inquiry = Inquiry.builder()
+                .product(product)
+                .inquiryType(requestDto.getInquiryType())
+                .inquiryTitle(requestDto.getInquiryTitle())
+                .inquiryContent(requestDto.getInquiryContent())
+                .password(requestDto.getPassword())
+                .build();
+
+        if (authHeader != null) {
+            Long memberId = MemberAuthorizationUtil.getLoginMemberId();
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.MEMBER_NOT_FOUND));
+
+            inquiry.createInquiryWriter(member,member.getNickname(), member.getEmail());
+
+        } else {
+            inquiry.createInquiryWriter(null,requestDto.getName(), requestDto.getEmail());
+
+        }
+
         inquiryRepository.save(inquiry);
         return inquiry.getInquiryId();
     }
@@ -125,10 +124,7 @@ public class InquiryService {
 
         Inquiry existingInquiry = validatePasswordAndGetInquiry(inquiryId, password);
 
-        Inquiry newInquiry = modelMapper.map(requestDto, Inquiry.class);
-
-        existingInquiry.setInquiryType(newInquiry.getInquiryType());
-        existingInquiry.setInquiryContent(newInquiry.getInquiryContent());
+        inquiryRepository.updateInquiryFields(inquiryId, requestDto.getInquiryType(), requestDto.getInquiryContent());
 
         return inquiryRepository.save(existingInquiry);
     }

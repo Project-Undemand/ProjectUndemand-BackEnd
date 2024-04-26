@@ -44,30 +44,6 @@ public class InventoryCreateDto {
         );
     }
 
-    public static ProductManagement requestForm(InventoryCreateDto request) {
-        ProductManagement productManagement = new ProductManagement();
-        Product product = new Product();
-        product.setProductId(request.getProductId());
-        productManagement.setProduct(product);
-
-        ProductColor color = new ProductColor();
-        color.setColorId(request.getColorId());
-        productManagement.setColor(color);
-
-        Category category = new Category();
-        category.setCategoryId(request.getCategoryId());
-        productManagement.setCategory(category);
-
-        productManagement.setSize(request.getSize());
-        productManagement.setInitialStock(request.getInitialStock());
-        productManagement.setProductStock(request.getInitialStock()); // 상품 재고는 초기재고로 자동 설정
-        productManagement.setRestockAvailable(request.getIsRestockAvailable());
-        productManagement.setRestocked(request.getIsRestocked());
-        productManagement.setSoldOut(request.getIsSoldOut());
-
-        return productManagement;
-    }
-
     public static ProductManagement newRequestManagementForm(InventoryCreateDto request) {
         Product product = Product.createProductById(request.getProductId());
         ProductColor color = ProductColor.createProductColorById(request.getColorId());

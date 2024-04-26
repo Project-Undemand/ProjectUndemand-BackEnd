@@ -60,7 +60,7 @@ public class PaymentService {
     private void createPaymentHistory(List<Long> productMgtIdList, Orders order, Member member, Long totalPrice) {
         for (Long productMgtId : productMgtIdList) {
 
-            PaymentHistory paymentHistory = new PaymentHistory();
+//            PaymentHistory paymentHistory = new PaymentHistory();
 
             ProductManagement productMgt = productMgtRepository.findById(productMgtId)
                     .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
@@ -68,13 +68,7 @@ public class PaymentService {
             Product product = productMgt.getProduct();
             String option = productMgt.getColor().getColor() + ", " + productMgt.getSize().toString(); // 상품옵션 문자열로 저장
 
-            paymentHistory.setProduct(product);
-            paymentHistory.setProductName(product.getProductName());
-            paymentHistory.setProductOption(option);
-            paymentHistory.setOrders(order);
-            paymentHistory.setMember(member);
-            paymentHistory.setTotalPrice(totalPrice);
-            paymentHistory.setPrice(product.getPrice());
+            PaymentHistory paymentHistory = new PaymentHistory(member, order, product, product.getProductName(),option,product.getPrice(),totalPrice);
 
             paymentRepository.save(paymentHistory);
 

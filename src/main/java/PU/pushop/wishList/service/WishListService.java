@@ -3,6 +3,7 @@ package PU.pushop.wishList.service;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
+import PU.pushop.profile.ProfileRepository;
 import PU.pushop.wishList.entity.WishList;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.wishList.model.WishListResponseDto;
@@ -22,6 +23,7 @@ public class WishListService {
     public final WishListRepository wishListRepository;
     public final ProductRepositoryV1 productRepository;
     public final MemberRepositoryV1 memberRepository;
+    public final ProfileRepository profileRepository;
 
     /**
      * 찜 추가
@@ -35,10 +37,12 @@ public class WishListService {
         if (isAlreadyWished) {
             throw new IllegalStateException("이미 찜한 상품입니다.");
         }
-        WishList wishList = new WishList();
+/*        WishList wishList = new WishList();
 
         wishList.setMember(member);
         wishList.setProduct(product);
+        */
+        WishList wishList = new WishList(member, product);
 
         product.getWishLists().add(wishList);
         member.getWishLists().add(wishList);
