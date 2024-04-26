@@ -72,9 +72,11 @@ public class ProductQueryHelper {
             }
         }
 
-        // 카테고리 필터링
         if (category != null) {
-            filterBuilder.and(product.productManagements.any().category.categoryId.eq(category));
+            filterBuilder.andAnyOf(
+                    product.productManagements.any().category.categoryId.eq(category),
+                    product.productManagements.any().category.parent.categoryId.eq(category)
+            );
         }
 
         // 검색 조건

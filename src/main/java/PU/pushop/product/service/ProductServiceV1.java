@@ -1,6 +1,7 @@
 package PU.pushop.product.service;
 
 
+import PU.pushop.category.entity.Category;
 import PU.pushop.global.queries.Condition;
 import PU.pushop.global.queries.OrderBy;
 import PU.pushop.global.queries.ProductQueryHelper;
@@ -13,6 +14,7 @@ import PU.pushop.product.model.ProductDetailDto;
 import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import com.querydsl.core.BooleanBuilder;
@@ -149,6 +151,8 @@ public class ProductServiceV1 {
                 })
                 .toList();
     }
+
+
 
     /**
      * 상품 정보 수정
