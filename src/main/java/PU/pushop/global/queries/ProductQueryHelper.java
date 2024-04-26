@@ -48,7 +48,18 @@ public class ProductQueryHelper {
     public static BooleanBuilder createFilterBuilder(Condition condition, Long category, String keyword, QProduct product) {
         BooleanBuilder filterBuilder = new BooleanBuilder();
 
-        // 조건에 따른 필터링
+        // 조건 필터링
+        addConditionFilters(condition, product, filterBuilder);
+        // 카테고리 필터링
+        addCategoryFilter(category, product, filterBuilder);
+        // 검색
+        addKeywordFilter(keyword, product, filterBuilder);
+
+        return filterBuilder;
+    }
+
+    // 조건 필터링 메서드
+    private static void addConditionFilters(Condition condition, QProduct product, BooleanBuilder filterBuilder) {
         if (condition != null) {
             switch (condition) {
                 case NEW:
@@ -63,7 +74,9 @@ public class ProductQueryHelper {
                 case RECOMMEND:
                     filterBuilder.and(product.isRecommend.isTrue());
                     break;
-                case MAN, WOMAN, UNISEX:
+                case MAN:
+                case WOMAN:
+                case UNISEX:
                     filterBuilder.and(product.productType.eq(ProductType.valueOf(condition.name())));
                     break;
                 default:
@@ -71,23 +84,26 @@ public class ProductQueryHelper {
                     break;
             }
         }
+    }
 
+    // 카테고리 필터링 메서드
+    private static void addCategoryFilter(Long category, QProduct product, BooleanBuilder filterBuilder) {
         if (category != null) {
             filterBuilder.andAnyOf(
                     product.productManagements.any().category.categoryId.eq(category),
                     product.productManagements.any().category.parent.categoryId.eq(category)
             );
         }
+    }
 
-        // 검색 조건
+    // 검색 메서드
+    private static void addKeywordFilter(String keyword, QProduct product, BooleanBuilder filterBuilder) {
         if (keyword != null) {
             filterBuilder.and(
                     product.productName.containsIgnoreCase(keyword)
                             .or(product.productInfo.containsIgnoreCase(keyword))
             );
         }
-
-        return filterBuilder;
     }
 
 }

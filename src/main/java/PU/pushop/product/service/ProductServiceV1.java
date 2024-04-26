@@ -97,7 +97,7 @@ public class ProductServiceV1 {
         BooleanBuilder filterBuilder = ProductQueryHelper.createFilterBuilder(condition, category, keyword, QProduct.product);
 
         // 정렬
-        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(order);
+        OrderSpecifier<?> orderSpecifier = ProductQueryHelper.getOrderSpecifier(order, product);
 
         // 필터링 및 정렬 적용
         List<Product> results = getFilteredAndSortedResults(orderSpecifier, filterBuilder, page, size);
@@ -127,13 +127,6 @@ public class ProductServiceV1 {
                 .offset(page * size)
                 .limit(size)
                 .fetch();
-    }
-    private OrderSpecifier<?> getOrderSpecifier(OrderBy order) {
-        if (order == null) {
-            return ProductQueryHelper.getOrderSpecifier(null, product);
-        } else {
-            return ProductQueryHelper.getOrderSpecifier(order, product);
-        }
     }
 
     // Product 리스트 -> ProductListDto 리스트로 변환 메서드
