@@ -19,6 +19,7 @@ public class ProductColorDataUtil {
 
     @Transactional
     public List<ProductColor>  generateAndSaveProductColorData() {
+        // Red, Orange, Yellow, Green, Blue, Navy, Purple, Black, White, Gray, Pink, Ivory, Beige, Rainbow
         return Arrays.asList(
                 createAndSaveProductColor("Red"),
                 createAndSaveProductColor("Orange"),
