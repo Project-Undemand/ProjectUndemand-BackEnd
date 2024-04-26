@@ -199,7 +199,7 @@ public class SocialLoginController {
     }
 
     private void saveRefresh(Member member, String newRefreshToken) {
-        // 멤버의 Refresh 토큰이 이미 존재하는지 확인합니다.
+        // [24.04.25] 잘못된 예외처리 리펙토링 : findById -> findByMemberId
         Optional<Refresh> existedRefresh = refreshRepository.findByMemberId(member.getId());
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
 

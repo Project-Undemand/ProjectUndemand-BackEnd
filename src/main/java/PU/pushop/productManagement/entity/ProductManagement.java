@@ -6,11 +6,9 @@ import PU.pushop.category.entity.Category;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.productManagement.entity.enums.Size;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +85,19 @@ public class ProductManagement {
         this.isSoldOut = isSoldOut;
         this.size = size;
         this.color = color;
+    }
+
+    public ProductManagement(long initialStock, long additionalStock, Category subCategory, Product product, long productStock, Size size, ProductColor productColor, boolean isRestockAvailable, boolean isRestocked, boolean isSoldOut) {
+        this.initialStock = initialStock;
+        this.additionalStock = additionalStock;
+        this.category = subCategory;
+        this.product = product;
+        this.productStock = productStock;
+        this.isRestockAvailable = isRestockAvailable;
+        this.isRestocked = isRestocked;
+        this.isSoldOut = isSoldOut;
+        this.size = size;
+        this.color = productColor;
     }
 
     public void updateInventory(Long additionalStock, Long productStock, Boolean isRestockAvailable, Boolean isRestocked, Boolean isSoldOut) {

@@ -34,12 +34,9 @@ public class CategoryServiceV1 {
      * 카테고리 생성
      * parentId 파라미터가 없는 경우 - 부모 카테고리를 만든다.
      * 있는 경우 - 해당하는 부모 카테고리 밑에 자식 카테고리를 만든다.
-     * @param category
-     * @param parentId
-     * @return
      */
     public Long createCategory(Category request, Long parentId){
-        Category category = new Category();
+        Category category;
         if (parentId != null) {
             // 부모 카테고리가 지정된 경우
             Category parentCategory = categoryRepository.findById(parentId)
