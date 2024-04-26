@@ -88,6 +88,15 @@ public class  Category {
         return new Category(categoryId, name, depth, children);
     }
 
+    public String getChildCategoryName(String categoryName) {
+        for (Category child : children) {
+            if (child.getName().equals(categoryName)) {
+                return child.getName();
+            }
+        }
+        return null; // 해당하는 자식 카테고리가 없는 경우 null 반환 또는 다른 처리 방법 선택
+    }
+
 /*
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;

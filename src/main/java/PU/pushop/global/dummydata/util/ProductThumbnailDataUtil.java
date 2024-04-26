@@ -68,7 +68,7 @@ public class ProductThumbnailDataUtil {
     public void generateProductThumbnailDataV2(List<String> imagePaths) {
         IntStream.range(0, imagePaths.size()).forEach(i -> {
             // 이미지 경로 생성
-            String imagePath = String.format("/static/uploads/thumbnails/%s", imagePaths.get(i));
+            String imagePath = String.format("/uploads/thumbnails/%s", imagePaths.get(i));
 
             // 상품 조회 - 필요에 따라 생성된 상품의 식별자를 알고 있는 경우 수정 가능
             Product product = productRepository.findById((long) (i+1))
@@ -87,7 +87,7 @@ public class ProductThumbnailDataUtil {
 
         for (int i = 0; i < products.size(); i++) {
             // 이미지 경로 생성
-            String imagePath = String.format("/static/uploads/thumbnails/%s", imagePaths.get(i));
+            String imagePath = String.format("/uploads/thumbnails/%s", imagePaths.get(i));
             // 상품 추출
             Product product = products.get(i);
             // 썸네일 생성 및 저장

@@ -28,9 +28,9 @@ public class ProductManagementController {
     @Data
     private class UpdateResponse {
         private Long inventoryId;
-        private Product productId;
+        private Long productId;
 
-        private UpdateResponse(Long inventoryId, Product productId) {
+        private UpdateResponse(Long inventoryId, Long productId) {
             this.inventoryId = inventoryId;
             this.productId = productId;
         }
@@ -87,7 +87,7 @@ public class ProductManagementController {
     public ResponseEntity<String> updateInventory(@PathVariable Long inventoryId, @Valid @RequestBody InventoryUpdateDto request) {
 
         ProductManagement updated = managementService.updateInventory(inventoryId, request);
-        UpdateResponse response = new UpdateResponse(updated.getInventoryId(), updated.getProduct());
+        UpdateResponse response = new UpdateResponse(updated.getInventoryId(), updated.getProduct().getProductId());
 
         return ResponseEntity.ok().body("수정 완료"+response);
 

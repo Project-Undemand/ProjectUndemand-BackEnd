@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class InventoryUpdateDto {
 //    private Long colorId;
-//    private Long categoryId;
+    private Long categoryId;
 //    private Size size;
 //    private Long initialStock; // 수정할 땐 초기 재고 수정 불가
     private Long additionalStock;
@@ -26,8 +26,9 @@ public class InventoryUpdateDto {
 
     public InventoryUpdateDto(ProductManagement productManagement) {
         this(
+
 //                productManagement.getColor().getColorId(),
-//                productManagement.getCategory().getCategoryId(),
+                productManagement.getCategory().getCategoryId(),
 //                productManagement.getSize(),
                 productManagement.getAdditionalStock(),
                 productManagement.getProductStock(),
