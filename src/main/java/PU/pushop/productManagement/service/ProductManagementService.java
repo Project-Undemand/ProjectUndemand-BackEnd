@@ -1,5 +1,7 @@
 package PU.pushop.productManagement.service;
 
+import PU.pushop.category.entity.Category;
+import PU.pushop.category.repository.CategoryRepository;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.model.InventoryUpdateDto;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
@@ -17,6 +19,7 @@ import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 @RequiredArgsConstructor
 public class ProductManagementService {
     public final ProductManagementRepository productManagementRepository;
+    public final CategoryRepository categoryRepository;
 
 
     /**
@@ -65,8 +68,9 @@ public class ProductManagementService {
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         Long productStock = existingInventory.getProductStock() + request.getAdditionalStock();
+        Category category = categoryRepository.findByCategoryId(request.getCategoryId()).orElseThrow(() -> new NoSuchElementException("카테고리를 찾을 수 없습니다."));
 
-        existingInventory.updateInventory(request.getAdditionalStock(), productStock, request.getIsRestockAvailable(), request.getIsRestocked(),request.getIsSoldOut());
+        existingInventory.updateInventory(category, request.getAdditionalStock(), productStock, request.getIsRestockAvailable(), request.getIsRestocked(),request.getIsSoldOut());
 
 //        InventoryUpdateDto.updateInventoryForm(existingInventory, request);
 
