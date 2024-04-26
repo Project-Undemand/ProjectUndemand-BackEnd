@@ -14,16 +14,20 @@ public class MemberAuthorizationUtil {
     private MemberAuthorizationUtil() {
         throw new AssertionError();
     }
+
+    private static CustomUserDetails getCustomUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new SecurityException(ACCESS_DENIED);
+        }
+        return (CustomUserDetails) authentication.getPrincipal();
+    }
+
+
     public static Long getLoginMemberId() {
 
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null) {
-                throw new SecurityException(ACCESS_DENIED);
-            }
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-            return userDetails.getMemberId();
+            return getCustomUserDetails().getMemberId();
         } catch (ClassCastException e) {
             throw new SecurityException(ACCESS_DENIED);
         }
@@ -32,14 +36,7 @@ public class MemberAuthorizationUtil {
 
     public static MemberRole getLoginMemberRole(){
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (authentication == null) {
-                throw new SecurityException(ACCESS_DENIED);
-            }
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-            return userDetails.getMemberRole();
+            return getCustomUserDetails().getMemberRole();
         } catch (ClassCastException e) {
             throw new SecurityException(ACCESS_DENIED);
         }
