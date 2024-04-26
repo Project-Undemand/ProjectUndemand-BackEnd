@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +29,6 @@ public class ProfileControllerV1 {
         Optional<MemberProfile> memberProfile = getMemberProfileByMemberId(memberId);
 
         if (memberProfile.isPresent()) {
-
             try {
                 String json = objectMapper.writeValueAsString(memberProfile.get());
                 MemberProfileDto memberProfileDto = objectMapper.readValue(json, MemberProfileDto.class);
