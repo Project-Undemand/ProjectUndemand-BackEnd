@@ -1,6 +1,7 @@
 package PU.pushop.product.service;
 
 
+import PU.pushop.contentImgs.service.ContentImgService;
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.global.authorization.RequiresRole;
 import PU.pushop.global.queries.Condition;
@@ -32,8 +33,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 import static PU.pushop.product.entity.QProduct.product;
@@ -47,6 +50,7 @@ public class ProductServiceV1 {
     public final ProductColorRepository productColorRepository;
     public final ModelMapper modelMapper;
     private final ProductThumbnailServiceV1 productThumbnailService;
+    private final ContentImgService contentImgService;
 
     private final EntityManager entityManager;
     private final JPAQueryFactory queryFactory;
@@ -60,7 +64,7 @@ public class ProductServiceV1 {
      * @return productId
      */
     @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
-    public Long createProduct(ProductCreateDto requestDto, List<MultipartFile> images) {
+    public Long createProduct(ProductCreateDto requestDto, @Nullable List<MultipartFile> thumbnailImgs, @Nullable List<MultipartFile> contentImgs) {
 
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
@@ -70,7 +74,15 @@ public class ProductServiceV1 {
         Product product = new Product(requestDto);
         productRepository.save(product);
         // 추가 - 썸네일 저장 메서드 실행
-        productThumbnailService.uploadThumbnail(product, images);
+        if (thumbnailImgs != null && !Objects.equals(thumbnailImgs.get(0).getOriginalFilename(), "")) {
+            productThumbnailService.uploadThumbnail(product, thumbnailImgs);
+
+        }
+        if (contentImgs != null && !Objects.equals(contentImgs.get(0).getOriginalFilename(), "")) {
+            contentImgService.uploadContentImage(product,contentImgs);
+
+        }
+
         return product.getProductId();
     }
 

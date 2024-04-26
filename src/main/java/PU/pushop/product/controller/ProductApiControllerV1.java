@@ -59,8 +59,8 @@ public class ProductApiControllerV1 {
      */
     @PostMapping("/products/new")
 //    @Secured("ROLE_ADMIN")
-    public ResponseEntity<String> createProduct(@Valid @RequestParam("images") List<MultipartFile> images, @ModelAttribute ProductCreateDto requestDto) {
-        Long productId = productServiceV1.createProduct(requestDto, images); // 저장한 상품의 pk
+    public ResponseEntity<String> createProduct(@Valid @RequestParam(value = "thumbnail_images", required = false) List<MultipartFile> thumbnailImgs, @RequestParam(value = "content_images", required = false) List<MultipartFile> contentImgs, @ModelAttribute ProductCreateDto requestDto) {
+        Long productId = productServiceV1.createProduct(requestDto, thumbnailImgs,contentImgs); // 저장한 상품의 pk
 
         return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. Id : " + productId);
     }

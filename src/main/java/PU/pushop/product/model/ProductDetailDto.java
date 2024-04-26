@@ -1,12 +1,13 @@
 package PU.pushop.product.model;
 
+import PU.pushop.contentImgs.entity.ContentImages;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,6 +22,7 @@ public class ProductDetailDto {
     private Boolean isDiscount;
     private Integer discountRate;
     private Boolean isRecommend;
+    private List<String> contentImages; // 썸네일 리스트 추가
 
     public ProductDetailDto(Product product) {
         this(
@@ -32,7 +34,9 @@ public class ProductDetailDto {
                 product.getManufacturer(),
                 product.getIsDiscount(),
                 product.getDiscountRate(),
-                product.getIsRecommend()
+                product.getIsRecommend(),
+                product.getContentImages().stream().map(ContentImages::getImagePath).toList()// 경로만 가져오기
+
         );
     }
 
