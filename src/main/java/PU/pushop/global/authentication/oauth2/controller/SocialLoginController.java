@@ -11,6 +11,8 @@ import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
+import PU.pushop.profile.MemberProfile;
+import PU.pushop.profile.ProfileRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +45,7 @@ public class SocialLoginController {
 
     private final MemberRepositoryV1 memberRepositoryV1;
     private final RefreshRepository refreshRepository;
+    private final ProfileRepository profileRepository;
     private final OAuth2ClientProperties oauth2Properties;
     private final JWTUtil jwtUtil;
     // clientDetails
@@ -160,16 +163,33 @@ public class SocialLoginController {
         // socialId 식별자로 중복 회원을 검사한다. 일반 이메일 회원과 소셜 로그인 회원의 이메일이 중복될 수 있기 때문이다.
         Optional<Member> memberWithSocialId = memberRepositoryV1.findBySocialId(socialId);
         if (memberWithSocialId.isPresent()) {
+            // 존재하는 멤버를 가져와서, 업데이트한다.
             Member existedMember = memberWithSocialId.get();
-            memberRepositoryV1.save(existedMember);
+
+            Optional<MemberProfile> optionalProfile = profileRepository.findByMemberId(existedMember.getId());
+            // 프로필이 이미 존재하는 경우
+            if (optionalProfile.isPresent()) {
+                log.info("Member profile already exists. 이미 존재하는 프로필.");
+            } else {
+                // 멤버 데이터로, 마이 프로필 생성
+                MemberProfile profile = MemberProfile.createMemberProfile(existedMember);
+                profileRepository.save(profile);
+            }
+
             // response.data에 토큰과 이메일을 넣어준다.
             String jwtAccessToken = jwtUtil.createAccessToken("access", existedMember.getId().toString(), MemberRole.USER.toString());
             String jwtRefreshToken = jwtUtil.createRefreshToken("refresh", existedMember.getId().toString(), MemberRole.USER.toString());
             addResponseData(response, jwtAccessToken, jwtRefreshToken, email);
             saveRefresh(existedMember, jwtRefreshToken);
+
         } else {
             Member newMember = Member.createSocialMember(email, username, MemberRole.USER, SocialType.KAKAO, socialId);
-            memberRepositoryV1.save(newMember);
+            Member createdMember = memberRepositoryV1.save(newMember);
+
+            // 멤버 데이터로, 마이 프로필 생성
+            MemberProfile profile = MemberProfile.createMemberProfile(createdMember);
+            profileRepository.save(profile);
+
             // response.data에 토큰과 이메일을 넣어준다.
             String jwtAccessToken = jwtUtil.createAccessToken("access", newMember.getId().toString(), MemberRole.USER.toString());
             String jwtRefreshToken = jwtUtil.createRefreshToken("refresh", newMember.getId().toString(), MemberRole.USER.toString());
