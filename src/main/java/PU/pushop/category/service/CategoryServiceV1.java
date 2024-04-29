@@ -3,6 +3,8 @@ package PU.pushop.category.service;
 import PU.pushop.category.entity.Category;
 import PU.pushop.category.model.CategoryDto;
 import PU.pushop.category.repository.CategoryRepository;
+import PU.pushop.global.authorization.RequiresRole;
+import PU.pushop.members.entity.enums.MemberRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,7 @@ public class CategoryServiceV1 {
      * parentId 파라미터가 없는 경우 - 부모 카테고리를 만든다.
      * 있는 경우 - 해당하는 부모 카테고리 밑에 자식 카테고리를 만든다.
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Long createCategory(Category request, Long parentId){
         Category category;
         if (parentId != null) {
@@ -58,6 +61,7 @@ public class CategoryServiceV1 {
      * 카테고리 삭제
      * @param categoryId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteCategory(Long categoryId) {
         Category category = categoryRepository.findByCategoryId(categoryId)
                 .orElseThrow(() -> new NoSuchElementException("해당 카테고리를 찾을 수 없습니다. Id : " + categoryId));

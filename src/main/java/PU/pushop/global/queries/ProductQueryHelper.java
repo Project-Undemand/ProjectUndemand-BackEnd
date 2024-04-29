@@ -7,8 +7,6 @@ import com.querydsl.core.types.OrderSpecifier;
 
 import java.time.LocalDateTime;
 
-import static PU.pushop.product.entity.QProduct.product;
-
 public class ProductQueryHelper {
 
     /**

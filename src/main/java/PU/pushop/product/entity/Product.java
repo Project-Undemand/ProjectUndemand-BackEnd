@@ -1,5 +1,6 @@
 package PU.pushop.product.entity;
 
+import PU.pushop.contentImgs.entity.ContentImages;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.product.entity.enums.ProductType;
 import PU.pushop.product.model.ProductCreateDto;
@@ -87,6 +88,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductThumbnail> productThumbnails = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ContentImages> contentImages = new ArrayList<>();
 
     public void setWishListCount(Long wishListCount) {
         this.wishListCount = wishListCount;

@@ -2,6 +2,8 @@ package PU.pushop.productManagement.service;
 
 import PU.pushop.category.entity.Category;
 import PU.pushop.category.repository.CategoryRepository;
+import PU.pushop.global.authorization.RequiresRole;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.model.InventoryUpdateDto;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
@@ -27,6 +29,7 @@ public class ProductManagementService {
      * @param request
      * @return
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Long createInventory(ProductManagement request) {
 
         ProductManagement existingInventory = productManagementRepository.findByProductAndColorAndCategoryAndSize(request.getProduct(), request.getColor(), request.getCategory(), request.getSize()).orElse(null);
@@ -62,6 +65,7 @@ public class ProductManagementService {
      * @param request
      * @return
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public ProductManagement updateInventory(Long inventoryId, InventoryUpdateDto request) {
 
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
@@ -81,6 +85,7 @@ public class ProductManagementService {
      * 상품 관리 삭제
      * @param inventoryId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteInventory(Long inventoryId) {
         ProductManagement existingInventory = productManagementRepository.findById(inventoryId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
