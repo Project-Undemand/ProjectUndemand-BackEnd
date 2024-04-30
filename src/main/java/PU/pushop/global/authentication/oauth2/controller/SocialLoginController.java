@@ -166,15 +166,22 @@ public class SocialLoginController {
             // 존재하는 멤버를 가져와서, 업데이트한다.
             Member existedMember = memberWithSocialId.get();
 
-            // 멤버 데이터로, 마이 프로필 생성
-            MemberProfile profile = MemberProfile.createMemberProfile(existedMember);
-            profileRepository.save(profile);
+            Optional<MemberProfile> optionalProfile = profileRepository.findByMemberId(existedMember.getId());
+            // 프로필이 이미 존재하는 경우
+            if (optionalProfile.isPresent()) {
+                log.info("Member profile already exists. 이미 존재하는 프로필.");
+            } else {
+                // 멤버 데이터로, 마이 프로필 생성
+                MemberProfile profile = MemberProfile.createMemberProfile(existedMember);
+                profileRepository.save(profile);
+            }
 
             // response.data에 토큰과 이메일을 넣어준다.
             String jwtAccessToken = jwtUtil.createAccessToken("access", existedMember.getId().toString(), MemberRole.USER.toString());
             String jwtRefreshToken = jwtUtil.createRefreshToken("refresh", existedMember.getId().toString(), MemberRole.USER.toString());
             addResponseData(response, jwtAccessToken, jwtRefreshToken, email);
             saveRefresh(existedMember, jwtRefreshToken);
+
         } else {
             Member newMember = Member.createSocialMember(email, username, MemberRole.USER, SocialType.KAKAO, socialId);
             Member createdMember = memberRepositoryV1.save(newMember);
