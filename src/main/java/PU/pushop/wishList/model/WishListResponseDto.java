@@ -1,10 +1,13 @@
 package PU.pushop.wishList.model;
 
 import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.wishList.entity.WishList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,6 +21,7 @@ public class WishListResponseDto {
     private String productInfo;
     private Boolean isDiscount;
     private Boolean isRecommend;
+    private List<String> productThumbnails;
 
     public WishListResponseDto(WishList wishList) {
         this(
@@ -28,7 +32,8 @@ public class WishListResponseDto {
                 wishList.getProduct().getPrice(),
                 wishList.getProduct().getProductInfo(),
                 wishList.getProduct().getIsDiscount(),
-                wishList.getProduct().getIsRecommend()
+                wishList.getProduct().getIsRecommend(),
+                wishList.getProduct().getProductThumbnails().stream().map(ProductThumbnail::getImagePath).toList()
         );
     }
 }
