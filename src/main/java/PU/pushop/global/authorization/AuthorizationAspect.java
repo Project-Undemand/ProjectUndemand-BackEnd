@@ -21,6 +21,7 @@ public class AuthorizationAspect {
             // requiresRoleEnabled가 false이면 어노테이션 체크를 스킵
             return;
         }
+
         MemberRole userRole = MemberAuthorizationUtil.getLoginMemberRole();
 
         boolean hasRequiredRole = false;

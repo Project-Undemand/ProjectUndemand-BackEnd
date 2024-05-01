@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(rollbackFor = Exception.class)
@@ -35,6 +37,7 @@ public class PaymentService {
 
         Long orderId = request.getOrderId();
         Long memberId = request.getMemberId();
+        verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
         Long totalPrice = request.getPrice();
         List<Long> productMgtIdList = request.getInventoryIdList();
 
@@ -75,8 +78,15 @@ public class PaymentService {
         }
     }
 
-
+    /**
+     * 내 결제내역 모아보기
+     * @param memberId
+     * @return
+     */
     public List<PaymentHistoryDto> paymentHistoryList(Long memberId) {
+
+        verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
+
         List<PaymentHistory> paymentHistories = paymentRepository.findByMemberId(memberId);
 
         List<PaymentHistoryDto> paymentHistoryDtos = new ArrayList<>();
