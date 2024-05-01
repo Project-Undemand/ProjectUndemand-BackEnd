@@ -79,4 +79,5 @@ public class Profiles {
         this.profileImgPath = imagePath;
         this.profileImgName = this.profileImgPath.substring(this.profileImgPath.lastIndexOf("/") + 1);
     }
+
 }

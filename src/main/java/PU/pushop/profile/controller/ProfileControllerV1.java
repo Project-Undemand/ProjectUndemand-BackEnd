@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -52,15 +53,26 @@ public class ProfileControllerV1 {
         Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
         memberProfileOpt.ifPresent(memberProfile -> {
             Member member = memberProfile.getMember();
-            String nickname = member.getNickname();//트랜잭션이 끝나기전에 Member 를 로드하기 위해 member.getUsername(); 사용
+            String nickname = member.getNickname(); //트랜잭션이 끝나기전에 Member 를 로드하기 위해 member.getUsername(); 사용
             System.out.println("nickname = " + nickname);
         });
         return memberProfileOpt;
     }
 
-
     @PostMapping("/profile/image/{memberId}")
     public ResponseEntity<String> postProfileImage(@PathVariable Long memberId, @RequestParam("imageFile") MultipartFile imageFile) {
-        return profileService.uploadProfileImage(memberId, imageFile);
+        return profileService.uploadProfileImageV2(memberId, imageFile);
+    }
+
+    @DeleteMapping("/profile/image/{memberId}")
+    public ResponseEntity<String> deleteProfileImage(@PathVariable Long memberId) {
+        try {
+            profileService.deleteProfileImage(memberId);
+            return ResponseEntity.ok().body("Profile image deleted successfully for member id : " + memberId);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the image");
+        }
     }
 }
