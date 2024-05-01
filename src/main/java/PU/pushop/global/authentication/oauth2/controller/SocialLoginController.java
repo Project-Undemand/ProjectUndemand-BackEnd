@@ -10,9 +10,8 @@ import PU.pushop.members.entity.enums.SocialType;
 import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
-import PU.pushop.members.service.MemberService;
-import PU.pushop.profile.MemberProfile;
-import PU.pushop.profile.ProfileRepository;
+import PU.pushop.profile.entity.Profiles;
+import PU.pushop.profile.repository.ProfileRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -166,13 +165,13 @@ public class SocialLoginController {
             // 존재하는 멤버를 가져와서, 업데이트한다.
             Member existedMember = memberWithSocialId.get();
 
-            Optional<MemberProfile> optionalProfile = profileRepository.findByMemberId(existedMember.getId());
+            Optional<Profiles> optionalProfile = profileRepository.findByMemberId(existedMember.getId());
             // 프로필이 이미 존재하는 경우
             if (optionalProfile.isPresent()) {
                 log.info("Member profile already exists. 이미 존재하는 프로필.");
             } else {
                 // 멤버 데이터로, 마이 프로필 생성
-                MemberProfile profile = MemberProfile.createMemberProfile(existedMember);
+                Profiles profile = Profiles.createMemberProfile(existedMember);
                 profileRepository.save(profile);
             }
 
@@ -187,7 +186,7 @@ public class SocialLoginController {
             Member createdMember = memberRepositoryV1.save(newMember);
 
             // 멤버 데이터로, 마이 프로필 생성
-            MemberProfile profile = MemberProfile.createMemberProfile(createdMember);
+            Profiles profile = Profiles.createMemberProfile(createdMember);
             profileRepository.save(profile);
 
             // response.data에 토큰과 이메일을 넣어준다.

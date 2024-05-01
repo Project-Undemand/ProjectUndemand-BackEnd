@@ -7,9 +7,9 @@ import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
-import PU.pushop.profile.MemberProfile;
-import PU.pushop.profile.ProfileRepository;
-import PU.pushop.profile.ProfileService;
+import PU.pushop.profile.entity.Profiles;
+import PU.pushop.profile.repository.ProfileRepository;
+import PU.pushop.profile.service.ProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -77,7 +77,7 @@ public class JoinApiController {
         Member profileMember = Member.createProfileMember(joinMember); // 저장된 newMember를 사용합니다.
 
         // 멤버 데이터로, 마이 프로필 생성
-        MemberProfile profile = MemberProfile.createMemberProfile(profileMember);
+        Profiles profile = Profiles.createMemberProfile(profileMember);
         profileRepository.save(profile);
 
         // 회원가입 완료 후 이메일 인증 메일 전송
@@ -196,7 +196,7 @@ public class JoinApiController {
         Member newAdminMember = memberRepositoryV1.save(member);
 
         // 멤버 데이터로, 마이 프로필 생성
-        MemberProfile profile = MemberProfile.createMemberProfile(newAdminMember);
+        Profiles profile = Profiles.createMemberProfile(newAdminMember);
         profileRepository.save(profile);
 
         JoinMemberResponse response = new JoinMemberResponse(newAdminMember.getId(), member.getEmail());

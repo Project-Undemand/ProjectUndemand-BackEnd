@@ -3,7 +3,7 @@ package PU.pushop.wishList.service;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.product.entity.Product;
-import PU.pushop.profile.ProfileRepository;
+import PU.pushop.profile.repository.ProfileRepository;
 import PU.pushop.wishList.entity.WishList;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.wishList.model.WishListResponseDto;

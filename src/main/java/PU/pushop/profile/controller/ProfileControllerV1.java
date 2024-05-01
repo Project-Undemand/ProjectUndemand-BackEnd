@@ -1,16 +1,19 @@
-package PU.pushop.profile;
+package PU.pushop.profile.controller;
 
 
 import PU.pushop.members.entity.Member;
+import PU.pushop.profile.entity.Profiles;
+import PU.pushop.profile.model.MemberProfileDto;
+import PU.pushop.profile.repository.ProfileRepository;
+import PU.pushop.profile.service.ProfileService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -26,7 +29,7 @@ public class ProfileControllerV1 {
 
     @GetMapping("/profile/{memberId}")
     public ResponseEntity<MemberProfileDto> getProfile(@PathVariable Long memberId) {
-        Optional<MemberProfile> memberProfile = getMemberProfileByMemberId(memberId);
+        Optional<Profiles> memberProfile = getMemberProfileByMemberId(memberId);
 
         if (memberProfile.isPresent()) {
             try {
@@ -45,13 +48,19 @@ public class ProfileControllerV1 {
     }
 
 
-    public Optional<MemberProfile> getMemberProfileByMemberId(Long memberId) {
-        Optional<MemberProfile> memberProfileOpt = profileRepository.findByMemberId(memberId);
+    public Optional<Profiles> getMemberProfileByMemberId(Long memberId) {
+        Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
         memberProfileOpt.ifPresent(memberProfile -> {
             Member member = memberProfile.getMember();
             String nickname = member.getNickname();//트랜잭션이 끝나기전에 Member 를 로드하기 위해 member.getUsername(); 사용
             System.out.println("nickname = " + nickname);
         });
         return memberProfileOpt;
+    }
+
+
+    @PostMapping("/profile/image/{memberId}")
+    public ResponseEntity<String> postProfileImage(@PathVariable Long memberId, @RequestParam("imageFile") MultipartFile imageFile) {
+        return profileService.uploadProfileImage(memberId, imageFile);
     }
 }
