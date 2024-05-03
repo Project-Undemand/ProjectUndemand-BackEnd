@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/profile")
 @RequiredArgsConstructor
 @Slf4j
 public class ProfileControllerV1 {
@@ -28,7 +28,7 @@ public class ProfileControllerV1 {
     private final ProfileRepository profileRepository;
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/profile/{memberId}")
+    @GetMapping("/{memberId}")
     public ResponseEntity<MemberProfileDto> getProfile(@PathVariable Long memberId) {
         Optional<Profiles> memberProfile = getMemberProfileByMemberId(memberId);
 
@@ -59,12 +59,12 @@ public class ProfileControllerV1 {
         return memberProfileOpt;
     }
 
-    @PostMapping("/profile/image/{memberId}")
+    @PostMapping("/image/{memberId}")
     public ResponseEntity<String> postProfileImage(@PathVariable Long memberId, @RequestParam("imageFile") MultipartFile imageFile) {
         return profileService.uploadProfileImageV2(memberId, imageFile);
     }
 
-    @DeleteMapping("/profile/image/{memberId}")
+    @DeleteMapping("/image/{memberId}")
     public ResponseEntity<String> deleteProfileImage(@PathVariable Long memberId) {
         try {
             profileService.deleteProfileImage(memberId);

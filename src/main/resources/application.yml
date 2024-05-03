@@ -5,7 +5,7 @@ spring:
     # develop : develop 환경에서 application run 을 실행
     # production : 실 사용자가 사용하는 환경에서 application run 을 실행
     # staging : 실 사용자는 없지만, 마지막 테스트 환경에서 application run 을 실행
-    active: develop # <develop, production, staging, none> 옵션
+    active: none # <develop, production, staging, none> 옵션
     # application-oauth2.yml 파일을 별도로 관리
     include: oauth2
   datasource:
@@ -35,7 +35,7 @@ spring:
   #  none 기존테이블을 더 이상 건드리지 않음.
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:

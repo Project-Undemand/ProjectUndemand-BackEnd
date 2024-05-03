@@ -1,6 +1,7 @@
 package PU.pushop.members.controller;
 
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.repository.MemberRepositoryV1;
@@ -8,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -57,8 +57,8 @@ public class MemberApiController {
 
     @PostMapping("api/v1/members/deactive/{memberId}")
     public ResponseEntity<?> deactiveMember(@PathVariable Long memberId, HttpServletRequest request) {
-        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 재활성화 할 수 있는 권한이 없습니다.");
-        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 로 회원 조회
         Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
         if (optionalMember.isPresent()) {
@@ -78,8 +78,8 @@ public class MemberApiController {
 
     @PostMapping("api/v1/members/reactivate/{memberId}")
     public ResponseEntity<?> reActivateMember(@PathVariable Long memberId, HttpServletRequest request) {
-        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 재활성화 할 수 있는 권한이 없습니다.");
-        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 로 회원 조회
         Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
         if (optionalMember.isPresent()) {
@@ -106,8 +106,8 @@ public class MemberApiController {
      */
     @PostMapping("api/v1/members/repassword/{memberId}")
     public ResponseEntity<?> rePasswordMember(@PathVariable Long memberId, HttpServletRequest request, @RequestBody ResetPasswordRequest passwordRequest) {
-        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 비밀번호를 변경할 수 있는 권한이 없습니다.");
-        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 로 회원 조회
         Member existingMember = findExistingMember(memberId);
         if(existingMember == null){
@@ -123,26 +123,8 @@ public class MemberApiController {
 
     }
 
-    private @Nullable ResponseEntity<?> validateMemberAuthorization(HttpServletRequest request, Long memberId, String message) {
-        String authorization = request.getHeader("Authorization");
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            return responseStatusAndMessage(HttpStatus.UNAUTHORIZED, "인증 헤더가 필요합니다. 로그인을 진행해주세요.");
-        }
-
-        String accessToken = authorization.substring(7);
-        String memberIdFromToken = getMemberIdFromToken(accessToken);
-        if (!memberIdFromToken.equals(memberId.toString())) {
-            return responseStatusAndMessage(HttpStatus.UNAUTHORIZED, message);
-        }
-        return null;
-    }
-
     private ResponseEntity<?> responseStatusAndMessage(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(message);
-    }
-
-    private String getMemberIdFromToken(String accessToken) {
-        return jwtUtil.getMemberId(accessToken);
     }
 
     private Member findExistingMember(Long memberId) {
