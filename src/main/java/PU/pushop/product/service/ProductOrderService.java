@@ -1,6 +1,5 @@
 package PU.pushop.product.service;
 
-import PU.pushop.contentImgs.service.ContentImgService;
 import PU.pushop.global.queries.Condition;
 import PU.pushop.global.queries.OrderBy;
 import PU.pushop.global.queries.ProductQueryHelper;
@@ -10,18 +9,15 @@ import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
-import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

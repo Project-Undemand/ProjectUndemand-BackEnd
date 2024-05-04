@@ -5,6 +5,7 @@ import PU.pushop.global.queries.OrderBy;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.model.*;
 import PU.pushop.product.service.ProductOrderService;
+import PU.pushop.product.service.ProductRankingService;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,9 @@ import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 public class ProductApiControllerV1 {
 
     public final ModelMapper modelMapper;
-    private final ProductServiceV1 productServiceV1;
+    private final ProductServiceV1 productService;
     private final ProductOrderService productOrderService;
+    private final ProductRankingService productRankingService;
 
 
     /**
@@ -62,7 +64,7 @@ public class ProductApiControllerV1 {
     @PostMapping("/products/new")
 //    @Secured("ROLE_ADMIN")
     public ResponseEntity<String> createProduct(@Valid @RequestParam(value = "thumbnail_images", required = false) List<MultipartFile> thumbnailImgs, @RequestParam(value = "content_images", required = false) List<MultipartFile> contentImgs, @ModelAttribute ProductCreateDto requestDto) {
-        Long productId = productServiceV1.createProduct(requestDto, thumbnailImgs,contentImgs); // 저장한 상품의 pk
+        Long productId = productService.createProduct(requestDto, thumbnailImgs,contentImgs); // 저장한 상품의 pk
 
         return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. Id : " + productId);
     }
@@ -75,14 +77,14 @@ public class ProductApiControllerV1 {
      */
     @GetMapping("/products/{productId}")
     public ResponseEntity<ProductDetailDto> getProductById(@PathVariable Long productId) {
-        ProductDetailDto productDetail = productServiceV1.productDetail(productId);
+        ProductDetailDto productDetail = productService.productDetail(productId);
         return new ResponseEntity<>(productDetail, HttpStatus.OK);
     }
 
     // 랭킹순으로 상품 리스트를 반환하는 엔드포인트
     @GetMapping("/products/ranking")
     public List<ProductRankResponseDto> getTopProducts(@RequestParam(name = "limit", defaultValue = "10") int limit) {
-        return productServiceV1.getProductListByRanking(limit);
+        return productRankingService.getProductListByRanking(limit);
     }
 
     /**
@@ -95,7 +97,7 @@ public class ProductApiControllerV1 {
     @PutMapping("/products/{productId}")
     public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductCreateDto request) {
         // 상품 정보 업데이트
-        Product updated = productServiceV1.updateProduct(productId, request);
+        Product updated = productService.updateProduct(productId, request);
 
         ProductResponseDto response = new ProductResponseDto(updated);
 
@@ -109,7 +111,7 @@ public class ProductApiControllerV1 {
      */
     @DeleteMapping("/products/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
-        productServiceV1.deleteProduct(productId);
+        productService.deleteProduct(productId);
         return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 
@@ -122,7 +124,7 @@ public class ProductApiControllerV1 {
     public ResponseEntity<String> createColor(@Valid @RequestBody ProductColorDto request) {
 
         try {
-            Long createdColorId = productServiceV1.createColor(request);
+            Long createdColorId = productService.createColor(request);
             return ResponseEntity.status(HttpStatus.CREATED).body("색상 등록 완료 " + createdColorId);
         } catch (DataIntegrityViolationException e) {
             // 중복된 이름에 대한 예외 처리
@@ -137,7 +139,7 @@ public class ProductApiControllerV1 {
      */
     @DeleteMapping("/color/{colorId}")
     public ResponseEntity<String> deleteColor(@PathVariable Long colorId) {
-        productServiceV1.deleteColor(colorId);
+        productService.deleteColor(colorId);
 
         return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
