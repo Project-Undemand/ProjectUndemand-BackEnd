@@ -11,10 +11,7 @@ import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.QProduct;
-import PU.pushop.product.model.ProductColorDto;
-import PU.pushop.product.model.ProductCreateDto;
-import PU.pushop.product.model.ProductDetailDto;
-import PU.pushop.product.model.ProductListDto;
+import PU.pushop.product.model.*;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
@@ -29,14 +26,22 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 import static PU.pushop.product.entity.QProduct.product;
@@ -55,6 +60,7 @@ public class ProductServiceV1 {
     private final EntityManager entityManager;
     private final JPAQueryFactory queryFactory;
 
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     /**
@@ -95,7 +101,47 @@ public class ProductServiceV1 {
     public ProductDetailDto productDetail(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
+
+        // 상품 조회 시 조회수 증가
+        log.info("View Increment");
+        increaseProductViews(productId);
+
         return modelMapper.map(product, ProductDetailDto.class);
+    }
+
+    // 상품 조회수 증가 메서드
+    public void increaseProductViews(Long productId) {
+        String key = "product_views";
+        redisTemplate.opsForZSet().incrementScore(key, String.valueOf(productId), 1);
+    }
+
+    // 랭킹을 위한 상품 조회수 가져오는 메서드
+    public Set<String> getTopProductIds(int limit) {
+        log.info("상품 조회수대로 상품 id 가져오는 메서드 실행");
+        String key = "product_views";
+        return redisTemplate.opsForZSet().reverseRange(key, 0, limit - 1);
+    }
+
+    // 랭킹순으로 상품 리스트를 조회하는 메서드
+    public List<ProductRankResponseDto> getProductListByRanking(int limit) {
+
+        Set<String> productIds = getTopProductIds(limit);
+
+        List<Long> productIdList = productIds.stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        List<Product> products = productRepository.findAllById(productIdList);
+
+        return products.stream()
+                .map(product -> { // Product -> ProductRankResponseDto 변환
+                    ProductRankResponseDto ProductRankResponseDto = modelMapper.map(product, ProductRankResponseDto.class);
+                    // ProductThumbnail의 imagePath를 매핑
+                    ProductRankResponseDto.setProductThumbnails(
+                            product.getProductThumbnails().get(0).getImagePath());
+                    return ProductRankResponseDto;
+                })
+                .toList();
     }
 
 
@@ -162,6 +208,7 @@ public class ProductServiceV1 {
 
 
 
+
     /**
      * 상품 정보 수정
      *
@@ -219,5 +266,7 @@ public class ProductServiceV1 {
                 .orElseThrow(() -> new NoSuchElementException("해당 색상을 찾을 수 없습니다. Id : " + colorId));
         productColorRepository.delete(color);
     }
+
+
 
 }

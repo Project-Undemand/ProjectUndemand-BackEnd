@@ -77,6 +77,12 @@ public class ProductApiControllerV1 {
         return new ResponseEntity<>(productDetail, HttpStatus.OK);
     }
 
+    // 랭킹순으로 상품 리스트를 반환하는 엔드포인트
+    @GetMapping("/products/ranking")
+    public List<ProductRankResponseDto> getTopProducts(@RequestParam(name = "limit", defaultValue = "10") int limit) {
+        return productServiceV1.getProductListByRanking(limit);
+    }
+
     /**
      * 상품 정보 수정
      *
