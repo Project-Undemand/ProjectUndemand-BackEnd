@@ -2,41 +2,26 @@ package PU.pushop.product.service;
 
 
 import PU.pushop.contentImgs.service.ContentImgService;
-import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.global.authorization.RequiresRole;
-import PU.pushop.global.queries.Condition;
-import PU.pushop.global.queries.OrderBy;
-import PU.pushop.global.queries.ProductQueryHelper;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
-import PU.pushop.product.entity.QProduct;
-import PU.pushop.product.model.*;
+import PU.pushop.product.model.ProductColorDto;
+import PU.pushop.product.model.ProductCreateDto;
+import PU.pushop.product.model.ProductDetailDto;
+import PU.pushop.product.model.ProductRankResponseDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -44,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
-import static PU.pushop.product.entity.QProduct.product;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -56,10 +40,6 @@ public class ProductServiceV1 {
     public final ModelMapper modelMapper;
     private final ProductThumbnailServiceV1 productThumbnailService;
     private final ContentImgService contentImgService;
-
-    private final EntityManager entityManager;
-    private final JPAQueryFactory queryFactory;
-
     private final RedisTemplate<String, String> redisTemplate;
 
 
@@ -143,69 +123,6 @@ public class ProductServiceV1 {
                 })
                 .toList();
     }
-
-
-    /**
-     * 필터링 및 정렬
-     * @param page
-     * @param size
-     * @param condition
-     * @param order
-     * @return
-     */
-    public Page<ProductListDto> getFilteredAndSortedProducts(int page, int size, Condition condition, OrderBy order, Long category, String keyword) {
-        // 필터링
-        BooleanBuilder filterBuilder = ProductQueryHelper.createFilterBuilder(condition, category, keyword, QProduct.product);
-
-        // 정렬
-        OrderSpecifier<?> orderSpecifier = ProductQueryHelper.getOrderSpecifier(order, product);
-
-        // 필터링 및 정렬 적용
-        List<Product> results = getFilteredAndSortedResults(orderSpecifier, filterBuilder, page, size);
-
-        // 전체 카운트 조회 쿼리
-        long totalCount = queryFactory.selectFrom(product)
-                .where(filterBuilder)
-                .fetchCount();
-
-        // ProductListDto로 변환
-        List<ProductListDto> productList = mapToProductListDto(results);
-
-        /*List<ProductListDto> productList = results.stream()
-                .map(ProductListDto::new)
-                .collect(Collectors.toList());
-*/
-
-        return new PageImpl<>(productList, PageRequest.of(page, size), totalCount);
-    }
-
-    // 필터링 및 정렬 수행하는 메서드
-    private List<Product> getFilteredAndSortedResults(OrderSpecifier orderSpecifier, BooleanBuilder filterBuilder, int page, int size) {
-        return queryFactory.selectFrom(product)
-                .leftJoin(product.productThumbnails).fetchJoin()
-                .where(filterBuilder)
-                .orderBy(orderSpecifier)
-                .offset(page * size)
-                .limit(size)
-                .fetch();
-    }
-
-    // Product 리스트 -> ProductListDto 리스트로 변환 메서드
-    private List<ProductListDto> mapToProductListDto(List<Product> results) {
-        return results.stream()
-                .map(product -> { // Product -> ProductListDto 변환
-                    ProductListDto productListDto = modelMapper.map(product, ProductListDto.class);
-                    // ProductThumbnail의 imagePath를 매핑
-                    productListDto.setProductThumbnails(
-                            product.getProductThumbnails().stream()
-                                    .map(ProductThumbnail::getImagePath)
-                                    .toList()
-                    );
-                    return productListDto;
-                })
-                .toList();
-    }
-
 
 
 

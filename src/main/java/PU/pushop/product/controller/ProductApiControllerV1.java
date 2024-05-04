@@ -4,6 +4,7 @@ import PU.pushop.global.queries.Condition;
 import PU.pushop.global.queries.OrderBy;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.model.*;
+import PU.pushop.product.service.ProductOrderService;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class ProductApiControllerV1 {
 
     public final ModelMapper modelMapper;
     private final ProductServiceV1 productServiceV1;
+    private final ProductOrderService productOrderService;
 
 
     /**
@@ -49,7 +51,7 @@ public class ProductApiControllerV1 {
             @RequestParam(required = false) OrderBy order,
             @RequestParam(required = false) String keyword
     ) {
-        return productServiceV1.getFilteredAndSortedProducts(page, size, condition, order, category, keyword);
+        return productOrderService.getFilteredAndSortedProducts(page, size, condition, order, category, keyword);
     }
 
     /**
