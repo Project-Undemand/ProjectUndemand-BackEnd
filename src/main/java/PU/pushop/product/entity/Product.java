@@ -75,7 +75,7 @@ public class Product {
     private Boolean isRecommend = false;
 
     @OneToMany(mappedBy = "product")
-    private List<WishList> wishLists;
+    private List<WishList> wishLists = new ArrayList<>();
 
     @Column(name = "wishlist_count")
     private Long wishListCount;

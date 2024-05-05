@@ -1,11 +1,9 @@
 package PU.pushop.product.service;
 
-import PU.pushop.contentImgs.service.ContentImgService;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.model.ProductRankResponseDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -36,7 +34,6 @@ public class ProductRankingService {
 
     // 랭킹을 위한 상품 조회수 가져오는 메서드
     public Set<String> getTopProductIds(int limit) {
-        log.info("상품 조회수대로 상품 id 가져오는 메서드 실행");
         String key = "product_views";
 
         return redisTemplate.opsForZSet().reverseRange(key, 0, limit - 1);
@@ -45,12 +42,10 @@ public class ProductRankingService {
     // 랭킹순으로 상품 리스트를 조회하는 메서드
     public List<ProductRankResponseDto> getProductListByRanking(int limit) {
 
-        log.info("랭킹순으로 상품 리스트를 조회하는 메서드 실행");
         Set<String> productIds = getTopProductIds(limit);
         List<Long> productIdList = productIds.stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        log.info("상품ids : {}", productIdList);
 
         List<Product> products = productIdList.stream()
                 .map(productId -> productRepository.findByProductId(productId).orElse(null))
