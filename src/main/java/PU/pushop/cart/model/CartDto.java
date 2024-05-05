@@ -35,6 +35,7 @@ public class CartDto {
     private Boolean isSoldOut;
     private Long quantity;
     private Long totalPrice;
+    private String productThumbnail;
 
     public CartDto(Cart cart) {
         this(
@@ -54,7 +55,8 @@ public class CartDto {
                 cart.getProductManagement().getProduct().getIsDiscount(),
                 cart.getProductManagement().isSoldOut(),
                 cart.getQuantity(),
-                cart.getPrice()
+                cart.getPrice(),
+                cart.getProductManagement().getProduct().getProductThumbnails().get(0).getImagePath()
         );
     }
 
@@ -77,6 +79,7 @@ public class CartDto {
                 .isSoldOut(cart.getProductManagement().isSoldOut())
                 .quantity(cart.getQuantity())
                 .totalPrice(cart.getPrice())
+                .productThumbnail(cart.getProductManagement().getProduct().getProductThumbnails().get(0).getImagePath())
                 .build();
     }
 
