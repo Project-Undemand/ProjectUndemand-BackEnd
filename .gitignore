@@ -49,3 +49,6 @@ out/
 
 ### gradlew.bat ###
 gradlew.bat
+
+### /dump.rdb ###
+/dump.rdb

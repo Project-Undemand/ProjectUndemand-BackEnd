@@ -179,6 +179,7 @@ public class JoinApiController {
         // ADMIN 을 따로 생성하는 페이지를 따로 구성해서, 진행시킬 예정.
         Member member = createAdminFromRequest(request, token);
         member.verifyAdminUser();
+        member.activateMember();
 
         String requestNickname = request.getNickname();
         // 가입할 유저가 입력한 nickname 이 없거나, 비어있으면 400 응답을 반환합니다.

@@ -37,6 +37,8 @@ public class MemberService {
                 member.getToken()
         );
 
+        newMember.activateMember();
+
         return memberRepositoryV1.save(newMember);
 
     }
