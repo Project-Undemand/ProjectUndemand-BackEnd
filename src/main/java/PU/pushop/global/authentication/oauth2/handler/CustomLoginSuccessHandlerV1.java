@@ -20,6 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -37,6 +38,9 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
     private final RefreshRepository refreshRepository;
 
     private Long refreshTokenExpirationPeriod = 1209600L;
+
+    @Value("${frontend.url}")
+    private String FRONTEND_URL;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -69,7 +73,7 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
         response.addCookie(createCookie("RefreshToken", refreshToken));
         response.setStatus(HttpStatus.OK.value());
 
-        response.sendRedirect("http://localhost:3000");
+        response.sendRedirect(FRONTEND_URL);
     }
 
     private static String extractOAuthRole(Authentication authentication) {

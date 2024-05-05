@@ -21,6 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -38,6 +39,9 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
     private final RefreshRepository refreshRepository;
 
     private Long refreshTokenExpirationPeriod = 1209600L;
+
+    @Value("${frontend.url}")
+    private String FRONTEND_URL;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -67,7 +71,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
         setTokenResponseV2(response, newAccess, newRefresh);
 
-        response.sendRedirect("http://localhost:3000");
+        response.sendRedirect(FRONTEND_URL);
     }
 
     private static String extractOAuthRole(Authentication authentication) {

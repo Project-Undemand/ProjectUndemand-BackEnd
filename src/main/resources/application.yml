@@ -11,7 +11,7 @@ spring:
   datasource:
     # MySQL
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/pushop?&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://${BACKEND_URL}:3306/pushop?&serverTimezone=Asia/Seoul
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     # H2
@@ -47,7 +47,7 @@ spring:
 #    show_sql: true
   data:
     redis:
-      host: localhost
+      host: ${BACKEND_URL}
       port: 995
   web:
     resources:

@@ -28,6 +28,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
 
@@ -46,6 +47,9 @@ public class SecurityConfig {
     private final CustomOAuth2UserServiceV2 customOAuth2UserServiceV2;
     private final CustomLoginSuccessHandlerV2 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
+
+        @Value("${frontend.url}")
+        private String FRONTEND_URL;
 
     @Bean
     @Primary
@@ -100,7 +104,7 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        configuration.setAllowedOrigins(Collections.singletonList(FRONTEND_URL));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
