@@ -1,7 +1,7 @@
 package PU.pushop.address;
 
 
-import PU.pushop.profile.MemberProfile;
+import PU.pushop.profile.entity.Profiles;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -26,5 +26,5 @@ public class Addresses {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
-    private MemberProfile memberProfile;
+    private Profiles memberProfile;
 }

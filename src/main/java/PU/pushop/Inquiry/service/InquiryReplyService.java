@@ -6,7 +6,9 @@ import PU.pushop.Inquiry.model.InquiryReplyDto;
 import PU.pushop.Inquiry.repository.InquiryReplyRepository;
 import PU.pushop.Inquiry.repository.InquiryRepository;
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
+import PU.pushop.global.authorization.RequiresRole;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -38,6 +40,7 @@ public class InquiryReplyService {
      * @return
      */
     @Transactional
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Long createReply(InquiryReplyDto replyRequest, Long inquiryId) throws Exception {
 
         // 로그인 중인 유저의 memberId 찾기
@@ -68,6 +71,11 @@ public class InquiryReplyService {
         return reply.getInquiryReplyId();
     }
 
+    /**
+     * 문의 답변 삭제
+     * @param replyId
+     */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteReply(Long replyId) {
         InquiryReply existingReply = inquiryReplyRepository.findById(replyId)
                 .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));

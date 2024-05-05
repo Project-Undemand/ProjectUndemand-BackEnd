@@ -1,10 +1,13 @@
 package PU.pushop.product.service;
 
 
-import PU.pushop.category.entity.Category;
+import PU.pushop.contentImgs.service.ContentImgService;
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
+import PU.pushop.global.authorization.RequiresRole;
 import PU.pushop.global.queries.Condition;
 import PU.pushop.global.queries.OrderBy;
 import PU.pushop.global.queries.ProductQueryHelper;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
 import PU.pushop.product.entity.QProduct;
@@ -14,7 +17,6 @@ import PU.pushop.product.model.ProductDetailDto;
 import PU.pushop.product.model.ProductListDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
-import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
 import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import com.querydsl.core.BooleanBuilder;
@@ -31,8 +33,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 import static PU.pushop.product.entity.QProduct.product;
@@ -46,6 +50,7 @@ public class ProductServiceV1 {
     public final ProductColorRepository productColorRepository;
     public final ModelMapper modelMapper;
     private final ProductThumbnailServiceV1 productThumbnailService;
+    private final ContentImgService contentImgService;
 
     private final EntityManager entityManager;
     private final JPAQueryFactory queryFactory;
@@ -58,7 +63,9 @@ public class ProductServiceV1 {
      * @param requestDto
      * @return productId
      */
-    public Long createProduct(ProductCreateDto requestDto, List<MultipartFile> images) {
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
+    public Long createProduct(ProductCreateDto requestDto, @Nullable List<MultipartFile> thumbnailImgs, @Nullable List<MultipartFile> contentImgs) {
+
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
@@ -67,7 +74,15 @@ public class ProductServiceV1 {
         Product product = new Product(requestDto);
         productRepository.save(product);
         // 추가 - 썸네일 저장 메서드 실행
-        productThumbnailService.uploadThumbnail(product, images);
+        if (thumbnailImgs != null && !Objects.equals(thumbnailImgs.get(0).getOriginalFilename(), "")) {
+            productThumbnailService.uploadThumbnail(product, thumbnailImgs);
+
+        }
+        if (contentImgs != null && !Objects.equals(contentImgs.get(0).getOriginalFilename(), "")) {
+            contentImgService.uploadContentImage(product,contentImgs);
+
+        }
+
         return product.getProductId();
     }
 
@@ -154,6 +169,7 @@ public class ProductServiceV1 {
      * @param updatedDto
      * @return
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Product updateProduct(Long productId, ProductCreateDto updatedDto) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
@@ -171,6 +187,7 @@ public class ProductServiceV1 {
      *
      * @param productId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteProduct(Long productId) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
@@ -184,6 +201,7 @@ public class ProductServiceV1 {
      * @param request
      * @return
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Long createColor(ProductColorDto request) {
         ProductColor color = modelMapper.map(request, ProductColor.class);
         productColorRepository.save(color);
@@ -195,13 +213,11 @@ public class ProductServiceV1 {
      *
      * @param colorId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteColor(Long colorId) {
         ProductColor color = productColorRepository.findById(colorId)
                 .orElseThrow(() -> new NoSuchElementException("해당 색상을 찾을 수 없습니다. Id : " + colorId));
         productColorRepository.delete(color);
     }
-
-
-
 
 }

@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static PU.pushop.global.ResponseMessageConstants.MEMBER_NOT_FOUND;
+import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class OrderService {
         List<Cart> carts = cartRepository.findByCartIdIn(cartIds);
 
         Long memberId = carts.get(0).getMember().getId();
+        verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));

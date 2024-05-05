@@ -119,10 +119,6 @@ public class Member {
         return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, null, token, true);
     }
 
-    public static Member createTokenMember(Long memberId, MemberRole role) {
-        return null;
-    }
-
     public static Member createProfileMember(Member member) {
         return new Member(member.getEmail(), member.getUsername(), member.getNickname(), member.getMemberRole(), member.getSocialType(), member.getSocialId(), member.isCertifyByMail);
     }
@@ -158,31 +154,34 @@ public class Member {
         this.password = passwordEncoder.encode(this.password);
     }
 
+    /**
+     * [2024.05.05] 회원 데이터 업데이트 기본 메서드
+     */
     // 이메일 인증 여부를 업데이트하는 메서드
     public void certifyByEmail() {
         this.isCertifyByMail = true;
     }
-
+    // 이메일 인증 토큰 업데이트
     public void updateMemberByToken(String token) {
         this.token = token;
     }
-
+    // 어드민 활성화
     public void verifyAdminUser() {
         this.isAdmin = true;
     }
-
+    // 회원 비홠성화
     public void deActivateMember() {
         this.isActive = false;
     }
-
+    // 회원 활성화 여부 가져오기
     public boolean getIsActive() {
         return isActive;
     }
-
+    // 회원 비홠성화
     public void activateMember() {
         this.isActive = true;
     }
-
+    // 비밀번호 재설정
     public void reSetPassword(String newPassword) {
         this.password = newPassword;
     }

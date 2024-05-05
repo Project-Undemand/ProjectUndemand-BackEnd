@@ -1,5 +1,6 @@
 package PU.pushop.global.authentication.jwts.entity;
 
+import PU.pushop.members.entity.enums.MemberRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +32,10 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public Long getMemberId() { return customMemberDto.getMemberId(); }
+
+    public MemberRole getMemberRole(){
+        return customMemberDto.getMemberRole();
+    }
 
     @Override
     public boolean isAccountNonExpired() {

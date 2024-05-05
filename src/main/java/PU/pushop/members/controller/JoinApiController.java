@@ -7,9 +7,9 @@ import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
-import PU.pushop.profile.MemberProfile;
-import PU.pushop.profile.ProfileRepository;
-import PU.pushop.profile.ProfileService;
+import PU.pushop.profile.entity.Profiles;
+import PU.pushop.profile.repository.ProfileRepository;
+import PU.pushop.profile.service.ProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -77,7 +77,7 @@ public class JoinApiController {
         Member profileMember = Member.createProfileMember(joinMember); // 저장된 newMember를 사용합니다.
 
         // 멤버 데이터로, 마이 프로필 생성
-        MemberProfile profile = MemberProfile.createMemberProfile(profileMember);
+        Profiles profile = Profiles.createMemberProfile(profileMember);
         profileRepository.save(profile);
 
         // 회원가입 완료 후 이메일 인증 메일 전송
@@ -89,7 +89,7 @@ public class JoinApiController {
     }
 
     @GetMapping("/auth/verify")
-    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+    public ResponseEntity<String> verifyEmailWhenMemberJoin(@RequestParam("token") String token) {
         // queryParameter 로 전해진 token 값에 대한 유효성검사 및 인증과정 진행.
         Member member = emailMemberService.updateByVerifyToken(token);
         if (member != null) {
@@ -179,6 +179,7 @@ public class JoinApiController {
         // ADMIN 을 따로 생성하는 페이지를 따로 구성해서, 진행시킬 예정.
         Member member = createAdminFromRequest(request, token);
         member.verifyAdminUser();
+        member.activateMember();
 
         String requestNickname = request.getNickname();
         // 가입할 유저가 입력한 nickname 이 없거나, 비어있으면 400 응답을 반환합니다.
@@ -196,7 +197,7 @@ public class JoinApiController {
         Member newAdminMember = memberRepositoryV1.save(member);
 
         // 멤버 데이터로, 마이 프로필 생성
-        MemberProfile profile = MemberProfile.createMemberProfile(newAdminMember);
+        Profiles profile = Profiles.createMemberProfile(newAdminMember);
         profileRepository.save(profile);
 
         JoinMemberResponse response = new JoinMemberResponse(newAdminMember.getId(), member.getEmail());

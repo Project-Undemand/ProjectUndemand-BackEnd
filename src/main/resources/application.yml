@@ -67,3 +67,6 @@ logging.level.org.hibernate:
 #  org.hibernate.type: trace
 #  jdbc:h2:~/pushop
 
+custom:
+  requires-role:
+    enabled: false
