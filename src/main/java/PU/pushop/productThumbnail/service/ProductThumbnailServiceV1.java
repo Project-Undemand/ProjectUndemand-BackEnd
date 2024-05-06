@@ -1,6 +1,8 @@
 package PU.pushop.productThumbnail.service;
 
 import PU.pushop.global.ResponseMessageConstants;
+import PU.pushop.global.authorization.RequiresRole;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.repository.ProductRepositoryV1;
 import PU.pushop.productThumbnail.entity.ProductThumbnail;
@@ -30,6 +32,7 @@ public class ProductThumbnailServiceV1 {
      * @param product
      * @param images
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void uploadThumbnail(Product product, List<MultipartFile> images) {
         try {
             // 이미지 파일 저장을 위한 경로 설정
@@ -70,6 +73,7 @@ public class ProductThumbnailServiceV1 {
      * 썸네일 삭제
      * @param thumbnailId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteThumbnail(Long thumbnailId) {
         // 썸네일 엔티티 조회
         ProductThumbnail thumbnail = productThumbnailRepository.findById(thumbnailId)
