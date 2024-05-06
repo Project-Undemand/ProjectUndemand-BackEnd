@@ -68,10 +68,8 @@ public class Member {
     @Column(name = "is_certified_email")
     private boolean isCertifyByMail = false;
 
-    @OneToMany
-    @JoinColumn(name = "wishlist_id")
-    @Column(name = "wish_lists")
-    private List<WishList> wishLists;
+    @OneToMany(mappedBy = "member")
+    private List<WishList> wishLists = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
