@@ -44,7 +44,9 @@ public class MemberAuthorizationUtil {
     }
 
     public static void verifyUserIdMatch(Long givenId) {
+        System.out.println("givenId = " + givenId);
         Long loginMemberId = getLoginMemberId();
+        System.out.println("loginMemberId = " + loginMemberId);
 
         if (!loginMemberId.equals(givenId)) {
             throw new SecurityException(ACCESS_DENIED);
