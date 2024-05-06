@@ -40,11 +40,9 @@ jobs:
       with:
         files: ${{ env.RESOURCE_PATH }}
     - name: Display YAML file with substitutions
-      run: cat ${{ env.RESOURCE_PATH }}
-      
-    # Display GitHub Actions environment variables
-    - name: Display GitHub Actions environment variables
       run: |
+        echo "Contents of ${{ env.RESOURCE_PATH }}:"
+        cat ${{ env.RESOURCE_PATH }}
         echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
         echo "GITHUB_SHA: $GITHUB_SHA"
         echo "GITHUB_REF: $GITHUB_REF"
