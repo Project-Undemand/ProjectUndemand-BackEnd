@@ -1,18 +1,14 @@
-version: 0.0
-os: linux
-files:
-  - source:  /
-    destination: /home/ubuntu/github_action
-    overwrite: yes
+on:
+  push:
+    branches:
+      - release/v0.1.0
 
-permissions:
-  - object: /
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-hooks:
-  ApplicationStart:
-    - location: scripts/gh_deploy.sh
-      timeout: 60
-      runas: ubuntu
+      - name: Deploy application
+        run: scripts/gh_deploy.sh
