@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static PU.pushop.global.ResponseMessageConstants.ACCESS_DENIED;
+import static PU.pushop.global.ResponseMessageConstants.*;
 
 @Slf4j
 public class MemberAuthorizationUtil {
@@ -18,7 +18,7 @@ public class MemberAuthorizationUtil {
     private static CustomUserDetails getCustomUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            throw new SecurityException(ACCESS_DENIED);
+            throw new SecurityException(ACCESS_DENIED_NO_AUTHENTICATION);
         }
         return (CustomUserDetails) authentication.getPrincipal();
     }
@@ -29,7 +29,7 @@ public class MemberAuthorizationUtil {
         try {
             return getCustomUserDetails().getMemberId();
         } catch (ClassCastException e) {
-            throw new SecurityException(ACCESS_DENIED);
+            throw new SecurityException(ACCESS_DENIED_NO_AUTHENTICATION);
         }
 
     }
@@ -38,16 +38,17 @@ public class MemberAuthorizationUtil {
         try {
             return getCustomUserDetails().getMemberRole();
         } catch (ClassCastException e) {
-            throw new SecurityException(ACCESS_DENIED);
+            throw new SecurityException(ACCESS_DENIED_NO_AUTHENTICATION);
         }
 
     }
 
     public static void verifyUserIdMatch(Long givenId) {
         Long loginMemberId = getLoginMemberId();
+        MemberRole memberRole = getLoginMemberRole();
 
-        if (!loginMemberId.equals(givenId)) {
-            throw new SecurityException(ACCESS_DENIED);
+        if (!loginMemberId.equals(givenId) && memberRole != MemberRole.ADMIN) {
+                throw new SecurityException(ACCESS_DENIED+" : 요청 사용자와 로그인 사용자 불일치");
         }
     }
 }

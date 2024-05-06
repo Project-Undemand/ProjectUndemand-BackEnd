@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
+
 @RestController
 @RequestMapping("api/v1")
 @RequiredArgsConstructor
@@ -61,10 +63,13 @@ public class PaymentController {
     @GetMapping("/order/paymentconfirm")
     public void deleteSession() {
         List<Long>cartIds = (List<Long>) httpSession.getAttribute("cartIds");
+        Long cartMemberId = cartRepository.findById(cartIds.get(0)).orElseThrow(() -> new NoSuchElementException("삭제할 장바구니를 찾을 수 없습니다.")).getMember().getId();
+        verifyUserIdMatch(cartMemberId); // 로그인 된 사용자와 요청 사용자 비교
 
         for(Long cartId : cartIds){
             Cart cart = cartRepository.findById(cartId)
                     .orElseThrow(() -> new NoSuchElementException("삭제할 장바구니를 찾을 수 없습니다."));
+
             cartRepository.delete(cart);
         }
         // 세션에서 임시 주문 정보 삭제
