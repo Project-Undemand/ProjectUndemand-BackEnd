@@ -45,6 +45,15 @@ jobs:
     # Display GitHub Actions environment variables
     - name: Display GitHub Actions environment variables
       run: |
+        echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+        echo "GITHUB_SHA: $GITHUB_SHA"
+        echo "GITHUB_REF: $GITHUB_REF"
+        echo "GITHUB_HEAD_REF: $GITHUB_HEAD_REF"
+        echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
+        echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+        echo "GITHUB_WORKFLOW: $GITHUB_WORKFLOW"
+        echo "BACKEND_URL: ${{ secrets.BACKEND_URL }}"
+        echo "FRONTEND_URL: ${{ secrets.FRONTEND_URL }}"
         echo "S3_BUCKET_NAME: $S3_BUCKET_NAME"
         echo "CODE_DEPLOY_APPLICATION_NAME: $CODE_DEPLOY_APPLICATION_NAME"
         echo "CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: $CODE_DEPLOY_DEPLOYMENT_GROUP_NAME"
