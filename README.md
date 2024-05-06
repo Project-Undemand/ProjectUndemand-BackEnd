@@ -23,10 +23,8 @@
 
 
 ### API
-- 소셜로그인
-  - 구글 : Google OAuth API
-  - 카카오 : KaKao OAuth 2.0 API
-- 결제 : Iamport
+
+https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-9141-d07e19049b92
 
 ***
 
