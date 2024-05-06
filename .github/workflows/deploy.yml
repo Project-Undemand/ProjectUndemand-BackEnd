@@ -14,8 +14,8 @@ on:
     branches: [ "release/v0.1.0" ]
 
 env:
-  S3_BUCKET_NAME: pjundmds3
   RESOURCE_PATH: ./src/main/resources/application.yml
+  S3_BUCKET_NAME: pjundmds3
   CODE_DEPLOY_APPLICATION_NAME: pjundmd-code-deploy
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: undmd-grp
 
