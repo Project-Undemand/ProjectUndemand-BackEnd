@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
@@ -34,6 +36,8 @@ public class ReviewImgService {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NoSuchElementException("해당 글을 찾을 수 없습니다."));
+
+        verifyUserIdMatch(review.getPaymentHistory().getMember().getId()); // 로그인 된 사용자와 요청 사용자 비교
 
         String uploadsDir = "src/main/resources/static/uploads/reviewimg/";
 

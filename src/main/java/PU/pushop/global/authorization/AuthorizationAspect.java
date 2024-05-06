@@ -6,6 +6,8 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 import static PU.pushop.global.ResponseMessageConstants.ACCESS_DENIED;
 
 @Aspect
@@ -32,8 +34,20 @@ public class AuthorizationAspect {
             }
         }
 
+        StringBuilder requiredRolesBuilder = new StringBuilder();
+
+        for (MemberRole requiredRole : requireRole.value()) {
+            requiredRolesBuilder.append(requiredRole.toString()).append(", ");
+        }
+
+        String requiredRoles = requiredRolesBuilder.toString();
+        // 마지막 콤마와 공백 제거
+        if (requiredRoles.length() > 0) {
+            requiredRoles = requiredRoles.substring(0, requiredRoles.length() - 2);
+        }
+
         if (!hasRequiredRole) {
-            throw new SecurityException(ACCESS_DENIED);
+            throw new SecurityException("사용자 권한 없음\n - Required Roles : "+ requiredRoles + ", Request User Role : " + userRole);
         }
     }
 }

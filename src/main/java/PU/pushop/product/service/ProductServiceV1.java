@@ -49,8 +49,6 @@ public class ProductServiceV1 {
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
-        // DTO를 엔티티로 매핑
-//        Product product = modelMapper.map(requestDto, Product.class);
         Product product = new Product(requestDto);
         productRepository.save(product);
         // 추가 - 썸네일 저장 메서드 실행
@@ -83,9 +81,6 @@ public class ProductServiceV1 {
         return modelMapper.map(product, ProductDetailDto.class);
     }
 
-
-
-
     /**
      * 상품 정보 수정
      *
@@ -99,8 +94,6 @@ public class ProductServiceV1 {
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         existingProduct.updateProduct(updatedDto);
-        // ModelMapper를 사용하여 DTO에서 엔티티로 매핑
-//        modelMapper.map(updatedDto, existingProduct);
 
         // 수정된 상품 정보 저장 후 return
         return productRepository.save(existingProduct);

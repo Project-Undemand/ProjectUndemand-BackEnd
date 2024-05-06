@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 import static PU.pushop.global.ResponseMessageConstants.*;
+import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +48,8 @@ public class ReviewService {
     public Review createReview(ReviewCreateDto request, @Nullable List<MultipartFile> images, Long paymentId) {
         PaymentHistory paymentHistory = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NoSuchElementException("해당 주문 내역을 찾을 수 없습니다."));
+
+        verifyUserIdMatch(paymentHistory.getMember().getId()); // 로그인 된 사용자와 요청 사용자 비교
 
         // 이미 Review가 존재하는지 확인
         if (Boolean.TRUE.equals(paymentHistory.getReview())) {
@@ -92,7 +95,7 @@ public class ReviewService {
         List<Review> reviews = reviewRepository.findByPaymentHistoryProduct(product);
 
         if (reviews.isEmpty()) {
-            throw new IllegalStateException(WRITING_NOT_FOUND);
+            return null;
         }
 
         return reviews.stream().map(ReviewDto::new).toList();
@@ -110,7 +113,7 @@ public class ReviewService {
         List<Review> reviews = reviewRepository.findByPaymentHistoryMember(member);
 
         if (reviews.isEmpty()) {
-            throw new IllegalStateException(WRITING_NOT_FOUND);
+            return null;
         }
 
         return reviews.stream().map(ReviewDto::new).toList();
@@ -142,7 +145,7 @@ public class ReviewService {
         Long reviewWriterId = currentReview.getPaymentHistory().getMember().getId();
 
         // 로그인 중인 유저의 memberId와 파라미터로 받은 memberId 가 같은지 확인
-        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
+        verifyUserIdMatch(memberId);
 
         if (!memberId.equals(reviewWriterId)) {
             throw new SecurityException(ACCESS_DENIED);
@@ -167,7 +170,7 @@ public class ReviewService {
         paymentHistory.setReview(false);
 
         // 로그인 중인 유저의 memberId와 파라미터로 받은 memberId 가 같은지 확인
-        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
+        verifyUserIdMatch(memberId);
 
         if (!memberId.equals(reviewWriterId)) {
             throw new SecurityException(ACCESS_DENIED);

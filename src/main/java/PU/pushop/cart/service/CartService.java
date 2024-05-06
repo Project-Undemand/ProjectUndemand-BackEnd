@@ -18,6 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static PU.pushop.global.ResponseMessageConstants.*;
+import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -41,6 +42,9 @@ public class CartService {
                 .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
         ProductManagement productMgt = productManagementRepository.findById(productMgtId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND + " productMgtId: " + productMgtId));
+
+        verifyUserIdMatch(request.getMemberId()); // 로그인 된 사용자와 요청 사용자 비교
+
 
         Cart existingCart = cartRepository.findByProductManagementAndMember(productMgt, member).orElse(null);
 
@@ -70,6 +74,8 @@ public class CartService {
      * @return
      */
     public List<CartDto> allCarts(Long memberId) {
+        verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
+
         List<Cart> carts = cartRepository.findByMemberId(memberId);
         return carts.stream()
                 .map(CartDto::fromEntity)
@@ -83,8 +89,11 @@ public class CartService {
      * @return
      */
     public Cart updateCart(Long cartId, Cart updatedCart) {
+
         Cart existingCart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
+
+        verifyUserIdMatch(existingCart.getMember().getId()); // 로그인 된 사용자와 요청 사용자 비교
 
         existingCart.setQuantity(updatedCart.getQuantity());
         Long price = existingCart.getProductManagement().getProduct().getPrice() * updatedCart.getQuantity();
@@ -100,6 +109,8 @@ public class CartService {
     public void deleteCart(Long cartId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
+
+        verifyUserIdMatch(cart.getMember().getId()); // 로그인 된 사용자와 요청 사용자 비교
 
         cartRepository.delete(cart);
     }
