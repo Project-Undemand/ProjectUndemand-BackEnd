@@ -184,6 +184,8 @@ public class SocialLoginController {
 
         } else {
             Member newMember = Member.createSocialMember(email, username, MemberRole.USER, SocialType.KAKAO, socialId);
+            // 회원 활성화 메서드 .
+            newMember.activateMember();
             Member createdMember = memberRepositoryV1.save(newMember);
 
             // 멤버 데이터로, 마이 프로필 생성
