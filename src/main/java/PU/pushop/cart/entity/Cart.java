@@ -1,13 +1,10 @@
 package PU.pushop.cart.entity;
 
 import PU.pushop.members.entity.Member;
-import PU.pushop.order.entity.Orders;
-import PU.pushop.product.entity.Product;
 import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -36,6 +33,7 @@ public class Cart {
     private ProductManagement productManagement;
 
     @Column(name = "quantity", nullable = false)
+    @Min(value = 0L)
     private Long quantity;
 
     @Column(name = "price", nullable = false)

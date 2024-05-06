@@ -45,10 +45,10 @@ public class Orders {
     private List<ProductManagement> productManagements = new ArrayList<>();
 
 
-    @Column(name = "order_name")
+    @Column(name = "order_name", nullable = false)
     private String ordererName;
 
-    @Column(name = "product_names")
+    @Column(name = "product_names", nullable = false)
     private String productName;
 
     @Enumerated(EnumType.STRING)
@@ -57,16 +57,16 @@ public class Orders {
     @Column(length = 100, name = "merchant_uid")
     private String merchantUid;
 
-    @Column(name = "total_price")
+    @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
-    @Column(name = "address")
+    @Column(name = "address", nullable = false)
     private String address;
 
     @Column(name = "detail_address")
     private String detailAddress;
 
-    @Column(name = "post_code", length = 100)
+    @Column(name = "post_code", length = 100, nullable = false)
     private String postCode;
 
     @Column(name = "phone_number")

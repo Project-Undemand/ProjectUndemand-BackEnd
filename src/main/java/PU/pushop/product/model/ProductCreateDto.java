@@ -51,44 +51,5 @@ public class ProductCreateDto {
         }
     }
 
-    // discountRate를 설정하는 메서드
-//    public void setDiscountRate(Integer discountRate) {
-//        // isDiscount가 false이면서 discountRate가 설정되면 isDiscount를 true로 변경
-//        if (discountRate != null && discountRate > 0) {
-//            this.isDiscount = true;
-//        }
-//        this.discountRate = discountRate;
-//    }
-
-/*  Model Mapper 사용으로 필요 없어짐
-
-    public static Product requestForm(ProductCreateDto request) {
-        Product product = new Product();
-
-        product.setProductName(request.getProductName());
-        product.setProductType(request.getProductType());
-        product.setPrice(request.getPrice());
-        product.setProductInfo(request.getProductInfo());
-        product.setManufacturer(request.getManufacturer());
-        product.setIsSale(request.getIsSale());
-        product.setIsRecommend(request.getIsRecommend());
-        return product;
-    }
-*/
-
-    /* Model Mapper 사용으로 필요 없어짐
-
-        public static Product updateForm(Product existingProduct, Product updatedProduct) {
-        // 기존 상품 정보 업데이트
-        existingProduct.setProductName(updatedProduct.getProductName());
-        existingProduct.setProductType(updatedProduct.getProductType());
-        existingProduct.setPrice(updatedProduct.getPrice());
-        existingProduct.setProductInfo(updatedProduct.getProductInfo());
-        existingProduct.setManufacturer(updatedProduct.getManufacturer());
-        existingProduct.setIsSale(updatedProduct.getIsSale());
-        existingProduct.setIsRecommend(updatedProduct.getIsRecommend());
-
-        return existingProduct;
-    }*/
 
 }

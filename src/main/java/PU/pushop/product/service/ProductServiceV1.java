@@ -81,9 +81,6 @@ public class ProductServiceV1 {
         return modelMapper.map(product, ProductDetailDto.class);
     }
 
-
-
-
     /**
      * 상품 정보 수정
      *
@@ -97,8 +94,6 @@ public class ProductServiceV1 {
                 .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
         existingProduct.updateProduct(updatedDto);
-        // ModelMapper를 사용하여 DTO에서 엔티티로 매핑
-//        modelMapper.map(updatedDto, existingProduct);
 
         // 수정된 상품 정보 저장 후 return
         return productRepository.save(existingProduct);
