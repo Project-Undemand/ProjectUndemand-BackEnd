@@ -1,6 +1,6 @@
 spring:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${{ secrets.JWT_SECRET }}
   profiles:
     # develop : develop 환경에서 application run 을 실행
     # production : 실 사용자가 사용하는 환경에서 application run 을 실행
@@ -11,9 +11,9 @@ spring:
   datasource:
     # MySQL
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${BACKEND_URL}:3306/pushop?&serverTimezone=Asia/Seoul
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+    url: jdbc:mysql://${{ secrets.BACKEND_URL }}:3306/pushop?&serverTimezone=Asia/Seoul
+    username: ${{ secrets.MYSQL_USERNAME }}
+    password: ${{ secrets.MYSQL_PASSWORD }}
     # H2
 #    url: jdbc:h2:tcp://localhost/~/pushop
 #    username: pu
@@ -21,7 +21,7 @@ spring:
 #    driver-class-name: org.h2.Driver
   mail:
     username: gokorea1214@naver.com
-    password: ${NAVER_PASSWORD}
+    password: ${{ secrets.NAVER_PASSWORD }}
     host: smtp.naver.com
     port: 465
     auth-code-expiration-millis: 1800000  # 30분
@@ -51,11 +51,16 @@ spring:
 #    show_sql: true
   data:
     redis:
-      host: ${BACKEND_URL}
+      host: ${{ secrets.BACKEND_URL }}
       port: 995
   web:
     resources:
       static-locations: classpath:/static/,file:/static/
+
+  backend:
+    url: ${{ secrets.BACKEND_URL }}
+  frontend:
+    url: ${{ secrets.FRONTEND_URL }}
 
 
 #    open-in-view: false
@@ -63,8 +68,8 @@ spring:
 # iamport
 imp:
   api:
-    key: ${IMP_API_KEY}
-    secretkey: ${IMP_SECRET_KEY}
+    key: ${{ secrets.IMP_API_KEY }}
+    secretkey: ${{ secrets.IMP_SECRET_KEY }}
 
 logging.level.org.hibernate:
   SQL: debug
