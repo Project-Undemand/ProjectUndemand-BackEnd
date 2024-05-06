@@ -35,32 +35,17 @@ jobs:
         distribution: 'temurin'
 
     # [1]
-    - name: Set yaml file 
+    - name: Set yaml file
       uses: microsoft/variable-substitution@v1
       with:
         files: ${{ env.RESOURCE_PATH }}
-    - name: Display YAML file with substitutions
-      run: |
-        echo "Contents of ${{ env.RESOURCE_PATH }}:"
-        cat ${{ env.RESOURCE_PATH }}
-        echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
-        echo "GITHUB_SHA: $GITHUB_SHA"
-        echo "GITHUB_REF: $GITHUB_REF"
-        echo "GITHUB_HEAD_REF: $GITHUB_HEAD_REF"
-        echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-        echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
-        echo "GITHUB_WORKFLOW: $GITHUB_WORKFLOW"
-        echo "BACKEND_URL: ${{ secrets.BACKEND_URL }}"
-        echo "FRONTEND_URL: ${{ secrets.FRONTEND_URL }}"
-        echo "S3_BUCKET_NAME: $S3_BUCKET_NAME"
-        echo "CODE_DEPLOY_APPLICATION_NAME: $CODE_DEPLOY_APPLICATION_NAME"
-        echo "CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: $CODE_DEPLOY_DEPLOYMENT_GROUP_NAME"
-        echo "GITHUB_SHA: $GITHUB_SHA"
-      
+
     # [2]
     - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-      shell: bash
+      run: |
+        echo "RESOURCE_PATH: $RESOURCE_PATH"
+        chmod +x ./gradlew
+        echo "S3_BUCKET_NAME: $S3_BUCKET_NAME"
       
     # Configure Gradle for optimal use in GiHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
@@ -87,7 +72,9 @@ jobs:
 
     # [6]
     - name: Upload to S3
-      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
+      run: |
+        echo "CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: $CODE_DEPLOY_DEPLOYMENT_GROUP_NAME"
+        aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
     # [7]
     - name: Code Deploy
@@ -97,6 +84,7 @@ jobs:
         --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
         --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
         --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
+
 
         
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
