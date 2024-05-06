@@ -45,9 +45,10 @@ public class MemberAuthorizationUtil {
 
     public static void verifyUserIdMatch(Long givenId) {
         Long loginMemberId = getLoginMemberId();
+        MemberRole memberRole = getLoginMemberRole();
 
-        if (!loginMemberId.equals(givenId)) {
-            throw new SecurityException(ACCESS_DENIED+" : 요청 사용자와 로그인 사용자 불일치");
+        if (!loginMemberId.equals(givenId) && memberRole != MemberRole.ADMIN) {
+                throw new SecurityException(ACCESS_DENIED+" : 요청 사용자와 로그인 사용자 불일치");
         }
     }
 }
