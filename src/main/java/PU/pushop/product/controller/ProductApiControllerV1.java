@@ -62,7 +62,6 @@ public class ProductApiControllerV1 {
      * @return productId, productName, price
      */
     @PostMapping("/products/new")
-//    @Secured("ROLE_ADMIN")
     public ResponseEntity<String> createProduct(@Valid @RequestParam(value = "thumbnail_images", required = false) List<MultipartFile> thumbnailImgs, @RequestParam(value = "content_images", required = false) List<MultipartFile> contentImgs, @ModelAttribute ProductCreateDto requestDto) {
         Long productId = productService.createProduct(requestDto, thumbnailImgs,contentImgs); // 저장한 상품의 pk
 

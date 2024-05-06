@@ -49,8 +49,6 @@ public class ProductServiceV1 {
         if (requestDto.getPrice() < 0) {
             throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
         }
-        // DTO를 엔티티로 매핑
-//        Product product = modelMapper.map(requestDto, Product.class);
         Product product = new Product(requestDto);
         productRepository.save(product);
         // 추가 - 썸네일 저장 메서드 실행
