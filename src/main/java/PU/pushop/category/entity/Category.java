@@ -1,6 +1,7 @@
 package PU.pushop.category.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +29,7 @@ public class  Category {
     private Long categoryId;
 
     @Column(name = "name", unique = true)
+    @NotBlank(message = "이름은 필수 필드입니다.")
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
