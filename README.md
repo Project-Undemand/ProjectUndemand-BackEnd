@@ -7,7 +7,7 @@
 > 개발기간 : 2024.03.  
 > 배포 :  
 > Front-End : https://github.com/Project-Undemand/ProjectUndemand-FrontEnd  
-> DOCS :  
+> DOCS : https://rhetorical-cilantro-7e4.notion.site/9e99d5e3a72247f29ee5543e98cf41b2?v=3dec1f93ce8746f988461e90d42f287e
 > ERD :  
 
 
