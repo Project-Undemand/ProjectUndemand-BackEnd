@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface PaymentRepository extends JpaRepository<PaymentHistory, Long> {
     List<PaymentHistory> findByMemberId(Long memberId);
+    List<PaymentHistory> findByImpUid(String ImpUid);
+
 }

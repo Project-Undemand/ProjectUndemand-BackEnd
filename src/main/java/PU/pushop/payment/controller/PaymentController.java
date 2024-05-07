@@ -2,14 +2,18 @@ package PU.pushop.payment.controller;
 
 import PU.pushop.cart.entity.Cart;
 import PU.pushop.cart.repository.CartRepository;
+import PU.pushop.global.Exception.PaymentCancelFailureException;
 import PU.pushop.order.repository.OrderRepository;
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.payment.entity.PaymentRefund;
 import PU.pushop.payment.model.PaymentCancelDto;
 import PU.pushop.payment.model.PaymentHistoryDto;
 import PU.pushop.payment.model.PaymentRequestDto;
+import PU.pushop.payment.repository.PaymentRepository;
 import PU.pushop.payment.service.PaymentService;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import jakarta.annotation.PostConstruct;
@@ -22,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -53,11 +58,12 @@ public class PaymentController {
     public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid, @RequestBody PaymentRequestDto request) throws IamportResponseException, IOException {
 
         IamportResponse<Payment> payment = iamportClient.paymentByImpUid(imp_uid);
-        ;
+
 
         log.info("결제 요청 응답. 결제 내역 - 주문 번호: {}", payment.getResponse().getMerchantUid());
 
-        paymentService.processPaymentDone(imp_uid, request);
+
+        paymentService.processPaymentDone(payment.getResponse(), request);
 
         return payment;
     }
@@ -85,14 +91,29 @@ public class PaymentController {
     public ResponseEntity<List<PaymentHistoryDto>> paymentList(@PathVariable Long memberId) {
         return ResponseEntity.status(HttpStatus.OK).body(paymentService.paymentHistoryList(memberId));
     }
+    private final PaymentRepository paymentRepository;
 
-    //TODO : 주문취소 - 환불정보 return
-/*    @PostMapping("/payment/cancel")
-    public ResponseEntity<?> paymentCancel(@RequestBody PaymentCancelDto requestDto) {
+    @PostMapping("/payment/cancel")
+    public IamportResponse<Payment> paymentCancel(@RequestBody PaymentCancelDto requestDto) throws IamportResponseException, IOException {
 
-    }*/
+        // 결제내역 가져오기
+        PaymentHistory paymentHistory = paymentRepository.findById(requestDto.getPaymentHistoryId()).orElseThrow(()->new NoSuchElementException("해당 결제 내역을 찾을 수 없습니다."));
 
+        // 환불정보 검증 및 환불 정보 가져오기
+        PaymentRefund refundInfo = paymentService.getRefundInfo(paymentHistory);
+        BigDecimal refundAmount = new BigDecimal(refundInfo.getAmount());
 
-    //TODO : 금액환불
+        CancelData cancelData = new CancelData(paymentHistory.getImpUid(), true, refundAmount);
+        IamportResponse<Payment> cancelResponse = iamportClient.cancelPaymentByImpUid(cancelData);
+
+        if (cancelResponse.getCode() != 0) {
+            throw new PaymentCancelFailureException("환불 실패 : " + cancelResponse.getMessage());
+        }
+
+        // 환불 정보 저장
+        PaymentRefund refund = paymentService.setRefundInfo(requestDto, paymentHistory, refundInfo);
+
+        return cancelResponse;
+    }
 
 }
