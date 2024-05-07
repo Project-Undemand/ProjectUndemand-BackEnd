@@ -45,6 +45,9 @@ public class PaymentHistory {
     @JoinColumn(name = "product", nullable = false)
     private Product product;
 
+    @Column(name = "impUid")
+    private String impUid;
+
     @Column(name = "product_name")
     private String productName;
 
@@ -61,7 +64,8 @@ public class PaymentHistory {
     private LocalDateTime paidAt;
 
     @Column(name = "status")
-    private Boolean status = true;
+    @Enumerated(EnumType.STRING)
+    private Status statusType;
 
     @Column(name = "review")
     private Boolean review = false;
@@ -71,7 +75,8 @@ public class PaymentHistory {
         this.paidAt =  LocalDateTime.now();
     }
 
-    public PaymentHistory(Member member, Orders orders, Product product, String productName, String productOption, Integer price, Long totalPrice) {
+    public PaymentHistory(String impUid, Member member, Orders orders, Product product, String productName, String productOption, Integer price, Long totalPrice, Status statusType) {
+        this.impUid = impUid;
         this.member = member;
         this.orders = orders;
         this.product = product;
@@ -80,6 +85,7 @@ public class PaymentHistory {
         this.price = price;
         this.totalPrice = totalPrice;
         this.paidAt =  LocalDateTime.now();
+        this.statusType = statusType;
     }
 
 

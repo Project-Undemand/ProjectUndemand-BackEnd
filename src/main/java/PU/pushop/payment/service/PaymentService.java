@@ -6,6 +6,9 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.order.repository.OrderRepository;
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.payment.entity.PaymentRefund;
+import PU.pushop.payment.entity.Status;
+import PU.pushop.payment.model.PaymentCancelDto;
 import PU.pushop.payment.model.PaymentHistoryDto;
 import PU.pushop.payment.model.PaymentRequestDto;
 import PU.pushop.payment.repository.PaymentRepository;
@@ -33,7 +36,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final ProductManagementRepository productMgtRepository;
 
-    public void processPaymentDone(PaymentRequestDto request) {
+    public void processPaymentDone(String impUid, PaymentRequestDto request) {
 
         Long orderId = request.getOrderId();
         Long memberId = request.getMemberId();
@@ -55,15 +58,13 @@ public class PaymentService {
                 .orElseThrow(() -> new NoSuchElementException("해당 주문서를 찾을 수 없습니다. Id : " + orderId));
 
         // 주문한 상품들에 대해 각각 결제내역 저장
-        createPaymentHistory(productMgtIdList, order, member, totalPrice);
+        createPaymentHistory(impUid, productMgtIdList, order, member, totalPrice);
 
     }
 
     // 결제내역 저장하는 메서드
-    private void createPaymentHistory(List<Long> productMgtIdList, Orders order, Member member, Long totalPrice) {
+    private void createPaymentHistory(String impUid, List<Long> productMgtIdList, Orders order, Member member, Long totalPrice) {
         for (Long productMgtId : productMgtIdList) {
-
-//            PaymentHistory paymentHistory = new PaymentHistory();
 
             ProductManagement productMgt = productMgtRepository.findById(productMgtId)
                     .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
@@ -71,7 +72,7 @@ public class PaymentService {
             Product product = productMgt.getProduct();
             String option = productMgt.getColor().getColor() + ", " + productMgt.getSize().toString(); // 상품옵션 문자열로 저장
 
-            PaymentHistory paymentHistory = new PaymentHistory(member, order, product, product.getProductName(),option,product.getPrice(),totalPrice);
+            PaymentHistory paymentHistory = new PaymentHistory(impUid, member, order, product, product.getProductName(),option,product.getPrice(),totalPrice, Status.COMPLETE_PAYMENT);
 
             paymentRepository.save(paymentHistory);
 
@@ -98,6 +99,17 @@ public class PaymentService {
 
         return paymentHistoryDtos;
     }
+
+
+    // TODO : 환불을 위한 accesstoken 발급
+
+
+/*    public PaymentRefund getRefundInfo(PaymentCancelDto requestDto) {
+
+        // TODO : 환불 정보 return
+    }*/
+
+    // TODO : 환불 API
 
 
 }
