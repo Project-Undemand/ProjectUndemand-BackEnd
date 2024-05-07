@@ -42,7 +42,7 @@ public class Product {
     private Long productId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "product_type")
+    @Column(name = "product_type", nullable = false)
     private ProductType productType;
 
     @Column(nullable = false, name = "product_name")
@@ -65,13 +65,13 @@ public class Product {
     @Column(nullable = false)
     private String manufacturer;
 
-    @Column(name = "is_discount")
+    @Column(name = "is_discount", nullable = false)
     private Boolean isDiscount = false;
 
     @Column(name = "discount_rate", nullable = true)
     private Integer discountRate;
 
-    @Column(name = "is_recommend")
+    @Column(name = "is_recommend", nullable = false)
     private Boolean isRecommend = false;
 
     @OneToMany(mappedBy = "product")

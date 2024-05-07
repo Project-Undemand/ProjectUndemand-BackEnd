@@ -11,7 +11,7 @@ import lombok.Getter;
 @Table(name = "cart")
 public class Cart {
 
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "cart_sequence",
             sequenceName = "cart_sequence",
@@ -20,7 +20,9 @@ public class Cart {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "cart_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_id")
     private Long cartId;
 

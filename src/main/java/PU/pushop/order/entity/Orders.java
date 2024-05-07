@@ -19,7 +19,7 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 public class Orders {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "order_sequence",
             sequenceName = "order_sequence",
@@ -28,7 +28,9 @@ public class Orders {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "order_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Long orderId;
 

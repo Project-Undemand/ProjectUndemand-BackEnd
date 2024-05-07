@@ -28,7 +28,7 @@ public class  Category {
     @Column(name = "category_id")
     private Long categoryId;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name", unique = true, nullable = false)
     @NotBlank(message = "이름은 필수 필드입니다.")
     private String name;
 
@@ -36,7 +36,7 @@ public class  Category {
     @JoinColumn(name = "parent")
     private Category parent;
 
-    @Column(name = "depth")
+    @Column(name = "depth", nullable = false)
     private Long depth;
 
     @OneToMany(mappedBy = "parent")
