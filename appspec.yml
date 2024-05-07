@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu/ProjectUndemand-BackEnd
+    destination: /home/ubuntu/pjundmd-code-deploy
     overwrite: yes
 
 permissions:
