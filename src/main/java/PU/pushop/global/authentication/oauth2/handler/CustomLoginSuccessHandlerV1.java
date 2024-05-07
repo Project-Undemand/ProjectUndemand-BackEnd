@@ -40,7 +40,7 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
     private Long refreshTokenExpirationPeriod = 1209600L;
 
     @Value("${frontend.url}")
-    private String FRONTEND_URL;
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -73,7 +73,7 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
         response.addCookie(createCookie("RefreshToken", refreshToken));
         response.setStatus(HttpStatus.OK.value());
 
-        response.sendRedirect(FRONTEND_URL);
+        response.sendRedirect(frontendUrl);
     }
 
     private static String extractOAuthRole(Authentication authentication) {

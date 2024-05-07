@@ -9,14 +9,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CorsMvcConfig implements WebMvcConfigurer {
 
     @Value("${frontend.url}")
-    private String FRONTEND_URL;
+    private String frontendUrl;
 
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
 
         corsRegistry.addMapping("/**")
                 .exposedHeaders("Set-Cookie")
-                .allowedOrigins(FRONTEND_URL)
+                .allowedOrigins(frontendUrl)
                 .allowCredentials(true); // 세션 저장 값 불러올 때 프론트에서 필요함
 
     }

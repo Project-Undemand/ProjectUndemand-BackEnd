@@ -49,7 +49,7 @@ public class SecurityConfig {
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
         @Value("${frontend.url}")
-        private String FRONTEND_URL;
+        private String frontendUrl;
 
     @Bean
     @Primary
@@ -104,7 +104,7 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList(FRONTEND_URL));
+                        configuration.setAllowedOrigins(Collections.singletonList(frontendUrl));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));

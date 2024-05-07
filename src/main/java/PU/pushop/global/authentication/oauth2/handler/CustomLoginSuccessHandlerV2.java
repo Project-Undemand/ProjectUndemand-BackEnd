@@ -41,7 +41,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
     private Long refreshTokenExpirationPeriod = 1209600L;
 
     @Value("${frontend.url}")
-    private String FRONTEND_URL;
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -71,7 +71,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
         setTokenResponseV2(response, newAccess, newRefresh);
 
-        response.sendRedirect(FRONTEND_URL);
+        response.sendRedirect(frontendUrl);
     }
 
     private static String extractOAuthRole(Authentication authentication) {
