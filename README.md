@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=waving&color=6FC7E1&height=240&section=header&text=PUSHOP&fontColor=ffffffCC&fontSize=60&fontAlignY=35&desc=Project%20Undemand&descSize=20&descAlign=70&descAlignY=53" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=D1A4DB&height=240&section=header&text=ODDShop&fontColor=ffffffCC&fontSize=60&fontAlignY=35&desc=Project%20Undemand&descSize=20&descAlign=70&descAlignY=53" />
 </div>
 
 # Introduction 
