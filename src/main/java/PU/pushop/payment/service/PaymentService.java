@@ -113,9 +113,11 @@ public class PaymentService {
         return paymentHistoryDtos;
     }
 
-
-
-
+    /**
+     * 결제 취소 정보 검증 후 반환하는 메서드
+     * @param paymentHistory
+     * @return
+     */
     public PaymentRefund getRefundInfo( PaymentHistory paymentHistory) {
 
         // 환불 전 검증
@@ -129,6 +131,13 @@ public class PaymentService {
 
     }
 
+    /**
+     * 결제 취소 진행 후 정보 저장하는 메서드
+     * @param requestDto
+     * @param paymentHistory
+     * @param paymentInfo
+     * @return
+     */
     public PaymentRefund setRefundInfo(PaymentCancelDto requestDto, PaymentHistory paymentHistory, PaymentRefund paymentInfo) {
         // 환불
 
@@ -144,7 +153,7 @@ public class PaymentService {
         String refundAccount = requestDto.getRefundAccount();
 
 
-        if (requestDto.getPayMethod() == PayMethod.VBANK) {
+        if (requestDto.getPayMethod() == PayMethod.vbank) {
             paymentRefund = new PaymentRefund(paymentHistory, impUid, amount, refundTel, checksum, reason, refundHolder, refundBank, refundAccount);
         } else {
             paymentRefund = new PaymentRefund(paymentHistory,impUid, amount, refundTel, checksum, reason);
