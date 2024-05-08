@@ -35,21 +35,21 @@ https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-91
 
 # Features
 
-## 회원기능
+### 회원기능
 
-### 회원가입, 로그인
+#### 회원가입, 로그인
 
 - Spring Security JWT
 
-### 마이페이지
+#### 마이페이지
 
 - 
 
 
 
-## 관리자 페이지
+### 관리자 페이지
 
-### 상품 관리
+#### 상품 관리
 
 - 각 서비스 메서드에 사용자 역할별 권한 검증 커스텀 어노테이션 생성  
 - 상품 등록
@@ -60,9 +60,9 @@ https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-91
 
 
 
-## 사용자 페이지
+### 사용자 페이지
 
-### 상품 조회
+#### 상품 조회
 
 <details>
 <summary>동적 쿼리로 검색 및 필터링 구현</summary>
