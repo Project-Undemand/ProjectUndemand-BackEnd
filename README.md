@@ -2,7 +2,6 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=6FC7E1&height=240&section=header&text=PUSHOP&fontColor=ffffffCC&fontSize=60&fontAlignY=35&desc=Project%20Undemand&descSize=20&descAlign=70&descAlignY=53" />
 </div>
 
-***
 # Introduction 
 > 개발기간 : 2024.03.  
 > 배포 :  
@@ -33,7 +32,6 @@ https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-91
 
 
 
-***
 
 # Features
 
@@ -78,8 +76,6 @@ https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-91
 
 
 
-***
-
 # Troubleshooting
 
 <details>
@@ -90,11 +86,10 @@ https://rhetorical-cilantro-7e4.notion.site/5a4c766d6c144bb1bc02697b7f98484f?v=2
 
 </details>
 
-***
+
 
 # Changelog
 
-***
 
 # Service Architecture 
 
