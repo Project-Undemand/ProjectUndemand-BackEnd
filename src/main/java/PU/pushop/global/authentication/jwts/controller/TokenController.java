@@ -16,16 +16,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-public class ReissueRefreshController {
+public class TokenController {
 
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
@@ -35,7 +34,25 @@ public class ReissueRefreshController {
 
     private Long refreshTokenExpirationPeriod = 1209600L; // 14일
 
-    @PostMapping("/reissue")
+    /**
+     * 엑세스 토큰 재발급.
+     * @param request header 에 있는 Authorization 은 Bearer {accessToken} 보안화 되어있는 엑세스토큰이 존재합니다.
+     * @return 엑세스 토큰에 있는 memberId, role 을 그대로 가져와서 재발급 해줍니다.
+     */
+    @GetMapping("/api/v1/reissue/access")
+    public ResponseEntity<String> reissueAccessToken(HttpServletRequest request) {
+        String accessToken = request.getHeader("Authorization");
+        String token = accessToken.substring(7);
+
+        String memberId = jwtUtil.getMemberId(token);
+        MemberRole role = jwtUtil.getRole(token);
+
+        String newAccessToken = jwtUtil.createAccessToken("access", memberId, role.toString());
+
+        return ResponseEntity.ok().header("Authorization", "Bearer " + newAccessToken).build();
+    }
+
+    @PostMapping("/api/v1/reissue/refresh")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) throws BadRequestException, ClassNotFoundException {
         // 쿠키로부터 RefreshToken Value 값을 가져옵니다.
         String savedRefreshInCookie = getRefreshCookieValue(request);
