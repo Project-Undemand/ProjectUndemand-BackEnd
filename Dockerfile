@@ -1,5 +1,5 @@
-# AdoptOpenJDK 17 이미지를 사용합니다.
-FROM adoptopenjdk:17-jdk-hotspot
+# Temurin 17 이미지를 사용합니다.
+FROM eclipse-temurin:17-jdk
 
 # 작업 디렉토리를 설정합니다.
 WORKDIR /app
