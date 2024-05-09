@@ -45,14 +45,14 @@ spring:
         default_batch_fetch_size: 1000 #최적화 옵션
 
   redis:
-    host: ${host}
+    host: redis
     port: 6379
 
 #    show_sql: true
   data:
     redis:
-      host: ${host}
-      port: 995
+      host: redis
+      port: 6379
   web:
     resources:
       static-locations: classpath:/static/,file:/static/
