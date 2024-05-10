@@ -2,6 +2,9 @@ package PU.pushop.profile.entity;
 
 import PU.pushop.address.Addresses;
 import PU.pushop.members.entity.Member;
+import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.profile.entity.enums.MemberAges;
+import PU.pushop.profile.entity.enums.MemberGender;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,6 +38,14 @@ public class Profiles {
 
     @OneToMany(mappedBy = "memberProfile", cascade = CascadeType.ALL)
     private List<Addresses> addresses = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "member_ages")
+    private MemberAges memberAges;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "member_gender")
+    private MemberGender memberGender;
 
     private LocalDateTime createdAt;
 

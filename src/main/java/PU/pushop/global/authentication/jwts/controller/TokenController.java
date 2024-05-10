@@ -29,10 +29,13 @@ public class TokenController {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final MemberRepositoryV1 memberRepositoryV1;
+    /**
+     * long accessTokenExpirationPeriod = 60L * 10;
+     * long refreshTokenExpirationPeriod = 3600L * 24;
+     */
+    private Long accessTokenExpirationPeriod = 60L * 10; // 10 분
 
-    private Long accessTokenExpirationPeriod = 3600L; // 1일
-
-    private Long refreshTokenExpirationPeriod = 1209600L; // 14일
+    private Long refreshTokenExpirationPeriod = 3600L * 24; // 24 시간
 
     /**
      * 엑세스 토큰 재발급.
