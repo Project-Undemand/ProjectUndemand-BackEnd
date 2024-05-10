@@ -93,11 +93,11 @@ public class PaymentController {
     }
     private final PaymentRepository paymentRepository;
 
-    @PostMapping("/payment/cancel")
-    public IamportResponse<Payment> paymentCancel(@RequestBody PaymentCancelDto requestDto) throws IamportResponseException, IOException {
+    @PostMapping("/payment/cancel/{paymentHistoryId}")
+    public IamportResponse<Payment> paymentCancel(@PathVariable Long paymentHistoryId, @RequestBody PaymentCancelDto requestDto) throws IamportResponseException, IOException {
 
         // 결제내역 가져오기
-        PaymentHistory paymentHistory = paymentRepository.findById(requestDto.getPaymentHistoryId()).orElseThrow(()->new NoSuchElementException("해당 결제 내역을 찾을 수 없습니다."));
+        PaymentHistory paymentHistory = paymentRepository.findById(paymentHistoryId).orElseThrow(()->new NoSuchElementException("해당 결제 내역을 찾을 수 없습니다."));
 
         // 환불정보 검증 및 환불 정보 가져오기
         PaymentRefund refundInfo = paymentService.getRefundInfo(paymentHistory);
