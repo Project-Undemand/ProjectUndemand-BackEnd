@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "inquiry_table")
 public class Inquiry {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "inquiry_sequence",
             sequenceName = "inquiry_sequence",
@@ -24,8 +24,9 @@ public class Inquiry {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "inquiry_sequence"
-    )
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inquiry_id")
     private Long inquiryId;
 

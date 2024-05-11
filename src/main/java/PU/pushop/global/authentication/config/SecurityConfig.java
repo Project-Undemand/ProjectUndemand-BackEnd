@@ -6,7 +6,6 @@ import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserSer
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserServiceV1;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV2;
-import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV3;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -88,8 +87,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() throws Exception {
-        CustomJsonUsernamePasswordAuthenticationFilter filter = new CustomJsonUsernamePasswordAuthenticationFilter(authenticationManager(authenticationConfiguration()), objectMapper);
+    public CustomJsonEmailPasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() throws Exception {
+        CustomJsonEmailPasswordAuthenticationFilter filter = new CustomJsonEmailPasswordAuthenticationFilter(authenticationManager(authenticationConfiguration()), objectMapper);
         return filter;
     }
 

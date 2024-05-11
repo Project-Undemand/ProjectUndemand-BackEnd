@@ -1,4 +1,4 @@
-package PU.pushop.profile;
+package PU.pushop.profile.model;
 
 
 import lombok.Data;

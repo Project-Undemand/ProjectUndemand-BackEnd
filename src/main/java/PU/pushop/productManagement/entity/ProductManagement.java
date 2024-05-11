@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product_management")
 public class ProductManagement {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "product_management_sequence",
             sequenceName = "product_management_sequence",
@@ -29,7 +29,9 @@ public class ProductManagement {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "product_management_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inventory_id" )
     private Long inventoryId; // ProductManagement 테이블의 pk
 

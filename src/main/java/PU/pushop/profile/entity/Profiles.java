@@ -1,7 +1,10 @@
-package PU.pushop.profile;
+package PU.pushop.profile.entity;
 
 import PU.pushop.address.Addresses;
 import PU.pushop.members.entity.Member;
+import PU.pushop.product.entity.enums.ProductType;
+import PU.pushop.profile.entity.enums.MemberAges;
+import PU.pushop.profile.entity.enums.MemberGender;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +18,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "member_profile")
-public class MemberProfile {
+public class Profiles {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,11 +39,19 @@ public class MemberProfile {
     @OneToMany(mappedBy = "memberProfile", cascade = CascadeType.ALL)
     private List<Addresses> addresses = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "member_ages")
+    private MemberAges memberAges;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "member_gender")
+    private MemberGender memberGender;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    public MemberProfile(Member member, String introduction, String profileImgName, String profileImgPath, List<Addresses> addresses) {
+    public Profiles(Member member, String introduction, String profileImgName, String profileImgPath, List<Addresses> addresses) {
         this.member = member;
         this.introduction = introduction;
         this.profileImgName = profileImgName;
@@ -50,8 +62,8 @@ public class MemberProfile {
     }
 
     // 최초 회원가입 시, 기본적으로 만들어주는 프로필.
-    public static MemberProfile createMemberProfile(Member member) {
-        return new MemberProfile(member, "자기 소개를 수정해주세요. ", null, null, List.of());
+    public static Profiles createMemberProfile(Member member) {
+        return new Profiles(member, "자기 소개를 수정해주세요. ", null, null, List.of());
     }
 
     public void updateDateTime(LocalDateTime updatedAt) {
@@ -70,7 +82,13 @@ public class MemberProfile {
         this.introduction = introduction;
     }
 
-//    public static Profile CreateProfile(String introduction) {
-//        return new Profile(introduction, )
-//    }
+    public void setProfileImage(byte[] imageBytes) {
+        setProfileImagePathAndImageName(new String(imageBytes));
+    }
+
+    private void setProfileImagePathAndImageName(String imagePath) {
+        this.profileImgPath = imagePath;
+        this.profileImgName = this.profileImgPath.substring(this.profileImgPath.lastIndexOf("/") + 1);
+    }
+
 }

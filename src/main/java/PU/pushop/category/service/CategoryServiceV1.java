@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -44,6 +45,10 @@ public class CategoryServiceV1 {
             // 부모 카테고리가 지정된 경우
             Category parentCategory = categoryRepository.findById(parentId)
                     .orElseThrow(() -> new NoSuchElementException("해당 카테고리를 찾을 수 없습니다."));
+            if (parentCategory.getDepth() != 0L) {
+                // 입력한 parentId 가 상위 카테고리의 id 가 아닌 하위 카테고리의 id 일 경우 에러 반환
+                throw new InvalidParameterException("올바른 상위 카테고리를 입력하세요.");
+            }
 
             category = new Category(parentCategory, parentCategory.getDepth() + 1, request.getName());
 

@@ -3,6 +3,7 @@ package PU.pushop.cart.controller;
 import PU.pushop.cart.entity.Cart;
 import PU.pushop.cart.model.CartDto;
 import PU.pushop.cart.model.CartRequestDto;
+import PU.pushop.cart.model.CartUpdateDto;
 import PU.pushop.cart.service.CartService;
 import PU.pushop.global.ResponseMessageConstants;
 import jakarta.validation.Valid;
@@ -51,7 +52,7 @@ public class CartController {
      * @return
      */
     @PutMapping("/{cartId}")
-    public ResponseEntity<CartDto> updateCart(@PathVariable Long cartId, @Valid @RequestBody CartRequestDto request) {
+    public ResponseEntity<CartDto> updateCart(@PathVariable Long cartId, @Valid @RequestBody CartUpdateDto request) {
         Cart updatedCart = modelMapper.map(request, Cart.class);
         CartDto updatedCartDto = new CartDto(cartService.updateCart(cartId, updatedCart));
 

@@ -1,6 +1,7 @@
 package PU.pushop.members.controller;
 
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.repository.MemberRepositoryV1;
@@ -8,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,6 +25,10 @@ public class MemberApiController {
     private final MemberRepositoryV1 memberRepositoryV1;
     private final JWTUtil jwtUtil;
 
+    /**
+     * 관리자 페이지에서 회원에 대한 모든 데이터를 확인할 때 사용하는 목적. 서비스 목적이 아닙니다.
+     * ADMIN 관리자가 아니면 실행할 수 없는 api
+     */
     @GetMapping("/api/v1/members")
     public ResponseEntity<?> getMemberList(HttpServletRequest request) {
         // Request Header 에 담아준 Authorization 을 가져와서
@@ -34,6 +38,7 @@ public class MemberApiController {
         // accessToken 에 있는 유저 권한을 파싱해서 가져옴
         MemberRole userRole = jwtUtil.getRole(accessToken);
 
+        // ADMIN 관리자가 아니면 실행할 수 없는 api
         if (userRole == MemberRole.ADMIN) {
             // memberId에 해당하는 Member 정보를 조회합니다.
             List<Member> allMembers = memberRepositoryV1.findAll();
@@ -45,6 +50,10 @@ public class MemberApiController {
         }
     }
 
+    /**
+     * 회원 개인 정보 확인.
+     * 2024.05.05 현재로서 불필요한 api 이기에, 추후 삭제 고려
+     */
     @GetMapping("/api/v1/members/{memberId}")
     public ResponseEntity<Member> getMember(@PathVariable Long memberId) {
         // memberId에 해당하는 Member 정보를 조회합니다.
@@ -55,10 +64,13 @@ public class MemberApiController {
         return ResponseEntity.ok(member);
     }
 
+    /**
+     * 회원 비활성화
+     */
     @PostMapping("api/v1/members/deactive/{memberId}")
     public ResponseEntity<?> deactiveMember(@PathVariable Long memberId, HttpServletRequest request) {
-        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 재활성화 할 수 있는 권한이 없습니다.");
-        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 로 회원 조회
         Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
         if (optionalMember.isPresent()) {
@@ -76,10 +88,13 @@ public class MemberApiController {
         return ResponseEntity.badRequest().body("존재하지 않는 Id 에 대한 비활성화 요청입니다. ");
     }
 
+    /**
+     * 회원 재활성화
+     */
     @PostMapping("api/v1/members/reactivate/{memberId}")
     public ResponseEntity<?> reActivateMember(@PathVariable Long memberId, HttpServletRequest request) {
-        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 재활성화 할 수 있는 권한이 없습니다.");
-        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 로 회원 조회
         Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
         if (optionalMember.isPresent()) {
@@ -99,15 +114,11 @@ public class MemberApiController {
      * 2. url 경로의 memberId 가 , 회원가입되어 있는 유저인지 확인합니다.
      * 3. 입력한 비밀번호가, DB의 비밀번호와 일치하는지 확인합니다.
      * 4. 새롭게 입력한 newPassword와 newPassword_confirmation 가 같으면, 유저의 비밀번호를 갱신합니다.
-     * @param memberId
-     * @param request
-     * @param passwordRequest
-     * @return
      */
     @PostMapping("api/v1/members/repassword/{memberId}")
     public ResponseEntity<?> rePasswordMember(@PathVariable Long memberId, HttpServletRequest request, @RequestBody ResetPasswordRequest passwordRequest) {
-        ResponseEntity<?> UNAUTHORIZED = validateMemberAuthorization(request, memberId, "해당 회원의 비밀번호를 변경할 수 있는 권한이 없습니다.");
-        if (UNAUTHORIZED != null) return UNAUTHORIZED;
+        // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 로 회원 조회
         Member existingMember = findExistingMember(memberId);
         if(existingMember == null){
@@ -123,26 +134,8 @@ public class MemberApiController {
 
     }
 
-    private @Nullable ResponseEntity<?> validateMemberAuthorization(HttpServletRequest request, Long memberId, String message) {
-        String authorization = request.getHeader("Authorization");
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            return responseStatusAndMessage(HttpStatus.UNAUTHORIZED, "인증 헤더가 필요합니다. 로그인을 진행해주세요.");
-        }
-
-        String accessToken = authorization.substring(7);
-        String memberIdFromToken = getMemberIdFromToken(accessToken);
-        if (!memberIdFromToken.equals(memberId.toString())) {
-            return responseStatusAndMessage(HttpStatus.UNAUTHORIZED, message);
-        }
-        return null;
-    }
-
     private ResponseEntity<?> responseStatusAndMessage(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(message);
-    }
-
-    private String getMemberIdFromToken(String accessToken) {
-        return jwtUtil.getMemberId(accessToken);
     }
 
     private Member findExistingMember(Long memberId) {

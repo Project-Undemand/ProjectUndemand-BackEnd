@@ -64,16 +64,16 @@ public class JWTUtil {
     }
 
     public String createAccessToken(String category, String memberId, String role) {
-        // 1일
-        long accessTokenExpirationPeriod = 3600L;
+        // 10분
+        long accessTokenExpirationPeriod = 60L * 10;
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(accessTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);
     }
 
     public String createRefreshToken(String category, String memberId, String role) {
-        // 14일
-        long refreshTokenExpirationPeriod = 1209600L;
+        // 24시간
+        long refreshTokenExpirationPeriod = 3600L * 24;
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);

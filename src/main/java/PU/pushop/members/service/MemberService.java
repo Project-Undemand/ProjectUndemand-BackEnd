@@ -3,9 +3,7 @@ package PU.pushop.members.service;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.profile.MemberProfile;
-import PU.pushop.profile.ProfileRepository;
-import PU.pushop.profile.ProfileService;
+import PU.pushop.profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,6 +36,8 @@ public class MemberService {
                 member.getPassword(),
                 member.getToken()
         );
+
+        newMember.activateMember();
 
         return memberRepositoryV1.save(newMember);
 
