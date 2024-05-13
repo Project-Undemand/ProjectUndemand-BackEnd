@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
@@ -32,6 +34,8 @@ public class WishListService {
      * @return
      */
     public Long createWish(Product product, Member member) {
+        verifyUserIdMatch(member.getId()); // 로그인 된 사용자와 요청 사용자 비교
+
         // 이미 존재하는지 확인
         boolean isAlreadyWished = !wishListRepository.findByProductAndMember(product, member).isEmpty();
         if (isAlreadyWished) {
@@ -60,6 +64,8 @@ public class WishListService {
      * @param member
      */
     public void deleteWish(Product product, Member member) {
+        verifyUserIdMatch(member.getId()); // 로그인 된 사용자와 요청 사용자 비교
+
         WishList existingWishList = wishListRepository.findByProductAndMember(product, member)
                 .orElseThrow(() -> new NoSuchElementException("해당 찜목록을 찾을 수 없습니다."));
 
@@ -72,6 +78,7 @@ public class WishListService {
      * @return
      */
     public List<WishListResponseDto> myWishList(Member member) {
+        verifyUserIdMatch(member.getId()); // 로그인 된 사용자와 요청 사용자 비교
 
         List<WishList> wishLists = wishListRepository.findByMember(member);
 

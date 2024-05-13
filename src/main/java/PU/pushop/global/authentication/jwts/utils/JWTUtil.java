@@ -18,6 +18,8 @@ public class JWTUtil {
     private final SecretKey secretKey;
     private static final String MEMBERPK_CLAIM_KEY = "memberId";
     private static final String CATEGORY_CLAIM_KEY = "category";
+    private Long accessTokenExpirationPeriod = 60L * 10; // 10 분
+    private Long refreshTokenExpirationPeriod = 3600L * 24; // 24 시간
 
 
     public JWTUtil() {
@@ -64,16 +66,14 @@ public class JWTUtil {
     }
 
     public String createAccessToken(String category, String memberId, String role) {
-        // 1일
-        long accessTokenExpirationPeriod = 3600L;
+        // 10분
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(accessTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);
     }
 
     public String createRefreshToken(String category, String memberId, String role) {
-        // 14일
-        long refreshTokenExpirationPeriod = 1209600L;
+        // 24시간
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);

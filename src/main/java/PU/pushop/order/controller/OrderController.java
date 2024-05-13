@@ -5,6 +5,7 @@ import PU.pushop.order.model.OrderDto;
 import PU.pushop.order.model.OrderResponseDto;
 import PU.pushop.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,7 @@ public class OrderController {
      * @return
      */
     @PostMapping("/done")
-    public ResponseEntity<Object> completeOrder(@RequestBody OrderDto request) {
+    public ResponseEntity<Object> completeOrder(@Valid @RequestBody OrderDto request) {
 
 
         OrderDto orders = modelMapper.map(request, OrderDto.class);

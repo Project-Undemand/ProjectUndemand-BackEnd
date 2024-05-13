@@ -10,7 +10,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "wish_list")
 public class WishList {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "wishlist_sequence",
             sequenceName = "wishlist_sequence",
@@ -19,7 +19,9 @@ public class WishList {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "wishlist_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "wishlist_id")
     private Long wishListId;
 

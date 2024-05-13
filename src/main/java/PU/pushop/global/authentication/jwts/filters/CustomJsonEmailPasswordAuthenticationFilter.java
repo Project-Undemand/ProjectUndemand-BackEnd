@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 
-public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class CustomJsonEmailPasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "email";
 
@@ -41,7 +41,7 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
 
 
 
-    public CustomJsonUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper) {
+    public CustomJsonEmailPasswordAuthenticationFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper) {
         super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
         this.objectMapper = objectMapper;
     }

@@ -18,7 +18,7 @@ public class PaymentHistoryDto {
     private String option;
     private Integer productPrice;
     private LocalDateTime orderedAt;
-    private Long totalPrice;
+    private Integer totalPrice;
     private LocalDateTime payedAte;
     private Boolean review;
 
