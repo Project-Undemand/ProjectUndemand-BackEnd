@@ -8,6 +8,7 @@ import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
+import com.google.gson.JsonObject;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
@@ -15,17 +16,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
 public class TokenController {
 
+    private static final Logger log = LoggerFactory.getLogger(TokenController.class);
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final MemberRepositoryV1 memberRepositoryV1;
@@ -42,17 +48,15 @@ public class TokenController {
      * @param request header 에 있는 Authorization 은 Bearer {accessToken} 보안화 되어있는 엑세스토큰이 존재합니다.
      * @return 엑세스 토큰에 있는 memberId, role 을 그대로 가져와서 재발급 해줍니다.
      */
-    @GetMapping("/api/v1/reissue/access")
-    public ResponseEntity<String> reissueAccessToken(HttpServletRequest request) {
-        String accessToken = request.getHeader("Authorization");
-        String token = accessToken.substring(7);
-
-        String memberId = jwtUtil.getMemberId(token);
-        MemberRole role = jwtUtil.getRole(token);
-
+    @PostMapping("/api/v1/reissue/access")
+    public ResponseEntity<String> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String accessToken = fetchTokenFromAuthorizationHeader(request);
+        String memberId = jwtUtil.getMemberId(accessToken);
+        MemberRole role = jwtUtil.getRole(accessToken);
         String newAccessToken = jwtUtil.createAccessToken("access", memberId, role.toString());
-
-        return ResponseEntity.ok().header("Authorization", "Bearer " + newAccessToken).build();
+        sendJsonResponseWithAccessToken(response, newAccessToken);
+        log.info("New access token created");
+        return ResponseEntity.ok().body("access token refresh ok.");
     }
 
     @PostMapping("/api/v1/reissue/refresh")
@@ -80,6 +84,12 @@ public class TokenController {
             return ResponseEntity.badRequest().body("invalid refresh token. not exist refresh token");
         }
 
+        setResponseData(response, BeforeRefresh);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void setResponseData(HttpServletResponse response, String BeforeRefresh) throws ClassNotFoundException {
         String memberId = jwtUtil.getMemberId(BeforeRefresh);
         MemberRole role = jwtUtil.getRole(BeforeRefresh);
 
@@ -93,8 +103,6 @@ public class TokenController {
 
         response.setHeader("Authorization", "Bearer " + newAccess);
         response.addCookie(createCookie("RefreshToken", newRefresh));
-
-        return ResponseEntity.ok().build();
     }
 
     private String getRefreshCookieValue(HttpServletRequest request) {
@@ -130,5 +138,41 @@ public class TokenController {
 //        cookie.setSecure(true); // HTTPS에서만 쿠키 전송
         cookie.setPath("/"); // 필요에 따라 설정
         return cookie;
+    }
+
+
+    private String fetchTokenFromAuthorizationHeader(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        // Subtract 'Bearer ' part of token
+        return bearerToken.substring(7);
+    }
+
+    private void sendJsonResponseWithAccessToken(HttpServletResponse response, String newAccessToken) throws IOException {
+        JsonObject responseData = generateResponseDataWithAccessToken(newAccessToken);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(responseData.toString());
+        response.setStatus(HttpStatus.OK.value());
+    }
+
+    private JsonObject generateResponseDataWithAccessToken(String accessToken) {
+        JsonObject responseData = new JsonObject();
+        responseData.addProperty("accessToken", accessToken);
+        return responseData;
+    }
+
+
+    private void addResponseData(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
+        // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
+        com.google.gson.JsonObject responseData = new JsonObject();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        // response.data 에 accessToken, refreshToken 두값 설정
+        responseData.addProperty("accessToken", accessToken);
+        responseData.addProperty("refreshToken", refreshToken);
+        responseData.addProperty("email", email);
+        response.getWriter().write(responseData.toString());
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
     }
 }
