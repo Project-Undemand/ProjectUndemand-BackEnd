@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review")
 public class Review {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "review_sequence",
             sequenceName = "review_sequence",
@@ -28,7 +28,9 @@ public class Review {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "review_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
     private Long reviewId;
 

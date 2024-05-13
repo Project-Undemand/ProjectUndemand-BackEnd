@@ -1,6 +1,8 @@
 package PU.pushop.review.service;
 
+import PU.pushop.global.authorization.RequiresRole;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.review.entity.Review;
 import PU.pushop.review.entity.ReviewReply;
@@ -30,6 +32,7 @@ public class ReviewReplyService {
      * @param reviewId
      * @return
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public Long createReply(ReviewReplyDto replyDto, Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NoSuchElementException("해당 리뷰를 찾을 수 없습니다. reviewId: " + reviewId));
@@ -50,6 +53,7 @@ public class ReviewReplyService {
      * 리뷰 댓글 삭제
      * @param replyId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteReply(Long replyId) {
         ReviewReply currentReply = reviewReplyRepository.findById(replyId)
                 .orElseThrow(() -> new NoSuchElementException(WRITING_NOT_FOUND));

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Table(name = "payment_history")
 public class PaymentHistory {
 
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "pay_sequence",
             sequenceName = "pay_sequence",
@@ -27,8 +27,9 @@ public class PaymentHistory {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "pay_sequence"
-    )
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_history_id")
     private Long id;
 
@@ -44,6 +45,17 @@ public class PaymentHistory {
     @JoinColumn(name = "product", nullable = false)
     private Product product;
 
+    @Column(name = "impUid")
+    private String impUid;
+
+    @Column(name = "pay_method")
+    private String payMethod;
+
+    private String bankCode;
+    private String bankName;
+    private String buyerAddr;
+    private String buyerEmail;
+
     @Column(name = "product_name")
     private String productName;
 
@@ -54,13 +66,14 @@ public class PaymentHistory {
     private Integer price;
 
     @Column(name = "total_price", nullable = false)
-    private Long totalPrice;
+    private Integer totalPrice;
 
     @Column(name = "paid_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime paidAt;
 
     @Column(name = "status")
-    private Boolean status = true;
+    @Enumerated(EnumType.STRING)
+    private Status statusType;
 
     @Column(name = "review")
     private Boolean review = false;
@@ -70,7 +83,8 @@ public class PaymentHistory {
         this.paidAt =  LocalDateTime.now();
     }
 
-    public PaymentHistory(Member member, Orders orders, Product product, String productName, String productOption, Integer price, Long totalPrice) {
+    public PaymentHistory(String impUid, Member member, Orders orders, Product product, String productName, String productOption, Integer price, Integer totalPrice, Status statusType, String payMethod, String bankCode, String bankName, String buyerAddr, String buyerEmail) {
+        this.impUid = impUid;
         this.member = member;
         this.orders = orders;
         this.product = product;
@@ -79,10 +93,24 @@ public class PaymentHistory {
         this.price = price;
         this.totalPrice = totalPrice;
         this.paidAt =  LocalDateTime.now();
+        this.statusType = statusType;
+        this.payMethod = payMethod;
+        this.bankCode = bankCode;
+        this.bankName = bankName;
+        this.buyerAddr = buyerAddr;
+        this.buyerEmail = buyerEmail;
     }
 
 
     public void setReview(Boolean review) {
         this.review = review;
+    }
+
+    public void setStatusType(Status statusType) {
+        this.statusType = statusType;
+    }
+
+    public void setTotalPrice(Integer totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

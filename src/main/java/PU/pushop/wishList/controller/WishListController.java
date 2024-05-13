@@ -8,6 +8,7 @@ import PU.pushop.wishList.model.WishListResponseDto;
 import PU.pushop.wishList.service.WishListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import static PU.pushop.global.ResponseMessageConstants.*;
 @RestController
 @RequestMapping("/api/v1/wishlist")
 @RequiredArgsConstructor
+@Slf4j
 public class WishListController {
     private final WishListService wishListService;
     private final ProductRepositoryV1 productRepository;
@@ -36,7 +38,6 @@ public class WishListController {
      */
     @PostMapping("/{productId}/{memberId}")
     public ResponseEntity<String> createWish(@Valid @PathVariable Long productId, @PathVariable Long memberId) {
-        try {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
@@ -45,9 +46,6 @@ public class WishListController {
 
             Long wishListId = wishListService.createWish(product, member);
             return ResponseEntity.status(HttpStatus.CREATED).body("찜 완료. Id : "+wishListId);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
     }
 
     /**

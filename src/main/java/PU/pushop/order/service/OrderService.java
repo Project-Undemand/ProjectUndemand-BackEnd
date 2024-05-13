@@ -112,6 +112,8 @@ public class OrderService {
      * @return 주문 테이블 저장
      */
     public Orders orderConfirm(Orders temporaryOrder, OrderDto orders) {
+        verifyUserIdMatch(temporaryOrder.getMember().getId()); // 로그인 된 사용자와 요청 사용자 비교
+
 
         String merchantUid = generateMerchantUid(); //주문번호 생성
 

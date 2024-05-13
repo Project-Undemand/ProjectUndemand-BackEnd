@@ -73,11 +73,8 @@ public class JoinApiController {
         // 회원 가입 시 , 회원 저장 및 프로필 저장을 한꺼번에 실행합니다. (같은 트렌젝션 내에서 처리)
         Member joinMember = memberService.joinMember(member);
 
-        // Member 에 있는 민감한 정보(비밀번호, 이메일인증토큰) 를 제외하고, 새로운 멤버를 저장하여 프로필에 멤버 데이터를 넣어줌.
-        Member profileMember = Member.createProfileMember(joinMember); // 저장된 newMember를 사용합니다.
-
         // 멤버 데이터로, 마이 프로필 생성
-        Profiles profile = Profiles.createMemberProfile(profileMember);
+        Profiles profile = Profiles.createMemberProfile(joinMember);
         profileRepository.save(profile);
 
         // 회원가입 완료 후 이메일 인증 메일 전송
