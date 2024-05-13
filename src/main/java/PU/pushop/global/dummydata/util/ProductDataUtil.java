@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -59,14 +60,19 @@ public class ProductDataUtil {
         String[] splitPath = imagePath.split("_");
         String category = splitPath[0];
         String subCategory = splitPath[1];
+        Random rand = new Random();
 
         ProductType productType = getProductType(subCategory);
         String productName = "Product for " + subCategory;
         String productInfo = "This is a " + productType.toString().toLowerCase() + " product for " + subCategory;
         String manufacturer = "Manufacturer for " + subCategory;
-        int price = 100;
-        boolean isDiscount = false;
-        boolean isRecommend = true;
+        // 가격을 100, 200, 300, 400, 500 중에서 랜덤하게 select.
+        int[] prices = {100, 200, 300, 400, 500};
+
+        int price = prices[rand.nextInt(prices.length)];
+
+        boolean isDiscount = rand.nextBoolean();
+        boolean isRecommend = rand.nextBoolean();
 
         // You might want to set imagePath to your product here if you have such field in your Product entity
         return new Product(productName, productType, price, productInfo, manufacturer, isDiscount, isRecommend);
