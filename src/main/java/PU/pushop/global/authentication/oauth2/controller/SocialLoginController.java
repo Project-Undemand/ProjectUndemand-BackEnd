@@ -166,6 +166,7 @@ public class SocialLoginController {
             Member existedMember = memberWithSocialId.get();
             // 회원 활성화
             existedMember.activateMember();
+//            memberRepositoryV1.save(existedMember);
 
             Optional<Profiles> optionalProfile = profileRepository.findByMemberId(existedMember.getId());
             // 프로필이 이미 존재하는 경우
