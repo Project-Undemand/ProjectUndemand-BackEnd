@@ -1,12 +1,10 @@
 package PU.pushop.profile.controller;
 
-
-import PU.pushop.members.entity.Member;
 import PU.pushop.profile.entity.Profiles;
+import PU.pushop.profile.model.MemberDTO;
 import PU.pushop.profile.model.MemberProfileDto;
 import PU.pushop.profile.repository.ProfileRepository;
 import PU.pushop.profile.service.ProfileService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,29 +31,18 @@ public class ProfileControllerV1 {
         Optional<Profiles> memberProfile = getMemberProfileByMemberId(memberId);
 
         if (memberProfile.isPresent()) {
-            try {
-                String json = objectMapper.writeValueAsString(memberProfile.get());
-                MemberProfileDto memberProfileDto = objectMapper.readValue(json, MemberProfileDto.class);
+            Profiles profiles = memberProfile.get();
+            MemberDTO memberDTO = MemberDTO.createMemberDto(profiles.getMember());
+            MemberProfileDto memberProfileDto = MemberProfileDto.createMemberProfileDto(profiles, memberDTO);
 
-                return ResponseEntity.ok(memberProfileDto);
-
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-
+            return ResponseEntity.ok(memberProfileDto);
         }
-
         return ResponseEntity.notFound().build();
     }
 
 
     public Optional<Profiles> getMemberProfileByMemberId(Long memberId) {
         Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
-        memberProfileOpt.ifPresent(memberProfile -> {
-            Member member = memberProfile.getMember();
-            String nickname = member.getNickname(); //트랜잭션이 끝나기전에 Member 를 로드하기 위해 member.getUsername(); 사용
-            System.out.println("nickname = " + nickname);
-        });
         return memberProfileOpt;
     }
 
