@@ -1,7 +1,8 @@
 application-test.yml
 DummyDataLoader.java
 ### environ-file ###
-environ-file.env
+environ-file
+.env
 .DS_Store
 
 HELP.md
