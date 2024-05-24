@@ -56,10 +56,10 @@ public class ImageUtil {
                             writer.setOutput(ios);
                             writer.write(null, new IIOImage(newImage, null, null), param);
 
-                            // 파일 크기 확인 후 1MB 이하로 압축
+                            // 파일 크기 확인 후 1MB 이하로 압축.
                             float quality = 0.5f;
-                            while (outputFile.length() > 1024 * 1024 && quality > 0.1f) {
-                                quality -= 0.1f;
+                            while (outputFile.length() > 1024 * 1024 && quality > 0.2f) {
+                                quality -= 0.2f;
                                 param.setCompressionQuality(quality);
                                 writer.write(null, new IIOImage(newImage, null, null), param);
                             }

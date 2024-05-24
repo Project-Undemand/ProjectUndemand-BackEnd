@@ -72,7 +72,12 @@ public class ProfileService {
 
         // 이미지 저장 및 DB 저장
         try {
+            long start = System.currentTimeMillis();
             String resizedFileName = ImageUtil.resizeImageFile(imageFile, filePath, "jpeg");
+            long end = System.currentTimeMillis();
+
+            log.info("Time taken to save the image locally: " + (end - start) + "milliseconds");
+
             String resizedFilePath = uploadsDir + resizedFileName;
             Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
             if (memberProfileOpt.isPresent()) {
