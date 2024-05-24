@@ -55,7 +55,7 @@ jobs:
     - name: Set oauth2 file
       uses: microsoft/variable-substitution@v1
       with:
-        files: ${{ env.OAUTH_RESOURCE_PATH }}
+        files: ${{ secrets.OAUTH_RESOURCE_PATH }}
       env:
         spring.security.oauth2.client.registration.naver.client-id: ${{ secrets.NAVER_CLIENT_ID }}
         spring.security.oauth2.client.registration.naver.client-secret: ${{ secrets.NAVER_CLIENT_SECRET }}
