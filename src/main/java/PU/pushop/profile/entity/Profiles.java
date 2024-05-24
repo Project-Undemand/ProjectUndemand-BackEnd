@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,7 +31,9 @@ public class Profiles {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Setter
     private String profileImgName;
+    @Setter
     private String profileImgPath;
 
     @Lob

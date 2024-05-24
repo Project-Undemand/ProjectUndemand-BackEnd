@@ -1,5 +1,6 @@
 package PU.pushop.profile.controller;
 
+import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.profile.entity.Profiles;
 import PU.pushop.profile.model.MemberDTO;
 import PU.pushop.profile.model.MemberProfileDto;
@@ -48,11 +49,13 @@ public class ProfileControllerV1 {
 
     @PostMapping("/image/{memberId}")
     public ResponseEntity<String> postProfileImage(@PathVariable Long memberId, @RequestParam("imageFile") MultipartFile imageFile) {
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         return profileService.uploadProfileImageV2(memberId, imageFile);
     }
 
     @DeleteMapping("/image/{memberId}")
     public ResponseEntity<String> deleteProfileImage(@PathVariable Long memberId) {
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         try {
             profileService.deleteProfileImage(memberId);
             return ResponseEntity.ok().body("Profile image deleted successfully for member id : " + memberId);
