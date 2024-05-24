@@ -9,9 +9,9 @@ name: Java CI with Gradle and Docker Deployment
 
 on:
   push:
-    branches: [ "release/v0.1.0" ]
+    branches: [ "release/v0.5.0" ]
   pull_request:
-    branches: [ "release/v0.1.0" ]
+    branches: [ "release/v0.5.0" ]
 
 env:
   RESOURCE_PATH: ./src/main/resources/application.yml
@@ -50,6 +50,23 @@ jobs:
         spring.frontend.url: ${{ secrets.FRONTEND_URL }}
         spring.imp.api.key: ${{ secrets.IMP_API_KEY }}
         spring.imp.secretkey: ${{ secrets.IMP_SECRET_KEY }}
+
+    # [1.5]
+    - name: Set oauth2 file
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ${{ env.OAUTH_RESOURCE_PATH }}
+      env:
+        spring.security.oauth2.client.registration.naver.client-id: ${{ secrets.NAVER_CLIENT_ID }}
+        spring.security.oauth2.client.registration.naver.client-secret: ${{ secrets.NAVER_CLIENT_SECRET }}
+        spring.security.oauth2.client.registration.naver.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/naver
+        spring.security.oauth2.client.registration.kakao.client-id: ${{ secrets.KAKAO_CLIENT_ID }}
+        spring.security.oauth2.client.registration.kakao.client-secret: ${{ secrets.KAKAO_SECRET }}
+        spring.security.oauth2.client.registration.kakao.client-authentication-method: ${{ secrets.KAKAO_AUTHENTICATION_METHOD }}
+        spring.security.oauth2.client.registration.kakao.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/kakao
+        spring.security.oauth2.client.registration.google.client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
+        spring.security.oauth2.client.registration.google.client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        spring.security.oauth2.client.registration.google.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/google
 
     # [2]
     - name: Grant execute permission for gradlew
