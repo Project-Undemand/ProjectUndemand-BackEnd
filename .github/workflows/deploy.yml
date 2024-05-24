@@ -62,6 +62,11 @@ jobs:
         spring.security.oauth2.client.registration.google.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/google
 
     # [2]
+    - name: Deploy with Docker Compose
+      run: |
+        echo "NGINX_SERVER=${{ secrets.NGINX_SERVER }}" >> .env
+        
+    # [3]
     - name: Grant execute permission for gradlew
       run: |
         chmod +x ./gradlew
@@ -69,19 +74,20 @@ jobs:
     # Configure Gradle for optimal use in GiHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     
-    # [3]
+    # [4]
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
+    # [5]
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
-    #[4]
+    # [6]
     - name: Make zip file
       run: zip -r ./$GITHUB_SHA.zip .
       shell: bash
 
-    # [5]
+    # [7]
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
@@ -89,13 +95,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    # [6]
+    # [8]
     - name: Upload to S3
       run: |
         echo "CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: $CODE_DEPLOY_DEPLOYMENT_GROUP_NAME"
         aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
-    # [7]
+    # [9]
     - name: Code Deploy
       run: | 
         aws deploy create-deployment \
@@ -104,31 +110,27 @@ jobs:
         --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
         --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
 
-    # [8]
-    - name: Build Docker image
-      run: docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} .
+    # # [10]
+    # - name: Build Docker image
+    #   run: docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} .
 
-    # [8.5]
-    - name: Check Docker credentials
-      run: echo "${{ secrets.DOCKER_USERNAME }}, ${{ secrets.DOCKER_PASSWORD }}"
+    # # []
+    # - name: Check Docker credentials
+    #   run: echo "${{ secrets.DOCKER_USERNAME }}, ${{ secrets.DOCKER_PASSWORD }}"
       
-    # [9]
-    - name: Login to Docker Hub
-      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+    # # [9]
+    # - name: Login to Docker Hub
+    #   run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-    # [10]
-    - name: Docker Push
-      run: docker push ${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+    # # [10]
+    # - name: Docker Push
+    #   run: docker push ${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
 
-    # [11]
-    - name: Deploy with Docker Compose
-      run: |
-        echo "NGINX_SERVER=${{ secrets.NGINX_SERVER }}" >> .env
 
-    # [12]
-    - name: Deploy with Docker Compose
-      run: |
-        docker-compose up -d --build
+    # # [12]
+    # - name: Deploy with Docker Compose
+    #   run: |
+    #     docker-compose up -d --build
         
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
     # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
