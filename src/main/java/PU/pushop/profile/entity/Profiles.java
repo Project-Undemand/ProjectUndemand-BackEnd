@@ -94,4 +94,11 @@ public class Profiles {
         this.profileImgName = this.profileImgPath.substring(this.profileImgPath.lastIndexOf("/") + 1);
     }
 
+    public void updateMemberAge(MemberAges newAge) {
+        this.memberAges = newAge;
+    }
+
+    public void updateMemberGender(MemberGender newGender) {
+        this.memberGender = newGender;
+    }
 }
