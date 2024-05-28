@@ -11,6 +11,8 @@
 <summary>ERD</summary>
 <div markdown='1'></div>
 
+![image](https://github.com/Project-Undemand/ProjectUndemand-BackEnd/assets/120750451/87fb0473-651a-4074-bd86-34e2ea6c72d5)
+
 </details>
 
 <details>
