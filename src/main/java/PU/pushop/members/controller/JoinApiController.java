@@ -104,11 +104,11 @@ public class JoinApiController {
         }
     }
 
-    // 이메일 인증 메일 전송
+    // 회원가입 이메일 인증 메일 전송
     private void sendVerificationEmail(String email, String token) {
         try {
             Member member = Member.createEmailMember(email, token); // isCertifyByMail = false
-            emailMemberService.add(member);
+            emailMemberService.sendEmailVerification(member);
         } catch (Exception e) {
             // 이메일 전송에 실패한 경우 처리
             e.printStackTrace();
@@ -239,11 +239,4 @@ public class JoinApiController {
     }
 
 }
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public class PasswordMismatchException extends IllegalArgumentException {
-//        public PasswordMismatchException() {
-//            super("Password and password confirmation do not match");
-//        }
-//    }
-
 

@@ -72,6 +72,7 @@ public class ProfileService {
 
         // 이미지 저장 및 DB 저장
         try {
+            // 이미지 저장 및 DB 저장 시간 측정.
             long start = System.currentTimeMillis();
             String resizedFileName = ImageUtil.resizeImageFile(imageFile, filePath, "jpeg");
             long end = System.currentTimeMillis();
@@ -82,6 +83,7 @@ public class ProfileService {
             Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
             if (memberProfileOpt.isPresent()) {
                 Profiles memberProfile = memberProfileOpt.get();
+                // Profile 의 ImgName, ImgPath 을 저장.
                 memberProfile.setProfileImgName(resizedFileName);
                 memberProfile.setProfileImgPath(dbFilePath); // 상대 경로가 아닌 절대 경로 설정
                 profileRepository.save(memberProfile);
