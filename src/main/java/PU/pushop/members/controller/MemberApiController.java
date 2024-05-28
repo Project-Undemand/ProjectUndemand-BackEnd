@@ -19,6 +19,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
+@RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
 public class MemberApiController {
 
@@ -29,7 +30,7 @@ public class MemberApiController {
      * 관리자 페이지에서 회원에 대한 모든 데이터를 확인할 때 사용하는 목적. 서비스 목적이 아닙니다.
      * ADMIN 관리자가 아니면 실행할 수 없는 api
      */
-    @GetMapping("/api/v1/members")
+    @GetMapping("/")
     public ResponseEntity<?> getMemberList(HttpServletRequest request) {
         // Request Header 에 담아준 Authorization 을 가져와서
         String authorization = request.getHeader("Authorization");
@@ -51,23 +52,9 @@ public class MemberApiController {
     }
 
     /**
-     * 회원 개인 정보 확인.
-     * 2024.05.05 현재로서 불필요한 api 이기에, 추후 삭제 고려
-     */
-    @GetMapping("/api/v1/members/{memberId}")
-    public ResponseEntity<Member> getMember(@PathVariable Long memberId) {
-        // memberId에 해당하는 Member 정보를 조회합니다.
-        Member member = memberRepositoryV1.findById(memberId)
-                .orElseThrow(() -> new UsernameNotFoundException("id에 맞는 해당 회원이 존재하지 않습니다."));
-
-        // 회원을 찾은 경우 200 OK 응답과 함께 Member 정보를 반환합니다.
-        return ResponseEntity.ok(member);
-    }
-
-    /**
      * 회원 비활성화
      */
-    @PostMapping("api/v1/members/deactive/{memberId}")
+    @PostMapping("/deactive/{memberId}")
     public ResponseEntity<?> deactiveMember(@PathVariable Long memberId, HttpServletRequest request) {
         // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
@@ -91,7 +78,7 @@ public class MemberApiController {
     /**
      * 회원 재활성화
      */
-    @PostMapping("api/v1/members/reactivate/{memberId}")
+    @PostMapping("/reactivate/{memberId}")
     public ResponseEntity<?> reActivateMember(@PathVariable Long memberId, HttpServletRequest request) {
         // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
@@ -115,7 +102,7 @@ public class MemberApiController {
      * 3. 입력한 비밀번호가, DB의 비밀번호와 일치하는지 확인합니다.
      * 4. 새롭게 입력한 newPassword와 newPassword_confirmation 가 같으면, 유저의 비밀번호를 갱신합니다.
      */
-    @PostMapping("api/v1/members/repassword/{memberId}")
+    @PostMapping("/repassword/{memberId}")
     public ResponseEntity<?> rePasswordMember(@PathVariable Long memberId, HttpServletRequest request, @RequestBody ResetPasswordRequest passwordRequest) {
         // 회원 비활성화 조건 : 접속 유저 id == request.user.getId()
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);

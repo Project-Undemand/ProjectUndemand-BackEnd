@@ -158,31 +158,41 @@ public class SecurityConfig {
                 .anyRequest().permitAll());
 
 
-
+        // Logout Api 를 사용할 것이기에, CustomLogoutFilter 를 사용하지 않을 것임.
+        /*
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
-        http
-                .addFilterBefore(new JWTFilterV1(jwtUtil, refreshRepository), CustomLogoutFilter.class);
+         */
 
-//        http
-//                .addFilterBefore(customJsonUsernamePasswordAuthenticationFilter(), JWTFilterV1.class);
+        /*
+         순차적으로 등록할 Filter 들을 등록.
+         1. 이메일, 패스워드 기반의 LoginFilter
+         2. 프론트엔드 로컬스토리지(엑세스), 스토리지쿠키(리프레쉬) 기반의 JWTFilter 를 등록.
+         3. CustomLogoutFilter 에서는
+         */
+        http
+                .addFilterBefore(new JWTFilterV1(jwtUtil), LogoutFilter.class);
         http
                 .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository, objectMapper, memberRepositoryV1, passwordEncoder()), JWTFilterV1.class);
 
 
-        // oauth2 에서 우리가 원하는 customOAuth2UserService 를 등록하는 것. 구글, 네이버. 각각 response 방법이 다르다.
-//        http
-//                .oauth2Login((oauth2) -> oauth2
-//                        .userInfoEndpoint(
-//                                (userInfoEndpointConfig -> userInfoEndpointConfig
-//                                        .userService(customOAuth2UserServiceV1)
-//                                )
-//                        )
-//                        .successHandler(loginSuccessHandler())
-//                        .failureHandler(loginFailureHandler())
-//                );
 
-        //세션 설정 : STATELESS
+        /*
+        // CustomOAuth2Login 이후 , 클라이언트에 access, refresh 토큰을 전달할 방법을 잘 몰라서 주석처리.
+        // oauth2 에서 우리가 원하는 customOAuth2UserService 를 등록. 카카오/네이버/구글 등재
+        http
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint(
+                                (userInfoEndpointConfig -> userInfoEndpointConfig
+                                        .userService(customOAuth2UserServiceV1)
+                                )
+                        )
+                        .successHandler(loginSuccessHandler())
+                        .failureHandler(loginFailureHandler())
+                );
+        */
+
+        // 세션 설정 : STATELESS .
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
