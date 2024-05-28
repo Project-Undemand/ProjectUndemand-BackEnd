@@ -34,6 +34,7 @@ public class ProfileControllerV1 {
 
     @GetMapping("/{memberId}")
     public ResponseEntity<MemberProfileDto> getProfile(@PathVariable Long memberId) {
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         Optional<Profiles> memberProfile = getMemberProfileByMemberId(memberId);
 
         if (memberProfile.isPresent()) {
