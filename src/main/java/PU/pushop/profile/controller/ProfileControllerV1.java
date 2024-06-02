@@ -13,6 +13,7 @@ import PU.pushop.profile.service.ProfileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,10 +54,17 @@ public class ProfileControllerV1 {
         return memberProfileOpt;
     }
 
+    @GetMapping("/image/{memberId}")
+    public ResponseEntity<?> getProfileImage(@PathVariable Long memberId) throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, "image/jpeg");
+        return ResponseEntity.ok().body(profileService.getProfileImage(memberId));
+    }
+
     @PostMapping("/image/{memberId}")
     public ResponseEntity<String> postProfileImage(@PathVariable Long memberId, @RequestParam("imageFile") MultipartFile imageFile) {
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
-        return profileService.uploadProfileImageV2(memberId, imageFile);
+        return profileService.uploadProfileImageV3(memberId, imageFile);
     }
 
     @DeleteMapping("/image/{memberId}")
