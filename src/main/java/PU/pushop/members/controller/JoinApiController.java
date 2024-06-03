@@ -1,6 +1,5 @@
 package PU.pushop.members.controller;
 
-
 import PU.pushop.global.mail.service.EmailMemberService;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.model.LoginRequest;
@@ -30,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class JoinApiController {
 
     private final MemberService memberService;
@@ -38,7 +37,6 @@ public class JoinApiController {
     private final MemberRepositoryV1 memberRepositoryV1;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RefreshRepository refreshRepository;
-    private final ProfileService profileService;
     private final ProfileRepository profileRepository;
 
     /**
@@ -49,7 +47,6 @@ public class JoinApiController {
      * @return email
      */
     @PostMapping("/join")
-    @Transactional
     public ResponseEntity<?> joinMemberV1(@RequestBody @Valid JoinMemberRequest request) {
         // 표준화된 128-bit의 고유 식별자
         String token = UUID.randomUUID().toString();
@@ -89,11 +86,11 @@ public class JoinApiController {
     public ResponseEntity<String> verifyEmailWhenMemberJoin(@RequestParam("token") String token) {
         // queryParameter 로 전해진 token 값에 대한 유효성검사 및 인증과정 진행.
         Member member = emailMemberService.updateByVerifyToken(token);
-        if (member != null) {
-            return ResponseEntity.ok("이메일 인증이 성공적으로 완료되었습니다.");
-        } else {
+        if (member == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유효하지 않은 토큰입니다.");
         }
+        log.info(String.valueOf("isCertifyByMail ? "+ member.isCertifyByMail()));
+        return ResponseEntity.ok("이메일 인증이 성공적으로 완료되었습니다.");
     }
 
     private void validateExistedMemberByEmail(String email) {
@@ -117,20 +114,26 @@ public class JoinApiController {
 
 
     @PostMapping("/login")
-    @Transactional
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
 
         Member member = memberService.memberLogin(loginRequest);
-        if(member == null){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("email 또는 비밀번호가 일치하지 않습니다!");
+        if (member != null) {
+            log.info("멤버 이메일 인증 여부 : " + member.isCertifyByMail());
         }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("로그인 성공했습니다");
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("가입되지 않는 email 이거나 비밀번호가 일치하지 않습니다. ");
+        }
+        if (!member.isCertifyByMail()) {
+            return ResponseEntity.badRequest().body("이메일 인증이 되지 않은 회원입니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("PU에 오신 것을 환영합니다. ");
+        }
+
     }
 
     @PostMapping("/logout")
-    @Transactional
     public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
                                     HttpServletResponse response) {
         System.out.println(refreshToken);
@@ -163,7 +166,6 @@ public class JoinApiController {
      * @return email
      */
     @PostMapping("/admin/join")
-    @Transactional
     public ResponseEntity<?> joinAdmin(@RequestBody @Valid JoinMemberRequest request) {
 //        validatePasswordMatch(request.getPassword(), request.getPassword_certify());
         // 표준화된 128-bit의 고유 식별자
