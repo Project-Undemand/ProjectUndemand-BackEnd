@@ -68,14 +68,23 @@ public class ProductDataUtil {
         String manufacturer = "Manufacturer for " + subCategory;
         // 가격을 100, 200, 300, 400, 500 중에서 랜덤하게 select.
         int[] prices = {100, 200, 300, 400, 500};
+        int[] discountRates = {10, 20, 30, 40, 50};
 
         int price = prices[rand.nextInt(prices.length)];
 
         boolean isDiscount = rand.nextBoolean();
+        // isDiscount 여부에 따라, discountRate 를 정해주도록 리펙토링 [24.06.03]
+        Integer discountRate;
+        if (isDiscount) {
+            discountRate = discountRates[rand.nextInt(discountRates.length)];
+        } else {
+            discountRate = null;
+        }
+
         boolean isRecommend = rand.nextBoolean();
 
         // You might want to set imagePath to your product here if you have such field in your Product entity
-        return new Product(productName, productType, price, productInfo, manufacturer, isDiscount, isRecommend);
+        return new Product(productName, productType, price, productInfo, manufacturer, isDiscount, discountRate, isRecommend);
     }
 
     // 단순히 DB 에 저장하는 로직
@@ -103,18 +112,6 @@ public class ProductDataUtil {
         };
     }
 
-    private int computePriceFromImagePath(String imagePath) {
-        return imagePath.hashCode() % 10000;
-    }
-
-    private boolean isDiscountFromImagePath(String imagePath) {
-        return imagePath.hashCode() % 2 == 0;
-    }
-
-    private boolean isRecommendFromImagePath(String imagePath) {
-        return imagePath.hashCode() % 3 == 0;
-    }
-
     private String buildProductName(int index) {
         return String.format(PRODUCT_NAME_TEMPLATE, index);
     }
@@ -126,26 +123,5 @@ public class ProductDataUtil {
     private String buildManufacturerName(int index) {
         return String.format(MANUFACTURER_NAME_TEMPLATE, index);
     }
-
-    private int computePrice(int index) {
-        return 10000 * (index % 5 + 1);
-    }
-
-    private boolean isDiscount(int index) {
-        return index % 2 == 0;
-    }
-
-    private boolean isRecommend(int index) {
-        return index % 3 == 0;
-    }
-
-    private ProductType getProductType(int index) {
-        if (index % 3 == 0) return ProductType.UNISEX;
-        else if (index % 3 == 1) return ProductType.MAN;
-        else return ProductType.WOMAN;
-    }
-
-
-
 
 }

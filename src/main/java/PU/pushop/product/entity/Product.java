@@ -109,8 +109,28 @@ public class Product {
     }
 
     /**
-     * Constructs a new Product object .
+     * Constructs a new Product object, for create product dummy data.
      */
+    public Product(
+            String productName,
+            ProductType productType,
+            int price, String productInfo,
+            String manufacturer,
+            boolean isDiscount,
+            Integer discountRate,
+            boolean isRecommend) {
+        this.productName = productName;
+        this.productType = productType;
+        this.price = price;
+        this.productInfo = productInfo;
+        this.manufacturer = manufacturer;
+        this.isDiscount = isDiscount;
+        this.discountRate = discountRate;
+        this.isRecommend = isRecommend;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public Product(
             String productName,
             ProductType productType,
@@ -153,16 +173,6 @@ public class Product {
         this.discountRate = Boolean.TRUE.equals(productCreateDto.getIsDiscount()) ? productCreateDto.getDiscountRate() : null;
         this.isRecommend = productCreateDto.getIsRecommend();
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // 상품 더미데이터 생성
-    public static Product createDummyProduct(String productName,
-                                             ProductType productType,
-                                             int price, String productInfo,
-                                             String manufacturer,
-                                             boolean isDiscount,
-                                             boolean isRecommend) {
-        return new Product(productName, productType, price, productInfo, manufacturer, isDiscount, isRecommend);
     }
 
     public Product(Long productId) {
