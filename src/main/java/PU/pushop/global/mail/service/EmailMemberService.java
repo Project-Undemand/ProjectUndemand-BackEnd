@@ -54,13 +54,10 @@ public class EmailMemberService {
             // 회원 정보를 업데이트합니다.
             Member member = optionalMember.get();
             log.info("member email token = " + member.getToken());
-            // 회원의 이메일 Token 을 저장
-            member.updateMemberByToken(token);
             // 회원의 이메일 인증 여부를 True 로 반환
             member.certifyByEmail();
             // 변경된 이메일 인증 여부, 이메일 토큰을 DB에 반영
-            memberRepositoryV1.save(member);
-            return member;
+            return memberRepositoryV1.save(member);
         } else {
             throw new UsernameNotFoundException("해당 토큰을 가진 멤버가 존재하지 않습니다!");
         }

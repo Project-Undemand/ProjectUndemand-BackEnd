@@ -22,9 +22,11 @@ public class ImageUtil {
         long startTime = System.currentTimeMillis(); // 시작 시간 기록
 
         BufferedImage inputImage = ImageIO.read(file.getInputStream());
+        long initialSize = file.getSize();
+        log.info("Initial file size: " + initialSize + " bytes");
         int originWidth = inputImage.getWidth();
         int originHeight = inputImage.getHeight();
-        int newWidth = 500;
+        int newWidth = 400;
 
         File outputFile = new File(filePath);
 
@@ -78,6 +80,7 @@ public class ImageUtil {
         long duration = endTime - startTime; // 총 걸린 시간 계산
 
         log.info("Final file size: " + outputFile.length() + " bytes");
+        log.info("Final file name: " + outputFile.getName() );
         log.info("Total time taken: " + duration + " ms");
         return outputFile.getName();
     }

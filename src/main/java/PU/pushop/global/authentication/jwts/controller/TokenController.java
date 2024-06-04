@@ -38,11 +38,11 @@ public class TokenController {
     private final RefreshRepository refreshRepository;
     private final MemberRepositoryV1 memberRepositoryV1;
     /**
-     * long accessTokenExpirationPeriod = 60L * 10;
-     * long refreshTokenExpirationPeriod = 3600L * 24;
+     * long accessTokenExpirationPeriod = 60L * 30; 30 분
+     * long refreshTokenExpirationPeriod = 3600L * 24 * 7; 7일
      */
-    private Long accessTokenExpirationPeriod = 60L * 10; // 10 분
-    private Long refreshTokenExpirationPeriod = 3600L * 24; // 24 시간
+    private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
+    private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
 
     @PostMapping("/api/v1/reissue/access")
     public @ResponseBody void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -181,6 +181,11 @@ public class TokenController {
 
     private String fetchTokenFromAuthorizationHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
+
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Authorization header must be provided and should start with 'Bearer '");
+        }
+
         // Subtract 'Bearer ' part of token
         return bearerToken.substring(7);
     }
