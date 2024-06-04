@@ -113,7 +113,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
 
     private void setTokenResponseV1(HttpServletResponse response, String accessToken, String refreshToken) {
         // [reponse Header] : Access Token 추가
-        response.addHeader("Authorization", "Bearer " + accessToken);
+        response.addCookie(createCookie("Authorization", "Bearer " + accessToken));
         // [reponse Cookie] : Refresh Token 추가
         response.addCookie(createCookie("refreshToken", refreshToken));
         // HttpStatus 200 OK

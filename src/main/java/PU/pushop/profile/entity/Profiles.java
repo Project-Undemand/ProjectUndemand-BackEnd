@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,7 +31,9 @@ public class Profiles {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Setter
     private String profileImgName;
+    @Setter
     private String profileImgPath;
 
     @Lob
@@ -91,4 +94,11 @@ public class Profiles {
         this.profileImgName = this.profileImgPath.substring(this.profileImgPath.lastIndexOf("/") + 1);
     }
 
+    public void updateMemberAge(MemberAges newAge) {
+        this.memberAges = newAge;
+    }
+
+    public void updateMemberGender(MemberGender newGender) {
+        this.memberGender = newGender;
+    }
 }

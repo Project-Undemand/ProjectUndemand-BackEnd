@@ -1,6 +1,5 @@
 package PU.pushop.members.controller;
 
-
 import PU.pushop.global.mail.service.EmailMemberService;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.model.LoginRequest;
@@ -30,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class JoinApiController {
 
     private final MemberService memberService;
@@ -38,7 +37,6 @@ public class JoinApiController {
     private final MemberRepositoryV1 memberRepositoryV1;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RefreshRepository refreshRepository;
-    private final ProfileService profileService;
     private final ProfileRepository profileRepository;
 
     /**
@@ -49,7 +47,6 @@ public class JoinApiController {
      * @return email
      */
     @PostMapping("/join")
-    @Transactional
     public ResponseEntity<?> joinMemberV1(@RequestBody @Valid JoinMemberRequest request) {
         // 표준화된 128-bit의 고유 식별자
         String token = UUID.randomUUID().toString();
@@ -60,7 +57,7 @@ public class JoinApiController {
         String requestNickname = request.getNickname();
         // 가입할 유저가 입력한 nickname 이 없거나, 비어있으면 400 응답을 반환합니다. [2024.04.16 김성우 추가]
         if (requestNickname == null || requestNickname.isEmpty()) {
-            return new ResponseEntity<>("Nickname cannot be empty", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("닉네임을 꼭 입력해야합니다. ", HttpStatus.BAD_REQUEST);
         }
 
         // 동일한 이메일이 존재하는지 유효성 검사. 백엔드 로그에 ERROR 전달.[2024.04.14 김성우 추가]
@@ -81,7 +78,7 @@ public class JoinApiController {
         sendVerificationEmail(joinMember.getEmail(), token);
 
         JoinMemberResponse response = new JoinMemberResponse(joinMember.getId(), member.getEmail());
-        // 회원가입 진행한 멤버의 id만 return
+        // memberId, email 을 return
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -89,11 +86,11 @@ public class JoinApiController {
     public ResponseEntity<String> verifyEmailWhenMemberJoin(@RequestParam("token") String token) {
         // queryParameter 로 전해진 token 값에 대한 유효성검사 및 인증과정 진행.
         Member member = emailMemberService.updateByVerifyToken(token);
-        if (member != null) {
-            return ResponseEntity.ok("이메일 인증이 성공적으로 완료되었습니다.");
-        } else {
+        if (member == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유효하지 않은 토큰입니다.");
         }
+        log.info(String.valueOf("isCertifyByMail ? "+ member.isCertifyByMail()));
+        return ResponseEntity.ok("이메일 인증이 성공적으로 완료되었습니다.");
     }
 
     private void validateExistedMemberByEmail(String email) {
@@ -104,11 +101,11 @@ public class JoinApiController {
         }
     }
 
-    // 이메일 인증 메일 전송
+    // 회원가입 이메일 인증 메일 전송
     private void sendVerificationEmail(String email, String token) {
         try {
             Member member = Member.createEmailMember(email, token); // isCertifyByMail = false
-            emailMemberService.add(member);
+            emailMemberService.sendEmailVerification(member);
         } catch (Exception e) {
             // 이메일 전송에 실패한 경우 처리
             e.printStackTrace();
@@ -117,44 +114,46 @@ public class JoinApiController {
 
 
     @PostMapping("/login")
-    @Transactional
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
 
         Member member = memberService.memberLogin(loginRequest);
-        if(member == null){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("email 또는 비밀번호가 일치하지 않습니다!");
+        if (member != null) {
+            log.info("멤버 이메일 인증 여부 : " + member.isCertifyByMail());
         }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("로그인 성공했습니다");
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("가입되지 않는 email 이거나 비밀번호가 일치하지 않습니다. ");
+        }
+        if (!member.isCertifyByMail()) {
+            return ResponseEntity.badRequest().body("이메일 인증이 되지 않은 회원입니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("PU에 오신 것을 환영합니다. ");
+        }
+
     }
 
     @PostMapping("/logout")
-    @Transactional
     public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
                                     HttpServletResponse response) {
         System.out.println(refreshToken);
         if (refreshToken != null) {
-            log.info(refreshToken + "is not null");
-
             Optional<Member> optionalMember = memberRepositoryV1.findByToken(refreshToken);
             if (optionalMember.isPresent()) {
-                log.info("optionalMember " + "is Present! 존재하는 유저에 대한 로그아웃을 실행합니다. ");
+                Member existMember = optionalMember.get();
                 // refreshToken을 이용하여 DB에 있는 해당 토큰을 삭제
                 refreshRepository.deleteByRefreshToken(refreshToken);
 
                 // 로그아웃 시 , 멤버의 이메일을 String으로 반환
-                Member member = optionalMember.get();
-                String memberEmail = member.getEmail();
-                return ResponseEntity.status(HttpStatus.OK).body(memberEmail + " 로그아웃 되었습니다");
+                return ResponseEntity.status(HttpStatus.OK).body(existMember.getEmail() + " 로그아웃 되었습니다");
             } else {
                 log.info("optionalMember" + "is not Present");
-                return ResponseEntity.status(HttpStatus.OK).body("쿠키에 저장된 리프레쉬토큰의 유저가 존재하지 않습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("쿠키에 저장된 리프레쉬토큰의 유저가 존재하지 않습니다.");
             }
 
         } else {
-            log.info(refreshToken + "is null");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저입니다!");
+            log.info("이미 로그아웃 된 유저에 대한 로그아웃 시도입니다. ");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저에 대한 로그아웃 시도입니다. ");
         }
     }
 
@@ -167,7 +166,6 @@ public class JoinApiController {
      * @return email
      */
     @PostMapping("/admin/join")
-    @Transactional
     public ResponseEntity<?> joinAdmin(@RequestBody @Valid JoinMemberRequest request) {
 //        validatePasswordMatch(request.getPassword(), request.getPassword_certify());
         // 표준화된 128-bit의 고유 식별자
@@ -198,7 +196,7 @@ public class JoinApiController {
         profileRepository.save(profile);
 
         JoinMemberResponse response = new JoinMemberResponse(newAdminMember.getId(), member.getEmail());
-        // 회원가입 진행한 멤버의 id만 return
+        // memberId, email 을 return
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -239,11 +237,4 @@ public class JoinApiController {
     }
 
 }
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public class PasswordMismatchException extends IllegalArgumentException {
-//        public PasswordMismatchException() {
-//            super("Password and password confirmation do not match");
-//        }
-//    }
-
 

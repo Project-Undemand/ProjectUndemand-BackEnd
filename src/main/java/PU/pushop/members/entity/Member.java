@@ -183,4 +183,10 @@ public class Member {
     public void reSetPassword(String newPassword) {
         this.password = newPassword;
     }
+
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+
 }
