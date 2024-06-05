@@ -4,7 +4,6 @@ import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.model.RefreshDto;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -160,16 +158,28 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
     }
 
     /**
-     * [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+     * [response.data] 에 Json 형태로 accessToken 을 넣어주고, 쿠키에 refreshToken 을 넣어주는 방식
      */
     private void addResponseDataV2(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
         // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        // response.data 에 accessToken 담아주기.
+        // response.data 에 accessToken, refreshToken 담아주기.
         JsonObject responseData = new JsonObject();
         responseData.addProperty("accessToken", accessToken);
+        responseData.addProperty("refreshToken", refreshToken);
         response.getWriter().write(responseData.toString());
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
+    }
+
+    /**
+     * 쿠키에 refreshToken 을 넣어주는 방식
+     */
+    private void addResponseDataV3(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
+        // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         // 리프레시 토큰을 쿠키에 저장합니다.
         response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         // HttpStatus 200 OK
