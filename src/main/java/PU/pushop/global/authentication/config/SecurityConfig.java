@@ -2,12 +2,12 @@ package PU.pushop.global.authentication.config;
 
 import PU.pushop.global.authentication.jwts.filters.*;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
-import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserServiceV2;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserServiceV1;
-import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV2;
+import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV1;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
+import PU.pushop.members.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -36,14 +36,15 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final JWTUtil jwtUtil;
+    // [LoginFilter] Bean 등록
     private final ObjectMapper objectMapper;
-    private final MemberRepositoryV1 memberRepositoryV1;
+    private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    // [MemberService] Bean 등록
+    private final MemberRepositoryV1 memberRepositoryV1;
+    // [Social 로그인] 을 위한 생성자 주입
     private final CustomOAuth2UserServiceV1 customOAuth2UserServiceV1;
-    private final CustomOAuth2UserServiceV2 customOAuth2UserServiceV2;
-    private final CustomLoginSuccessHandlerV2 customLoginSuccessHandler;
+    private final CustomLoginSuccessHandlerV1 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
     @Bean
@@ -52,14 +53,17 @@ public class SecurityConfig {
         return new AuthenticationConfiguration();
     }
 
-//    @Bean
-//    public CustomOAuth2UserServiceV1 customOAuth2UserServiceV1() {
-//        return new CustomOAuth2UserServiceV1(memberRepositoryV1);
-//    }
-//    @Bean
-//    public CustomOAuth2UserServiceV2 customOAuth2UserServiceV2() {
-//        return new CustomOAuth2UserServiceV2(objectMapper);
-//    }
+    @Bean
+    public LoginFilter loginFilter() throws Exception {
+        return new LoginFilter(
+                authenticationManager(authenticationConfiguration()),
+                objectMapper,
+                memberService(),
+                jwtUtil,
+                refreshRepository,
+                objectMapper
+        );
+    }
 
     @Bean
     public AuthenticationSuccessHandler loginSuccessHandler() {
@@ -75,7 +79,11 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //AuthenticationManager Bean 등록
+    @Bean
+    public MemberService memberService() {
+        return new MemberService(memberRepositoryV1, passwordEncoder());
+    }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 
@@ -84,8 +92,7 @@ public class SecurityConfig {
 
     @Bean
     public CustomJsonEmailPasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() throws Exception {
-        CustomJsonEmailPasswordAuthenticationFilter filter = new CustomJsonEmailPasswordAuthenticationFilter(authenticationManager(authenticationConfiguration()), objectMapper);
-        return filter;
+        return new CustomJsonEmailPasswordAuthenticationFilter(authenticationManager(authenticationConfiguration()), objectMapper);
     }
 
     @Bean
@@ -171,15 +178,14 @@ public class SecurityConfig {
          3. CustomLogoutFilter 에서는
          */
         http
-                .addFilterBefore(new JWTFilterV1(jwtUtil), LogoutFilter.class);
+                .addFilterBefore(new JWTFilterV1(jwtUtil), UsernamePasswordAuthenticationFilter.class);
         http
-                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration()), objectMapper, jwtUtil, refreshRepository, objectMapper, memberRepositoryV1, passwordEncoder()), JWTFilterV1.class);
+                .addFilterBefore(loginFilter(), JWTFilterV1.class);
 
         /**
          * CustomOAuth2Login 이후 , 클라이언트에 access, refresh 토큰을 전달할 방법을 잘 몰라서 주석처리.
          * oauth2 에서 우리가 원하는 customOAuth2UserService 를 등록. 카카오/네이버/구글 등재
          */
-        /*
         http
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint(
@@ -190,7 +196,6 @@ public class SecurityConfig {
                         .successHandler(loginSuccessHandler())
                         .failureHandler(loginFailureHandler())
                 );
-        */
 
         /**
          * 세션 설정 : STATELESS .

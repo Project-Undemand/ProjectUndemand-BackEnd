@@ -6,6 +6,7 @@ import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.model.RefreshDto;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
+import PU.pushop.members.service.MemberService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
@@ -22,8 +23,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
@@ -33,6 +32,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static PU.pushop.global.authentication.jwts.utils.CookieUtil.createCookie;
+
 @Slf4j
 public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
@@ -40,21 +41,19 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
     private Long refreshTokenExpirationPeriod = 1209600L;
 
-    private final MemberRepositoryV1 memberRepositoryV1;
+    private final MemberService memberService;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final ObjectMapper objectMapper;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     private static final String CONTENT_TYPE = "application/json"; // JSON 타입의 데이터로 오는 로그인 요청만 처리
 
-    public LoginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper1, MemberRepositoryV1 memberRepositoryV1, BCryptPasswordEncoder passwordEncoder) {
+    public LoginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, MemberService memberService, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper1) {
         super(authenticationManager, objectMapper);
+        this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
         this.objectMapper = objectMapper1;
-        this.memberRepositoryV1 = memberRepositoryV1;
-        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -76,8 +75,7 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
             String password = usernamePasswordMap.get("password");
 
             // 사용자 정보에서 isCertifyByMail 필드 확인
-            Member member = memberRepositoryV1.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+            Member member = memberService.validateDuplicatedEmail(email);
 
 //                Member member = byEmail.get();
 //                if (!passwordEncoder.matches(password, member.getPassword())) {
@@ -113,8 +111,7 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
         String email = authentication.getName();
-        Member memberByEmail = memberRepositoryV1.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+        Member memberByEmail = memberService.validateDuplicatedEmail(email);
         String memberId = memberByEmail.getId().toString(); // 토큰에 넣을때, 문자열로 넣습니다.
         // 권한을 문자열로 변환
         String role = extractAuthority(authentication);
@@ -167,14 +164,14 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
      */
     private void addResponseDataV2(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
         // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
-        JsonObject responseData = new JsonObject();
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        // response.data 에 accessToken, refreshToken 두값 설정
+        // response.data 에 accessToken 담아주기.
+        JsonObject responseData = new JsonObject();
         responseData.addProperty("accessToken", accessToken);
-        responseData.addProperty("refreshToken", refreshToken);
-        responseData.addProperty("email", email);
         response.getWriter().write(responseData.toString());
+        // 리프레시 토큰을 쿠키에 저장합니다.
+        response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());
     }
@@ -206,15 +203,5 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         }
 
     }
-
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60 ); // 1일
-        cookie.setHttpOnly(true);
-//        cookie.setSecure(true); // HTTPS에서만 쿠키 전송
-        cookie.setPath("/"); // 필요에 따라 설정
-        return cookie;
-    }
-
 
 }

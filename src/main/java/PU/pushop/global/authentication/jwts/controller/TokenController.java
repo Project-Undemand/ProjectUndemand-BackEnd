@@ -1,6 +1,7 @@
 package PU.pushop.global.authentication.jwts.controller;
 
 
+import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.Refresh;
@@ -25,9 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static PU.pushop.global.ResponseMessageConstants.MEMBER_NOT_FOUND;
+import static PU.pushop.global.ResponseMessageConstants.REFRESH_NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,18 +50,80 @@ public class TokenController {
     private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
     private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
 
+    /**
+     * 클라이언트 쿠키에 리프레쉬토큰을 받아와, 유효한 리프레쉬토큰의 경우 엑세스토큰을 재발급해주는 로직.
+     * [2024.06.05] 토큰 유효성 검증 및 쿠키에서 가져오지 못하는 경우에 대한 예외처리와 Response 업데이트.
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @PostMapping("/api/v1/reissue/access")
     public @ResponseBody void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String accessToken = fetchTokenFromAuthorizationHeader(request);
+        try {
+            String refreshAuthorization = CookieUtil.getCookieValue(request, "refreshAuthorization");
 
-        String memberId = jwtUtil.getMemberId(accessToken);
-        MemberRole role = jwtUtil.getRole(accessToken);
+            if (refreshAuthorization == null || !refreshAuthorization.startsWith("Bearer+")) {
+                sendLoginRequiredResponse(response, null);
+                return;
+            }
+            // 쿠키에서 가져온 리프레쉬 토큰
+            String refreshToken = refreshAuthorization.substring(7);
 
-        Optional<Refresh> optionalRefresh = refreshRepository.findByMemberId(Long.valueOf(memberId));
+            if (!jwtUtil.validateToken(refreshToken)) {
+                sendLoginRequiredResponse(response, null);
+                return;
+            }
+            /**
+             * 쿠키에서 가져온 리프레쉬 토큰이 DB에 존재하는지 체크합니다. 정말 중요한 로직입니다.
+             * 소셜로그인이나, 로그인을 진행하게 되면 새로운 리프레쉬 토큰을 DB에 저장하고
+             * 로그아웃 시 DB 에 저장된 리프레쉬 토큰을 삭제하게 됩니다.
+             * DB 에 있는 리프레쉬 토큰을 조회한다는 것은
+             * 로그인을 진행 했는가 ? 로그아웃을 한 유저는 아닌가? 프로세스의 최종 관문입니다.
+             */
+            Refresh refreshTokenEntity = refreshRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new NoSuchElementException(REFRESH_NOT_FOUND));
 
-        if (optionalRefresh.isPresent()) {
-            handleRefreshExists(response, memberId, role, optionalRefresh.get());
+            LocalDateTime refreshExpiration = refreshTokenEntity.getExpiration();
+            if (refreshExpiration.isBefore(LocalDateTime.now())) {
+                sendLoginRequiredResponse(response, String.valueOf(refreshTokenEntity.getMember().getId()));
+                return;
+            }
+
+            String memberId = jwtUtil.getMemberId(refreshToken);
+            MemberRole role = jwtUtil.getRole(refreshToken);
+
+            String accessToken = jwtUtil.createAccessToken("access", memberId, String.valueOf(role));
+            sendJsonResponseWithAccessToken(response, accessToken);
+            log.info("New access token created. memberId : " + memberId);
+            response.setStatus(HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            log.error("Error during access token reissue", e);
+            sendErrorResponse(response, "Failed to reissue access token");
         }
+
+    }
+
+    private void sendJsonResponseWithAccessToken(HttpServletResponse response, String newAccessToken) throws IOException {
+        // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
+        JsonObject responseData = new JsonObject();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        responseData.addProperty("accessToken", newAccessToken);
+        response.getWriter().write(responseData.toString());
+    }
+
+    private void sendLoginRequiredResponse(HttpServletResponse response, String memberId) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"message\":\"Please Login. Refresh expired!.\"}");
+        log.info("Refresh expired!. memberId : {}", memberId);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, String errorMessage) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.getWriter().write("{\"error\": \"" + errorMessage + "\"}");
     }
 
     @PostMapping("/api/v1/reissue/refresh")
@@ -106,14 +174,6 @@ public class TokenController {
         response.setStatus(HttpStatus.OK.value());
     }
 
-    private void sendLoginRequiredResponse(HttpServletResponse response, String memberId) throws IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"message\":\"Please Login. Refresh expired!.\"}");
-        log.info("Refresh expired!. memberId : {}", memberId);
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-    }
-
     private void setResponseData(HttpServletResponse response, String BeforeRefresh) throws ClassNotFoundException {
         String memberId = jwtUtil.getMemberId(BeforeRefresh);
         MemberRole role = jwtUtil.getRole(BeforeRefresh);
@@ -128,18 +188,6 @@ public class TokenController {
 
         response.setHeader("Authorization", "Bearer " + newAccess);
         response.addCookie(createCookie("refreshToken", newRefresh));
-    }
-
-    private String getRefreshCookieValueV1(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refreshToken")) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 
     private String getRefreshCookieValue(HttpServletRequest request) {
@@ -190,26 +238,5 @@ public class TokenController {
         return bearerToken.substring(7);
     }
 
-    private void sendJsonResponseWithAccessToken(HttpServletResponse response, String newAccessToken) throws IOException {
-        // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
-        JsonObject responseData = new JsonObject();
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        responseData.addProperty("accessToken", newAccessToken);
-        response.getWriter().write(responseData.toString());
-    }
 
-    private void addResponseData(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
-        // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
-        com.google.gson.JsonObject responseData = new JsonObject();
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        // response.data 에 accessToken, refreshToken 두값 설정
-        responseData.addProperty("accessToken", accessToken);
-        responseData.addProperty("refreshToken", refreshToken);
-        responseData.addProperty("email", email);
-        response.getWriter().write(responseData.toString());
-        // HttpStatus 200 OK
-        response.setStatus(HttpStatus.OK.value());
-    }
 }

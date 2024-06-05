@@ -17,7 +17,9 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "member")
+@Table(name = "member", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "social_id")
+})
 public class Member {
 
     @Id
@@ -47,7 +49,8 @@ public class Member {
     @JsonProperty("social_type")
     private SocialType socialType;
 
-    @Column(name = "social_id")
+    @Column(name = "social_id", unique = true)
+    @NotBlank
     @JsonProperty("social_id")
     private String socialId; // Provider + prividerId 형식
 
@@ -108,13 +111,13 @@ public class Member {
     }
 
     // General Member 생성
-    public static Member createGeneralMember(String email, String nickname, String password, String token) {
-        return new Member(email, password, null, nickname, MemberRole.USER, SocialType.GENERAL, null, token, false);
+    public static Member createGeneralMember(String email, String nickname, String password, String token, String socialId) {
+        return new Member(email, password, null, nickname, MemberRole.USER, SocialType.GENERAL, socialId, token, false);
     }
 
     // Admin Member 생성
-    public static Member createAdminMember(String email, String nickname, String password, String token) {
-        return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, null, token, true);
+    public static Member createAdminMember(String email, String nickname, String password, String token, String socialId) {
+        return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, socialId, token, true);
     }
 
     public static Member createProfileMember(Member member) {

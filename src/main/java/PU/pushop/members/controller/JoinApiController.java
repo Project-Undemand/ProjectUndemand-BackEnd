@@ -1,5 +1,6 @@
 package PU.pushop.members.controller;
 
+import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.global.mail.service.EmailMemberService;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.model.LoginRequest;
@@ -134,7 +135,7 @@ public class JoinApiController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
+    public ResponseEntity<?> logout(@CookieValue(name = "refreshAuthorization", required = false) String refreshToken, HttpServletRequest request,
                                     HttpServletResponse response) {
         System.out.println(refreshToken);
         if (refreshToken != null) {
@@ -143,6 +144,7 @@ public class JoinApiController {
                 Member existMember = optionalMember.get();
                 // refreshToken을 이용하여 DB에 있는 해당 토큰을 삭제
                 refreshRepository.deleteByRefreshToken(refreshToken);
+                CookieUtil.deleteCookie(response, "refreshAuthorization");
 
                 // 로그아웃 시 , 멤버의 이메일을 String으로 반환
                 return ResponseEntity.status(HttpStatus.OK).body(existMember.getEmail() + " 로그아웃 되었습니다");
@@ -201,20 +203,28 @@ public class JoinApiController {
     }
 
     private Member createMemberFromRequest(JoinMemberRequest request, String token) {
+        // Generate a UUID for socialId
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String socialId = "general-" + uuid.substring(0, 12);
         return Member.createGeneralMember(
                 request.email,
                 request.nickname,
                 passwordEncoder.encode(request.password),
-                token
+                token,
+                socialId
         );
     }
 
     private Member createAdminFromRequest(JoinMemberRequest request, String token) {
+        // Generate a UUID for socialId
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String socialId = "general-" + uuid.substring(0, 12);
         return Member.createAdminMember(
                 request.email,
                 request.nickname,
                 passwordEncoder.encode(request.password),
-                token
+                token,
+                socialId
         );
     }
 
