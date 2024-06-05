@@ -1,6 +1,7 @@
 package PU.pushop.members.repository;
 
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.Refresh;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

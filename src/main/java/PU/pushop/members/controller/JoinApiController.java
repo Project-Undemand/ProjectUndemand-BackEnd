@@ -3,6 +3,7 @@ package PU.pushop.members.controller;
 import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.global.mail.service.EmailMemberService;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
@@ -135,27 +136,27 @@ public class JoinApiController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(name = "refreshAuthorization", required = false) String refreshToken, HttpServletRequest request,
+    public ResponseEntity<?> logout(@CookieValue(name = "refreshAuthorization", required = false) String refreshAuthorization, HttpServletRequest request,
                                     HttpServletResponse response) {
-        System.out.println(refreshToken);
-        if (refreshToken != null) {
-            Optional<Member> optionalMember = memberRepositoryV1.findByToken(refreshToken);
-            if (optionalMember.isPresent()) {
-                Member existMember = optionalMember.get();
-                // refreshToken을 이용하여 DB에 있는 해당 토큰을 삭제
-                refreshRepository.deleteByRefreshToken(refreshToken);
+        String refreshToken = refreshAuthorization.substring(7);
+        log.info(refreshToken);
+        if (!refreshToken.isEmpty()) {
+            Optional<Refresh> optionalRefresh = refreshRepository.findByRefreshToken(refreshToken);
+            if (optionalRefresh.isPresent()) {
+                Refresh refreshEntity = optionalRefresh.get();
                 CookieUtil.deleteCookie(response, "refreshAuthorization");
 
+                log.info("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
                 // 로그아웃 시 , 멤버의 이메일을 String으로 반환
-                return ResponseEntity.status(HttpStatus.OK).body(existMember.getEmail() + " 로그아웃 되었습니다");
+                return ResponseEntity.status(HttpStatus.OK).body("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
             } else {
-                log.info("optionalMember" + "is not Present");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("쿠키에 저장된 리프레쉬토큰의 유저가 존재하지 않습니다.");
+                log.info("Refresh is not Present.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh is not Present.");
             }
 
         } else {
-            log.info("이미 로그아웃 된 유저에 대한 로그아웃 시도입니다. ");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저에 대한 로그아웃 시도입니다. ");
+            log.info("이미 로그아웃 된 유저입니다. ");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저입니다. ");
         }
     }
 

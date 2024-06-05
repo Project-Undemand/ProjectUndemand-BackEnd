@@ -130,6 +130,9 @@ public class SecurityConfig {
         // HTTP Basic 인증 방식 disable
         http
                 .httpBasic((auth) -> auth.disable());
+        // 기본 로그아웃 비활성화
+        http
+                .logout(logout -> logout.disable());
 
         // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
