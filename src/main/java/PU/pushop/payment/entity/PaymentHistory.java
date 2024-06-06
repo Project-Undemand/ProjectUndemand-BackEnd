@@ -78,18 +78,22 @@ public class PaymentHistory {
     @Column(name = "review")
     private Boolean review = false;
 
+    @Column(name = "quantity")
+    private Long quantity;
+
 
     public PaymentHistory() {
         this.paidAt =  LocalDateTime.now();
     }
 
-    public PaymentHistory(String impUid, Member member, Orders orders, Product product, String productName, String productOption, Integer price, Integer totalPrice, Status statusType, String payMethod, String bankCode, String bankName, String buyerAddr, String buyerEmail) {
+    public PaymentHistory(String impUid, Member member, Orders orders, Product product, String productName, String productOption, Long quantity ,Integer price, Integer totalPrice, Status statusType, String payMethod, String bankCode, String bankName, String buyerAddr, String buyerEmail) {
         this.impUid = impUid;
         this.member = member;
         this.orders = orders;
         this.product = product;
         this.productName = productName;
         this.productOption = productOption;
+        this.quantity = quantity;
         this.price = price;
         this.totalPrice = totalPrice;
         this.paidAt =  LocalDateTime.now();

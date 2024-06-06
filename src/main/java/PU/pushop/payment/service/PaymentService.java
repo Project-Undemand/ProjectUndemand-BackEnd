@@ -1,5 +1,6 @@
 package PU.pushop.payment.service;
 
+import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
@@ -40,6 +41,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final ProductManagementRepository productMgtRepository;
     private final PaymentRefundRepository paymentRefundRepository;
+    private final CartRepository cartRepository;
 
     public void processPaymentDone(Payment response, PaymentRequestDto request) {
 
@@ -62,6 +64,8 @@ public class PaymentService {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("해당 주문서를 찾을 수 없습니다. Id : " + orderId));
 
+
+
         // 주문한 상품들에 대해 각각 결제내역 저장
         createPaymentHistory(response, productMgtIdList, order, member, totalPrice);
 
@@ -81,11 +85,15 @@ public class PaymentService {
 
             ProductManagement productMgt = productMgtRepository.findById(productMgtId)
                     .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
+            Long quantity = cartRepository.findByProductManagement(productMgt).getQuantity();
+
+            System.out.println(quantity);
+
 
             Product product = productMgt.getProduct();
             String option = productMgt.getColor().getColor() + ", " + productMgt.getSize().toString(); // 상품옵션 문자열로 저장
 
-            PaymentHistory paymentHistory = new PaymentHistory(impUid, member, order, product, product.getProductName(),option,product.getPrice() ,payAmount.intValue(), Status.COMPLETE_PAYMENT, payMethod, bankCode, bankName, buyerAddr, buyerEmail);
+            PaymentHistory paymentHistory = new PaymentHistory(impUid, member, order, product, product.getProductName(),option,quantity,product.getPrice() ,payAmount.intValue(), Status.COMPLETE_PAYMENT, payMethod, bankCode, bankName, buyerAddr, buyerEmail);
 
             paymentRepository.save(paymentHistory);
 
