@@ -15,6 +15,7 @@ public class PaymentHistoryDto {
     private Long paymentId;
     private Long memberId;
     private Long orderId;
+    private String imagePath;
     private String merchantUid; // 주문번호
     private String ordererName;
     private String phoneNumber;
@@ -36,6 +37,8 @@ public class PaymentHistoryDto {
                 paymentHistory.getId(),
                 paymentHistory.getMember().getId(),
                 paymentHistory.getOrders().getOrderId(),
+                // product FirstThumbnailImagePath 를 추가.
+                paymentHistory.getFirstThumbnailImagePath(),
                 paymentHistory.getOrders().getMerchantUid(),
                 paymentHistory.getOrders().getOrdererName(),
                 paymentHistory.getOrders().getPhoneNumber(),
