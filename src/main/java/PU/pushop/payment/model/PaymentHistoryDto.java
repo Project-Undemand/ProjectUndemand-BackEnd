@@ -12,16 +12,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentHistoryDto {
+    // 고유 id
     private Long paymentId;
     private Long memberId;
     private Long orderId;
+    // Product 관련 field
+    private String productName;
     private String imagePath;
+    private Integer productPrice;
+    private Long productQuantity;
+    private String option;
+    // Order 관련 field
     private String merchantUid; // 주문번호
     private String ordererName;
     private String phoneNumber;
-    private String product;
-    private String option;
-    private Integer productPrice;
     private boolean isDiscount;
     private String buyerAddr;
     private LocalDateTime orderedAt;
@@ -38,13 +42,15 @@ public class PaymentHistoryDto {
                 paymentHistory.getMember().getId(),
                 paymentHistory.getOrders().getOrderId(),
                 // product FirstThumbnailImagePath 를 추가.
+                paymentHistory.getProduct().getProductName(),
                 paymentHistory.getFirstThumbnailImagePath(),
+                paymentHistory.getProduct().getPrice(),
+                paymentHistory.getQuantity(),
+                paymentHistory.getProductOption(),
+                // payment field
                 paymentHistory.getOrders().getMerchantUid(),
                 paymentHistory.getOrders().getOrdererName(),
                 paymentHistory.getOrders().getPhoneNumber(),
-                paymentHistory.getProduct().getProductName(),
-                paymentHistory.getProductOption(),
-                paymentHistory.getProduct().getPrice(),
                 paymentHistory.getProduct().getIsDiscount(),
                 paymentHistory.getBuyerAddr(),
                 paymentHistory.getOrders().getOrderDay(),
