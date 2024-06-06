@@ -55,6 +55,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginFilter loginFilter() throws Exception {
+        // LoginFilter 에 생각보다 필요한 DEPENDENCY 가 많아서, Bean 으로 따로 관리해주기 시작했습니다. [2024.06.05]
         return new LoginFilter(
                 authenticationManager(authenticationConfiguration()),
                 objectMapper,
@@ -97,7 +98,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+        // 소셜 로그인 성공 시, 메인 도메인으로 Redirect 해주기 위해, CorsConfiguration 를 등록합니다.
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
 
@@ -130,7 +131,7 @@ public class SecurityConfig {
         // HTTP Basic 인증 방식 disable
         http
                 .httpBasic((auth) -> auth.disable());
-        // 기본 로그아웃 비활성화
+        // 기본 로그아웃 비활성화. 기본적으로 등록되어 있던 LogoutFilter 는 비활성화 되고, Logout Api ("/logout") 를 통해 로그아웃이 진행됩니다.
         http
                 .logout(logout -> logout.disable());
 
@@ -159,7 +160,7 @@ public class SecurityConfig {
                 // 관리자 페이지 권한: 관리자
 //                .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
                 // access, refresh token 만료시 재발행: ALL
-                .requestMatchers("/reissue").permitAll()
+                .requestMatchers("/api/v1/reissue/access", "/api/v1/reissue/refresh").permitAll()
                 // 문의
                 .requestMatchers("/api/v1/inquiry/**").permitAll()
                 // 문의 답변

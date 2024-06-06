@@ -1,7 +1,6 @@
 package PU.pushop.global.authentication.oauth2.handler;
 
 
-import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
 import PU.pushop.members.entity.Member;
@@ -11,7 +10,6 @@ import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -50,27 +48,21 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
         String email = oAuth2User.getName();
         String role = extractOAuthRole(authentication);
         String socialId = oAuth2User.getSocialId();
-        log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
-        log.info("email = " + email);
-        log.info("role = " + role);
-        log.info("============= memberId 를 가져오기 위해, DB 조회 시작 ==============");
+
+        log.info("email = " + email, "role = " + role);
+        // ============= RefreshToken 생성 시, memberId 가 필요 ==============
         Member requestMember = memberRepositoryV1.findBySocialId(socialId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 socialId 을 가진 멤버가 존재하지 않습니다."));
-        log.info("============= memberId 를 가져오기 위해, DB 조회 끝 ==============");
-        log.info("requestMember = " + requestMember);
         // 토큰을 생성하는 부분 .
-        String accessToken = jwtUtil.createAccessToken("access", String.valueOf(requestMember.getId()), role);
         String refreshToken = jwtUtil.createRefreshToken("refresh", String.valueOf(requestMember.getId()), role);
 
-        // [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
+        // 리프레쉬 토큰 - DB 에 자징합니다.
         saveOrUpdateRefreshEntity(requestMember, refreshToken);
 
-        // 액세스 토큰을 쿠키에 저장합니다.
-//        response.addCookie(createCookie("Authorization", "Bearer+" + accessToken));
         // 리프레시 토큰을 쿠키에 저장합니다.
         response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         response.setStatus(HttpStatus.OK.value());
-        log.info("============= refreshAuthorization 를 쿠키에 담았습니다 ==============" + LocalDateTime.now());
+        log.info(" ======================= 소셜 로그인 성공 ====================== ");
         response.sendRedirect("http://localhost:3000?redirectedFromSocialLogin=true");
     }
 

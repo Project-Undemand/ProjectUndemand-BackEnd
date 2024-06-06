@@ -10,7 +10,6 @@ import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
 import PU.pushop.profile.entity.Profiles;
 import PU.pushop.profile.repository.ProfileRepository;
-import PU.pushop.profile.service.ProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
