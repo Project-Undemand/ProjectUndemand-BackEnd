@@ -87,9 +87,6 @@ public class PaymentService {
                     .orElseThrow(() -> new NoSuchElementException(ResponseMessageConstants.PRODUCT_NOT_FOUND));
             Long quantity = cartRepository.findByProductManagement(productMgt).getQuantity();
 
-            System.out.println(quantity);
-
-
             Product product = productMgt.getProduct();
             String option = productMgt.getColor().getColor() + ", " + productMgt.getSize().toString(); // 상품옵션 문자열로 저장
 
