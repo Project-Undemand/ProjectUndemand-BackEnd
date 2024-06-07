@@ -17,6 +17,7 @@ public class PaymentHistoryDto {
     private Long memberId;
     private Long orderId;
     // Product 관련 field
+    private Long productId;
     private String productName;
     private String imagePath;
     private Integer productPrice;
@@ -41,7 +42,8 @@ public class PaymentHistoryDto {
                 paymentHistory.getId(),
                 paymentHistory.getMember().getId(),
                 paymentHistory.getOrders().getOrderId(),
-                // product FirstThumbnailImagePath 를 추가.
+                // product field
+                paymentHistory.getProduct().getProductId(),
                 paymentHistory.getProduct().getProductName(),
                 paymentHistory.getFirstThumbnailImagePath(),
                 paymentHistory.getProduct().getPrice(),
