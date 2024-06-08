@@ -41,7 +41,7 @@ public class JWTFilterV1 extends OncePerRequestFilter {
             return;
         }
         String refreshToken = Objects.requireNonNull(refreshAuthorization).substring(7);
-        log.info("Login MemberId : "+jwtUtil.getMemberId(refreshToken));
+        log.info("Id : " + jwtUtil.getMemberId(refreshToken) + " 유저가 로그인 했습니다.");
 
         // 현재 시각을 "년-월-일"으로
         LocalDateTime now = LocalDateTime.now();

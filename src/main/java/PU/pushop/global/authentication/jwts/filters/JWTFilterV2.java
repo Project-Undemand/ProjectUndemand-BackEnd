@@ -84,7 +84,6 @@ public class JWTFilterV2 extends OncePerRequestFilter {
         }
 
         // TODO 4. refreshToken 이 만료되지 않았을 때 - 로그인 상황
-
         //  Authorization 이 존재할때, 엑세스토큰에 대한 유효성 검증을 시작합니다.
         validateAuthorizationExpired(request, response, filterChain, authorization);
 
