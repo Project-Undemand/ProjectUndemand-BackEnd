@@ -57,7 +57,9 @@ public class ProductOrderService {
         // 전체 카운트 조회 쿼리
         long totalCount = queryFactory.selectFrom(product)
                 .where(filterBuilder)
-                .fetchCount();
+                .fetch().size();
+        // querydsl 개발진 측에서 fetchCount와 groupby를 함께 사용할 때 생기는 문제로 인해 fetchcount 함수를 deprecated 시켰다고함
+//                .fetchCount();
 
         // ProductListDto로 변환
         List<ProductListDto> productList = mapToProductListDto(results);

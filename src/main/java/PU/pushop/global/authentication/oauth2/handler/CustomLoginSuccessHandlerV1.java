@@ -49,7 +49,7 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
         String role = extractOAuthRole(authentication);
         String socialId = oAuth2User.getSocialId();
 
-        log.info("email = " + email, "role = " + role);
+        log.info("소셜로그인 유저 = " + email);
         // ============= RefreshToken 생성 시, memberId 가 필요 ==============
         Member requestMember = memberRepositoryV1.findBySocialId(socialId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 socialId 을 가진 멤버가 존재하지 않습니다."));
@@ -62,7 +62,6 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
         // 리프레시 토큰을 쿠키에 저장합니다.
         response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         response.setStatus(HttpStatus.OK.value());
-        log.info(" ======================= 소셜 로그인 성공 ====================== ");
         response.sendRedirect("http://localhost:3000?redirectedFromSocialLogin=true");
     }
 

@@ -38,6 +38,10 @@ public class JWTUtil {
     }
 
     private Claims parseToken(String token) {
+        // Check if token is null or empty
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
         try {
             return Jwts.parser()
                     .verifyWith(secretKey)
@@ -61,6 +65,17 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
+        // Check if token is null or empty
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
+
+        // Validate token structure
+        if (!validateToken(token)) {
+            throw new IllegalArgumentException("Token is not valid");
+        }
+
+        // Check expiration
         return parseToken(token).getExpiration().before(new Date());
     }
 

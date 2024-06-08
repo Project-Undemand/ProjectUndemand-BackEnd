@@ -43,11 +43,11 @@ public class CustomOAuth2UserServiceV1 extends DefaultOAuth2UserService {
         if (oAuth2Response == null) {
             return null;
         }
-        log.info("=================== getAttributes() 시작 ================== 개발단계 ====");
-        log.info("1.getAttributes : {}", oAuth2User.getAttributes());
-        log.info("2.registrationType : {}", registrationType);
-        log.info("3.oAuth2Response : {}", oAuth2Response);
-        log.info("=================== getAttributes() 끝  ================== 개발단계 ====");
+//        log.info("=================== getAttributes() 시작 ================== 개발단계 ====");
+//        log.info("1.getAttributes : {}", oAuth2User.getAttributes());
+//        log.info("2.registrationType : {}", registrationType);
+//        log.info("3.oAuth2Response : {}", oAuth2Response);
+//        log.info("=================== getAttributes() 끝  ================== 개발단계 ====");
         // 인증 정보에 대해 확인
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        if (authentication != null) {

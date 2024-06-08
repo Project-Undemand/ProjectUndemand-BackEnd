@@ -1,6 +1,7 @@
 package PU.pushop.global.authentication.config;
 
 import PU.pushop.global.authentication.jwts.filters.*;
+import PU.pushop.global.authentication.jwts.service.CookieService;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.handler.CustomLoginFailureHandler;
 import PU.pushop.global.authentication.oauth2.custom.service.CustomOAuth2UserServiceV1;
@@ -39,6 +40,7 @@ public class SecurityConfig {
     // [LoginFilter] Bean 등록
     private final ObjectMapper objectMapper;
     private final JWTUtil jwtUtil;
+    private final CookieService cookieService;
     private final RefreshRepository refreshRepository;
     // [MemberService] Bean 등록
     private final MemberRepositoryV1 memberRepositoryV1;
@@ -113,8 +115,9 @@ public class SecurityConfig {
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
 
-                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                        // Expose multiple headers correctly
+                        configuration.addExposedHeader("Set-Cookie");
+                        configuration.addExposedHeader("Authorization");
 
                         return configuration;
                     }
@@ -135,6 +138,7 @@ public class SecurityConfig {
         http
                 .logout(logout -> logout.disable());
 
+        /*
         // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
                 // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
@@ -167,7 +171,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/inquiry/reply/**").hasRole("ADMIN, SELLER")
                 // 나머지 페이지 권한: 로그인 멤버
                 .anyRequest().permitAll());
-
+        */
+        // 경로별 인가 작업: 모든 요청에 대해 허용
+        http.authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll());
 
         /**
          * Logout Api 를 사용할 것이기에, CustomLogoutFilter 를 사용하지 않을 것임.
@@ -182,7 +189,7 @@ public class SecurityConfig {
          3. CustomLogoutFilter 에서는
          */
         http
-                .addFilterBefore(new JWTFilterV1(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTFilterV1(jwtUtil, cookieService), UsernamePasswordAuthenticationFilter.class);
         http
                 .addFilterBefore(loginFilter(), JWTFilterV1.class);
 
@@ -201,8 +208,8 @@ public class SecurityConfig {
                         .failureHandler(loginFailureHandler())
                 );
 
-        /**
-         * 세션 설정 : STATELESS .
+        /*
+          세션 설정 : STATELESS .
           */
         http
                 .sessionManagement((session) -> session
