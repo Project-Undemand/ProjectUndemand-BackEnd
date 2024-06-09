@@ -32,12 +32,14 @@ public class PaymentHistoryDto {
     private LocalDateTime orderedAt;
     private Integer totalPrice;
     private String payMethod;
+    private String bankName;
     private LocalDateTime paiedAt;
     private Status statusType; // 취소여부
     private Boolean review;
 
 
     public PaymentHistoryDto(PaymentHistory paymentHistory) {
+
         this(
                 paymentHistory.getId(),
                 paymentHistory.getMember().getId(),
@@ -58,6 +60,7 @@ public class PaymentHistoryDto {
                 paymentHistory.getOrders().getOrderDay(),
                 paymentHistory.getTotalPrice(),
                 paymentHistory.getPayMethod(),
+                paymentHistory.getBankName(),
                 paymentHistory.getPaidAt(),
                 paymentHistory.getStatusType(),
                 paymentHistory.getReview()
