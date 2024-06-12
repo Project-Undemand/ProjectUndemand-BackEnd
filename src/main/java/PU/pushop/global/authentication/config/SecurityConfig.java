@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,7 +30,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -189,9 +187,9 @@ public class SecurityConfig {
          3. CustomLogoutFilter 에서는
          */
         http
-                .addFilterBefore(new JWTFilterV1(jwtUtil, cookieService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTFilterV3(jwtUtil, cookieService), UsernamePasswordAuthenticationFilter.class);
         http
-                .addFilterBefore(loginFilter(), JWTFilterV1.class);
+                .addFilterBefore(loginFilter(), JWTFilterV3.class);
 
         /**
          * CustomOAuth2Login 이후 , 클라이언트에 access, refresh 토큰을 전달할 방법을 잘 몰라서 주석처리.
