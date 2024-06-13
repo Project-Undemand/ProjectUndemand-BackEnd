@@ -30,9 +30,6 @@ import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import static PU.pushop.global.ResponseMessageConstants.MEMBER_NOT_FOUND;
 import static PU.pushop.global.ResponseMessageConstants.REFRESH_NOT_FOUND;
 
 @RestController

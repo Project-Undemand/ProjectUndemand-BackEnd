@@ -1,5 +1,6 @@
 package PU.pushop.members.entity;
 
+import PU.pushop.address.entity.Addresses;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,7 +39,6 @@ public class Member {
 
     private String phone;
 
-
     @Enumerated(value = EnumType.STRING)
     @Column(name = "member_role")
     @JsonProperty("member_role")
@@ -76,6 +76,9 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Addresses> addresses = new ArrayList<>();
 
     // 1. 생성자를 통해 멤버 생성
     public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, String token, boolean isCertifyByMail) {

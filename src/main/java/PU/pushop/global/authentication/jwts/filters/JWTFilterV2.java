@@ -3,11 +3,8 @@ package PU.pushop.global.authentication.jwts.filters;
 import PU.pushop.global.authentication.jwts.entity.CustomMemberDto;
 import PU.pushop.global.authentication.jwts.entity.CustomUserDetails;
 import PU.pushop.global.authentication.jwts.service.CookieService;
-import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
-import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.entity.enums.MemberRole;
-import PU.pushop.members.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,11 +20,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
 
-import static PU.pushop.global.ResponseMessageConstants.REFRESH_NOT_FOUND;
 
 @Slf4j
 @RequiredArgsConstructor
