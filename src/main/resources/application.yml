@@ -4,7 +4,7 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
   jwt:
-    secret: ${secret}
+    secret: ${JWT_SECRET}
   profiles:
     # develop : develop 환경에서 application run 을 실행
     # production : 실 사용자가 사용하는 환경에서 application run 을 실행
@@ -15,9 +15,9 @@ spring:
   datasource:
     # MySQL
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${url}
-    username: ${username}
-    password: ${password}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
     # H2
 #    url: jdbc:h2:tcp://localhost/~/pushop
 #    username: pu
@@ -25,7 +25,7 @@ spring:
 #    driver-class-name: org.h2.Driver
   mail:
     username: gokorea1214@naver.com
-    password: ${password}
+    password: ${NAVER_PASSWORD}
     host: smtp.naver.com
     port: 465
     auth-code-expiration-millis: 1800000  # 30분
@@ -62,9 +62,9 @@ spring:
       static-locations: classpath:/static/,file:/static/
 
   backend:
-    url: ${url}
+    url: ${BACKEND_URL}
   frontend:
-    url: ${url}
+    url: ${FRONTEND_URL}
 
 
 #    open-in-view: false
@@ -72,8 +72,8 @@ spring:
 # iamport
 imp:
   api:
-    key: ${key}
-    secretkey: ${secretkey}
+    key: ${IMP_API_KEY}
+    secretkey: ${IMP_SECRET_KEY}
 
 logging.level.org.hibernate:
   SQL: debug

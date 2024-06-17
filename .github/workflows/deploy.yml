@@ -9,9 +9,9 @@ name: Java CI with Gradle and Docker Deployment
 
 on:
   push:
-    branches: [ "release/v0.5.0" ]
+    branches: [ "release/v1.0.0" ]
   pull_request:
-    branches: [ "release/v0.5.0" ]
+    branches: [ "release/v1.0.0" ]
 
 env:
   RESOURCE_PATH: ./src/main/resources/application.yml
@@ -62,9 +62,26 @@ jobs:
         spring.security.oauth2.client.registration.google.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/google
 
     # [2]
-    - name: Deploy with Docker Compose
+    - name: environment variable setting
       run: |
         echo "NGINX_SERVER=${{ secrets.NGINX_SERVER }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "MYSQL_HOST=${{ secrets.MYSQL_HOST }}" >> .env
+        echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" >> .env
+        echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+        echo "NAVER_PASSWORD=${{ secrets.NAVER_PASSWORD }}" >> .env
+        echo "IMP_API_KEY=${{ secrets.IMP_API_KEY }}" >> .
+        echo "IMP_SECRET_KEY=${{ secrets.IMP_SECRET_KEY }}" >> .env
+        echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+        echo "BACKEND_URL=${{ secrets.BACKEND_URL }}" >> .env
+        echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
+        echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
+        echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+        echo "KAKAO_SECRET=${{ secrets.KAKAO_SECRET }}" >> .env
+        echo "KAKAO_AUTHENTICATION_METHOD=${{ secrets.KAKAO_AUTHENTICATION_METHOD }}" >> .env
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+        echo "SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.MYSQL_HOST }}:3306/pushop?&serverTimezone=Asia/Seoul" >> .env
         
     # [3]
     - name: Grant execute permission for gradlew

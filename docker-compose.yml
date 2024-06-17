@@ -5,7 +5,7 @@ services:
     build: .
     image: pjundmd
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/pushop?serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST}:3306/pushop?serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       SPRING_REDIS_HOST: redis
