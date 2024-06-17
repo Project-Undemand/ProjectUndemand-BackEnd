@@ -3,7 +3,6 @@ package PU.pushop.members.service;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.security.auth.login.CredentialNotFoundException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
-import java.util.Optional;
+import java.util.List;
+
 
 
 @Service
@@ -24,42 +24,54 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepositoryV1 memberRepositoryV1;
-    private final ProfileService profileService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
     public Member joinMember(Member member) {
-
         Member newMember = Member.createGeneralMember(
                 member.getEmail(),
                 member.getNickname(),
                 member.getPassword(),
-                member.getToken()
+                member.getToken(),
+                member.getSocialId()
         );
 
         newMember.activateMember();
 
         return memberRepositoryV1.save(newMember);
-
     }
-
 
     @Transactional
     public Member memberLogin(LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
-        Optional<Member> optionalMember = memberRepositoryV1.findByEmail(loginRequest.getEmail());
-        if (optionalMember.isPresent()) {
-            Member member = optionalMember.get();
+        List<Member> members = memberRepositoryV1.findAllByEmail(loginRequest.getEmail());
+
+        if (members.size() > 1) {
+            log.info("Multiple users found with email:" + loginRequest.getEmail());
+            throw new IllegalStateException("Multiple users found with email:" + loginRequest.getEmail());
+        } else if (members.size() == 1) {
+            Member member = members.get(0);
             if (passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
                 return member;
             } else {
-                // 비밀번호가 일치하지 않을 경우 처리
                 log.info("Invalid password.");
                 throw new CredentialNotFoundException("Invalid password");
             }
         } else {
-            // 해당 이메일로 등록된 회원이 없을 경우 처리
             log.info("User not found with email: " + loginRequest.getEmail());
             throw new UserPrincipalNotFoundException("User not found with email: " + loginRequest.getEmail());
+        }
+    }
+
+    @Transactional
+    public Member validateDuplicatedEmail(String email) {
+        List<Member> members = memberRepositoryV1.findAllByEmail(email);
+
+        if (members.size() > 1) {
+            throw new MultipleUsersFoundException("There are multiple users associated with this email: " + email);
+        } else if (members.size() == 1) {
+            return members.get(0);
+        } else {
+            throw new UserNotFoundByEmailException("No user found with this email: " + email);
         }
     }
 
@@ -70,4 +82,15 @@ public class MemberService {
         }
     }
 
+    public static class MultipleUsersFoundException extends RuntimeException {
+        public MultipleUsersFoundException(String message) {
+            super(message);
+        }
+    }
+
+    public static class UserNotFoundByEmailException extends RuntimeException {
+        public UserNotFoundByEmailException(String message) {
+            super(message);
+        }
+    }
 }

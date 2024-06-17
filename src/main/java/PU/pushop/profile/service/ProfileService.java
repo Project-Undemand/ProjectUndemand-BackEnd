@@ -7,6 +7,8 @@ import PU.pushop.profile.entity.Profiles;
 import PU.pushop.profile.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,48 +41,43 @@ public class ProfileService {
         profileRepository.save(memberProfile);
     }
 
-    public ResponseEntity<String> uploadProfileImageV1(Long memberId, MultipartFile imageFile) {
-        // request 의 member 가 서버에서 인식하는 로그인유저와 일치하는지 확인합니다.
-        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
-        try {
-            Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
-            if (memberProfileOpt.isPresent()) {
-                Profiles memberProfile = memberProfileOpt.get();
-                byte[] imageBytes = imageFile.getBytes();
-                memberProfile.setProfileImage(imageBytes);
-                profileRepository.save(memberProfile);
-                return ResponseEntity.ok().body("Profile image updated successfully for member id : " + memberId);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile image not found for member id : " + memberId);
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the image");
+    @Cacheable(value = "profileImages", key = "#memberId")
+    public String getProfileImage(Long memberId) throws Exception {
+        Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
+        if (memberProfileOpt.isPresent()) {
+            Profiles memberProfile = memberProfileOpt.get();
+            return memberProfile.getProfileImgPath();
+        } else {
+            throw new Exception("Profile not found for member id : " + memberId);
         }
     }
 
+    @CachePut(value = "profileImages", key = "#memberId")
     @Transactional
-    public ResponseEntity<String> uploadProfileImageV2(Long memberId, MultipartFile imageFile) {
+    public ResponseEntity<String> uploadProfileImageV3(Long memberId, MultipartFile imageFile) {
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         String uploadsDir = "src/main/resources/static/uploads/profileimg/";
 
-        // 이미지 파일 이름 생성 및 저장
         String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + imageFile.getOriginalFilename();
         String filePath = uploadsDir + fileName;
         String dbFilePath = "/uploads/profileimg/" + fileName;
 
         log.info("Original file size: " + imageFile.getSize() + " bytes");
 
-        // 이미지 저장 및 DB 저장
         try {
+            long start = System.currentTimeMillis();
             String resizedFileName = ImageUtil.resizeImageFile(imageFile, filePath, "jpeg");
+
             String resizedFilePath = uploadsDir + resizedFileName;
             Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
             if (memberProfileOpt.isPresent()) {
                 Profiles memberProfile = memberProfileOpt.get();
                 memberProfile.setProfileImgName(resizedFileName);
-                memberProfile.setProfileImgPath(dbFilePath); // 상대 경로가 아닌 절대 경로 설정
+                memberProfile.setProfileImgPath(dbFilePath);
                 profileRepository.save(memberProfile);
-                return ResponseEntity.ok().body("Profile image updated successfully for member id : " + memberId);
+                long end = System.currentTimeMillis();
+                log.info("Time taken to save the image locally: " + (end - start) + " milliseconds");
+                return ResponseEntity.ok().body(memberProfile.getProfileImgPath());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found for member id : " + memberId);
             }
@@ -105,12 +102,6 @@ public class ProfileService {
         } else {
             throw new NoSuchElementException("Profile not found for member id : " + memberId);
         }
-    }
-
-    private void saveImage(MultipartFile image, String filePath) throws IOException {
-        Path path = Paths.get(filePath);
-        Files.createDirectories(path.getParent());
-        Files.write(path, image.getBytes());
     }
 
     public static void deleteImageFile(String imagePath) {

@@ -28,8 +28,7 @@ public class EmailMemberService {
     private String backendUrl;
 
     @Transactional
-    public void add(Member member) throws Exception {
-
+    public void sendEmailVerification(Member member) throws Exception {
 
         String receiverMail = member.getEmail();
         MimeMessage message = mailSender.createMimeMessage();
@@ -40,7 +39,7 @@ public class EmailMemberService {
         String body = "<div>"
                 + "<h1> 안녕하세요. PU Shopping mall 입니다.!</h1>"
                 + "<br>"
-                + "<p>저희 쇼핑몰을 이용해주셔서 감사합니다. .<p>"
+                + "<p>PU 회원가입을 축하드리며, 저희 서비스를 이용해주셔서 감사합니다. <p>"
                 + "<p>아래 링크를 클릭하면 이메일 인증이 완료됩니다.<p>"
                 + "<a href='" + backendUrl + "/auth/verify?token=" + member.getToken() + "'>인증 링크</a>"
                 + "<p>즐거운 쇼핑 되세요.!<p>"
@@ -59,10 +58,10 @@ public class EmailMemberService {
             // 회원 정보를 업데이트합니다.
             Member member = optionalMember.get();
             log.info("member email token = " + member.getToken());
-            member.updateMemberByToken(token);
+            // 회원의 이메일 인증 여부를 True 로 반환
             member.certifyByEmail();
-            memberRepositoryV1.save(member);
-            return member;
+            // 변경된 이메일 인증 여부, 이메일 토큰을 DB에 반영
+            return memberRepositoryV1.save(member);
         } else {
             throw new UsernameNotFoundException("해당 토큰을 가진 멤버가 존재하지 않습니다!");
         }

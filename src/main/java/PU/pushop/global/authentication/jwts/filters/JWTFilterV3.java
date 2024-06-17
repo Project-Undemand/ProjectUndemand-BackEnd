@@ -25,7 +25,7 @@ import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JWTFilterV1 extends OncePerRequestFilter {
+public class JWTFilterV3 extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final CookieService cookieService;
@@ -34,54 +34,52 @@ public class JWTFilterV1 extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // request에서 Authorization 헤더 찾음
         String authorization = request.getHeader("Authorization");
+        // 쿠키에서 "refreshAuthorization" 값을 가져 옴
+        String refreshAuthorization = cookieService.getRefreshAuthorization(request);
+        if (refreshAuthorization == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        String refreshToken = Objects.requireNonNull(refreshAuthorization).substring(7);
+        log.info("Id : " + jwtUtil.getMemberId(refreshToken) + " 유저가 로그인 했습니다.");
 
         // 현재 시각을 "년-월-일"으로
         LocalDateTime now = LocalDateTime.now();
         String currentDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        // Authorization 헤더가 비어있거나 "Bearer " 로 시작하지 않은 경우
-        if (isAuthorizationInvalidOrNotBearer(request, response, filterChain, authorization, currentDate)) return;
+        // refreshAuthorization 쿠키 검증
+        if(!refreshAuthorization.startsWith("Bearer+")){
 
-        // Authorization에서 Bearer 접두사 제거
-        String accessToken = authorization.split(" ")[1];
-
-        // Authorization 에 있는 AccessToken 유효기간이 만료한 경우
-        if (isAccessTokenExpired(request, response, filterChain, accessToken, currentDate)) return;
-
-        // access 에 있는 username, role 을 통해 Authentication 사용자 정보를
-        Authentication authToken = getAuthentication(accessToken);
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        filterChain.doFilter(request, response);
-    }
-
-    private boolean isAccessTokenExpired(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, String accessToken, String currentDate) throws IOException, ServletException {
-        if(jwtUtil.isExpired(accessToken)){
-            String memberId = jwtUtil.getMemberId(accessToken);
-
-            log.info("access token 이 만료되었습니다.");
-            if (memberId != null) {
-                log.info("memberId : " + memberId + " now : " + currentDate);
-            }
-            filterChain.doFilter(request, response);
-            // 메서드 종료
-            return true;
-        }
-        return false;
-    }
-
-    // Authorization 헤더가 비어있거나 "Bearer " 로 시작하지 않은 경우
-    private static boolean isAuthorizationInvalidOrNotBearer(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, String authorization, String currentDate) throws IOException, ServletException {
-        if(authorization == null || !authorization.startsWith("Bearer ")){
-
-            log.info("로그인 하지 않은 상태이거나, Authorization 을 Request Header에 담아주지 않았습니다. ");
+            log.info("로그인 하지 않은 상태이거나, refreshAuthorization 을 Request Header에 담아주지 않았습니다. ");
             log.info(" now : " + currentDate);
             // 토큰이 유효하지 않으므로 request와 response를 다음 필터로 넘겨줌
             filterChain.doFilter(request, response);
             // 메서드 종료
-            return true;
+            return;
         }
-        return false;
+
+        // accessToken 유효기간이 만료한 경우 메서드 종료. API 사용 시, Request Header 에 Authorization 을 담아주는 상황
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String accessToken = authorization.split(" ")[1];
+
+
+            if(jwtUtil.isExpired(accessToken)){
+                String memberId = jwtUtil.getMemberId(accessToken);
+
+                log.info("access token 이 만료되었습니다.");
+                if (memberId != null) {
+                    log.info("memberId : " + memberId + " now : " + currentDate);
+                }
+                filterChain.doFilter(request, response);
+                // 메서드 종료
+                return;
+            }
+        }
+        // access 에 있는 username, role 을 통해 Authentication 사용자 정보를
+        Authentication authToken = getAuthentication(refreshToken);
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        filterChain.doFilter(request, response);
     }
 
     private Authentication getAuthentication(String token) {

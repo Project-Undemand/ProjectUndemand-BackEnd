@@ -1,5 +1,6 @@
 package PU.pushop.members.entity;
 
+import PU.pushop.address.entity.Addresses;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +18,9 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "member")
+@Table(name = "member", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "social_id")
+})
 public class Member {
 
     @Id
@@ -36,7 +39,6 @@ public class Member {
 
     private String phone;
 
-
     @Enumerated(value = EnumType.STRING)
     @Column(name = "member_role")
     @JsonProperty("member_role")
@@ -47,7 +49,8 @@ public class Member {
     @JsonProperty("social_type")
     private SocialType socialType;
 
-    @Column(name = "social_id")
+    @Column(name = "social_id", unique = true)
+    @NotBlank
     @JsonProperty("social_id")
     private String socialId; // Provider + prividerId 형식
 
@@ -73,6 +76,9 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<PaymentHistory> paymentHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Addresses> addresses = new ArrayList<>();
 
     // 1. 생성자를 통해 멤버 생성
     public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, String token, boolean isCertifyByMail) {
@@ -108,13 +114,13 @@ public class Member {
     }
 
     // General Member 생성
-    public static Member createGeneralMember(String email, String nickname, String password, String token) {
-        return new Member(email, password, null, nickname, MemberRole.USER, SocialType.GENERAL, null, token, false);
+    public static Member createGeneralMember(String email, String nickname, String password, String token, String socialId) {
+        return new Member(email, password, null, nickname, MemberRole.USER, SocialType.GENERAL, socialId, token, false);
     }
 
     // Admin Member 생성
-    public static Member createAdminMember(String email, String nickname, String password, String token) {
-        return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, null, token, true);
+    public static Member createAdminMember(String email, String nickname, String password, String token, String socialId) {
+        return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, socialId, token, true);
     }
 
     public static Member createProfileMember(Member member) {
@@ -183,4 +189,10 @@ public class Member {
     public void reSetPassword(String newPassword) {
         this.password = newPassword;
     }
+
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+
 }

@@ -2,12 +2,16 @@ package PU.pushop.global.authentication.jwts.utils;
 
 import PU.pushop.members.entity.enums.MemberRole;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
 
 
@@ -15,19 +19,29 @@ import java.util.Date;
 @Slf4j
 public class JWTUtil {
 
-    private final SecretKey secretKey;
+    private SecretKey secretKey; // 'final' 제거
+    @Value("${spring.jwt.secret}")
+    private String jwtSecret;
     private static final String MEMBERPK_CLAIM_KEY = "memberId";
     private static final String CATEGORY_CLAIM_KEY = "category";
     private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
     private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
 
+//    public JWTUtil() {
+//        this.secretKey = Jwts.SIG.HS256.key().build();
+//    }
 
-    public JWTUtil() {
-        this.secretKey = Jwts.SIG.HS256.key().build();
-//        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     private Claims parseToken(String token) {
+        // Check if token is null or empty
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
         try {
             return Jwts.parser()
                     .verifyWith(secretKey)
@@ -51,6 +65,17 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
+        // Check if token is null or empty
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
+
+        // Validate token structure
+        if (!validateToken(token)) {
+            throw new IllegalArgumentException("Token is not valid");
+        }
+
+        // Check expiration
         return parseToken(token).getExpiration().before(new Date());
     }
 
@@ -66,14 +91,14 @@ public class JWTUtil {
     }
 
     public String createAccessToken(String category, String memberId, String role) {
-        // 10분
+        // 30 분
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(accessTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);
     }
 
     public String createRefreshToken(String category, String memberId, String role) {
-        // 24시간
+        // 7 일
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);
