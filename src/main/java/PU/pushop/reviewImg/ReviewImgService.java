@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,35 +34,37 @@ public class ReviewImgService {
      * @param images
      */
     public void uploadReviewImg(Long reviewId, List<MultipartFile> images) {
-
         try {
+            Review review = reviewRepository.findById(reviewId)
+                    .orElseThrow(() -> new NoSuchElementException("해당 글을 찾을 수 없습니다."));
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NoSuchElementException("해당 글을 찾을 수 없습니다."));
+            verifyUserIdMatch(review.getPaymentHistory().getMember().getId()); // 로그인 된 사용자와 요청 사용자 비교
 
-        verifyUserIdMatch(review.getPaymentHistory().getMember().getId()); // 로그인 된 사용자와 요청 사용자 비교
+            String uploadsDir = "src/main/resources/static/uploads/reviewimg/";
 
-        String uploadsDir = "src/main/resources/static/uploads/reviewimg/";
+            // 각 이미지 파일에 대해 업로드 및 DB 저장 수행
+            for (MultipartFile image : images) {
+                String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + image.getOriginalFilename();
+                String filePath = uploadsDir + fileName;
+                String dbFilePath = "/uploads/reviewimg/" + fileName;
 
-        // 각 이미지 파일에 대해 업로드 및 DB 저장 수행
-        for (MultipartFile image : images) {
-            String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + image.getOriginalFilename();
-            String filePath = uploadsDir + fileName;
-            String dbFilePath = "/uploads/reviewimg/" + fileName;
+                saveImageAsJpeg(image, filePath);
 
-            saveImage(image, filePath);
-
-            ReviewImg reviewImg = new ReviewImg(review, filePath);
-            reviewImg.setReview(review);
-            reviewImg.setReviewImgPath(dbFilePath);
-            reviewImgRepository.save(reviewImg);
-        }
-
+                ReviewImg reviewImg = new ReviewImg(review, filePath);
+                reviewImg.setReview(review);
+                reviewImg.setReviewImgPath(dbFilePath);
+                reviewImgRepository.save(reviewImg);
+            }
         } catch (IOException e) {
             // 파일 저장 중 오류가 발생한 경우 처리
             e.printStackTrace();
         }
+    }
 
+    private void saveImageAsJpeg(MultipartFile image, String filePath) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(image.getInputStream());
+        File outputFile = new File(filePath);
+        ImageIO.write(bufferedImage, "jpeg", outputFile);
     }
 
     /**
