@@ -87,4 +87,8 @@ public class Addresses {
         this.isDefaultAddress = addressDto.isDefaultAddress();
         this.recipientPhone = addressDto.getRecipientPhone();
     }
+
+    public void setDefaultAddress(boolean isDefaultAddress) {
+        this.isDefaultAddress = isDefaultAddress;
+    }
 }
