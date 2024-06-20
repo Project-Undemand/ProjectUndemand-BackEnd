@@ -38,7 +38,7 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
     private final MemberRepositoryV1 memberRepositoryV1;
     private final RefreshRepository refreshRepository;
 
-    private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
+    private Long accessTokenExpirationPeriod = 60L * 12; // 12 분
     private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
 
     @Override

@@ -122,7 +122,7 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         saveOrUpdateRefreshEntity(memberByEmail, newRefresh);
 
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        addResponseDataV2(response, newAccess, newRefresh, email);
+        addResponseDataV3(response, newAccess, newRefresh, email);
     }
 
     @Override
@@ -174,13 +174,18 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
     }
 
     /**
+     *
      * 쿠키에 refreshToken 을 넣어주는 방식
      */
     private void addResponseDataV3(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
         // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        // 리프레시 토큰을 쿠키에 저장합니다.
+        // JSON 객체를 생성하고 액세스 토큰을 추가
+        JsonObject responseData = new JsonObject();
+        responseData.addProperty("accessToken", accessToken);
+        response.getWriter().write(responseData.toString());
+        // 리프레시 토큰을 쿠키에 저장
         response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());
