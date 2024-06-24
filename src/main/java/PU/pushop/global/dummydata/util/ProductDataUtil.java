@@ -67,7 +67,7 @@ public class ProductDataUtil {
         String productInfo = "This is a " + productType.toString().toLowerCase() + " product for " + subCategory;
         String manufacturer = "Manufacturer for " + subCategory;
         // 가격을 100, 200, 300, 400, 500 중에서 랜덤하게 select.
-        int[] prices = {100, 200, 300, 400, 500};
+        int[] prices = {200, 300, 400, 500};
         int[] discountRates = {10, 20, 30, 40, 50};
 
         int price = prices[rand.nextInt(prices.length)];

@@ -16,7 +16,7 @@ public class AddressesRequstDto {
 
     private String detailAddress;
 
-    private boolean isDefaultAddress;
+    private boolean defaultAddress;
 
     private String recipientPhone;
 

@@ -52,14 +52,14 @@ jobs:
         spring.imp.secretkey: ${{ secrets.IMP_SECRET_KEY }}
         spring.security.oauth2.client.registration.naver.client-id: ${{ secrets.NAVER_CLIENT_ID }}
         spring.security.oauth2.client.registration.naver.client-secret: ${{ secrets.NAVER_CLIENT_SECRET }}
-        spring.security.oauth2.client.registration.naver.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/naver
+        spring.security.oauth2.client.registration.naver.redirect-uri: ${{ secrets.NAVER_REDIRECT_URI }}
         spring.security.oauth2.client.registration.kakao.client-id: ${{ secrets.KAKAO_CLIENT_ID }}
         spring.security.oauth2.client.registration.kakao.client-secret: ${{ secrets.KAKAO_SECRET }}
         spring.security.oauth2.client.registration.kakao.client-authentication-method: ${{ secrets.KAKAO_AUTHENTICATION_METHOD }}
-        spring.security.oauth2.client.registration.kakao.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/kakao
+        spring.security.oauth2.client.registration.kakao.redirect-uri: ${{ secrets.KAKAO_REDIRECT_URI }}
         spring.security.oauth2.client.registration.google.client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
         spring.security.oauth2.client.registration.google.client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        spring.security.oauth2.client.registration.google.redirect-uri: ${{ secrets.FRONTEND_URL }}/login/oauth2/code/google
+        spring.security.oauth2.client.registration.google.redirect-uri: ${{ secrets.GOOGLE_REDIRECT_URI }}
 
     # [2]
     - name: environment variable setting
@@ -82,6 +82,9 @@ jobs:
         echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
         echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
         echo "SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.MYSQL_HOST }}:3306/pushop?&serverTimezone=Asia/Seoul" >> .env
+        echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
+        echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> .env
+        echo "NAVER_REDIRECT_URI=${{ secrets.NAVER_REDIRECT_URI }}" >> .env
         
     # [3]
     - name: Grant execute permission for gradlew
