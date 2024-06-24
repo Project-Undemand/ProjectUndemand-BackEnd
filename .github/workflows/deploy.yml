@@ -9,9 +9,9 @@ name: Java CI with Gradle and Docker Deployment
 
 on:
   push:
-    branches: [ "release/v1.0.0" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "release/v1.0.0" ]
+    branches: [ "main" ]
 
 env:
   RESOURCE_PATH: ./src/main/resources/application.yml
