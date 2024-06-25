@@ -27,7 +27,7 @@ public class AddressController {
     }
 
     @PostMapping("/address/{memberId}")
-    public ResponseEntity<Addresses> createAddress(@PathVariable Long memberId, @RequestBody AddressesRequstDto addressDto) {
+    public ResponseEntity<?> createAddress(@PathVariable Long memberId, @RequestBody AddressesRequstDto addressDto) {
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
 
         return addressService.createAddress(memberId, addressDto);
@@ -57,4 +57,7 @@ public class AddressController {
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         return addressService.setDefaultAddress(memberId, addressId);
     }
+
+
+
 }

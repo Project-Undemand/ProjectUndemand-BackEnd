@@ -1,6 +1,5 @@
 package PU.pushop.address.entity;
 
-
 import PU.pushop.address.model.AddressesRequstDto;
 import PU.pushop.members.entity.Member;
 import jakarta.persistence.*;
@@ -10,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "addresses")
+@Table(name = "addresses", uniqueConstraints = @UniqueConstraint(columnNames = "address_name"))
 public class Addresses {
 
     @Id
@@ -18,19 +17,19 @@ public class Addresses {
     @Column(name = "address_id")
     private Long addressId;
 
-    @Column(name = "address_name")
+    @Column(name = "address_name", unique = true, nullable = false)
     private String addressName;
 
-    @Column(name = "recipient")
+    @Column(name = "recipient", nullable = false)
     private String recipient;
 
     @Column(name = "post_code", length = 100, nullable = false)
     private String postCode;
 
-    @Column(name = "address")
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "detail_address")
+    @Column(name = "detail_address", nullable = false)
     private String detailAddress;
 
     @Column(name = "is_default_address")
