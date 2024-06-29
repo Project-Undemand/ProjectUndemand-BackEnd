@@ -104,35 +104,32 @@ public class JWTUtil {
         return createToken(category, memberId, role, expirationDate);
     }
 
-    // 액세스 토큰 파싱 후, 토큰형태로 반환합니다.
-    public String parseAccessToken(String accessToken) {
-        Claims claims = parseToken(accessToken);
-
-        // 토큰에서 category, memberId, role을 추출
-        String category = claims.get(CATEGORY_CLAIM_KEY, String.class);
-        String memberId = claims.get(MEMBERPK_CLAIM_KEY, String.class);
-        String role = claims.get("role", String.class);
-
-        // AccessToken의 만료 시간을 가져옴
-        Date expirationDate = claims.getExpiration();
-
-        // 새로운 AccessToken 생성
-        return createToken(category, memberId, role, expirationDate);
-    }
-
     /**
-     * 토큰 유효성 체크
+     * Validates a JWT token.
      *
-     * @param token
-     * @return
+     * @param token The JWT token to validate.
+     * @return true if the token is valid, false otherwise.
      */
     public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
             return true;
-        } catch (JwtException e) {
-            log.error("JWT 유효성 검사에 실패했습니다.", e);
+        } catch (MalformedJwtException ex) {
+            log.error("Malformed JWT token", ex);
+            return false;
+        } catch (ExpiredJwtException ex) {
+            log.error("Expired JWT token", ex);
+            return false;
+        } catch (UnsupportedJwtException ex) {
+            log.error("Unsupported JWT token", ex);
+            return false;
+        } catch (IllegalArgumentException ex) {
+            log.error("Empty JWT token", ex);
+            return false;
+        } catch (JwtException ex) {
+            log.error("Failed to validate JWT token", ex);
+            return false;
         }
-        return false;
     }
+
 }
