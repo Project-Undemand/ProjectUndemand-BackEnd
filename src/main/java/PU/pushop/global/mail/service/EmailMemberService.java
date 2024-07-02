@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Optional;
 
@@ -22,6 +23,9 @@ public class EmailMemberService {
 
     private final JavaMailSender mailSender;
     private final MemberRepositoryV1 memberRepositoryV1;
+
+    @Value("${backend.url}")
+    private String backendUrl;
 
     @Transactional
     public void sendEmailVerification(Member member) throws Exception {
@@ -37,7 +41,7 @@ public class EmailMemberService {
                 + "<br>"
                 + "<p>PU 회원가입을 축하드리며, 저희 서비스를 이용해주셔서 감사합니다. <p>"
                 + "<p>아래 링크를 클릭하면 이메일 인증이 완료됩니다.<p>"
-                + "<a href='http://localhost:8080/auth/verify?token=" + member.getToken() + "'>인증 링크</a>"
+                + "<a href='" + backendUrl + "/auth/verify?token=" + member.getToken() + "'>인증 링크</a>"
                 + "<p>즐거운 쇼핑 되세요.!<p>"
                 + "</div>";
         message.setText(body, "utf-8", "html");// 내용, charset 타입, subtype
