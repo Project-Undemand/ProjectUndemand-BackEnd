@@ -1,7 +1,5 @@
 package PU.pushop.global.authentication.jwts.controller;
 
-
-import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.Refresh;
@@ -16,6 +14,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +30,14 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import static PU.pushop.global.ResponseMessageConstants.REFRESH_NOT_FOUND;
+import static PU.pushop.global.authentication.jwts.utils.CookieUtil.createCookie;
+import static PU.pushop.global.authentication.jwts.utils.CookieUtil.getCookieValue;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class TokenController {
 
-    private static final Logger log = LoggerFactory.getLogger(TokenController.class);
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final MemberRepositoryV1 memberRepositoryV1;
@@ -57,7 +58,7 @@ public class TokenController {
     @PostMapping("/api/v1/reissue/access")
     public @ResponseBody void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            String refreshAuthorization = CookieUtil.getCookieValue(request, "refreshAuthorization");
+            String refreshAuthorization = getCookieValue(request, "refreshAuthorization");
 
             if (refreshAuthorization == null || !refreshAuthorization.startsWith("Bearer+")) {
                 sendLoginRequiredResponse(response, null);
@@ -141,7 +142,7 @@ public class TokenController {
 
         String category = jwtUtil.getCategory(BeforeRefresh);
         if (!category.equals("refresh")) {
-            return ResponseEntity.badRequest().body("invalid refresh token. token의 category가 refresh가 아닙니다.");
+            return ResponseEntity.badRequest().body("invalid refresh token. token 의 category 가 refresh 가 아닙니다.");
         }
 
         if (!refreshRepository.existsByRefreshToken(BeforeRefresh)) {
@@ -184,7 +185,7 @@ public class TokenController {
         saveRefreshEntity(findMember, newRefresh);
 
         response.setHeader("Authorization", "Bearer " + newAccess);
-        response.addCookie(createCookie("refreshToken", newRefresh));
+        response.addCookie(createCookie("refreshAuthorization", "Bearer+" +newRefresh));
     }
 
     private String getRefreshCookieValue(HttpServletRequest request) {
@@ -194,7 +195,7 @@ public class TokenController {
         }
 
         return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals("refreshToken"))
+                .filter(cookie -> cookie.getName().equals("refreshAuthorization"))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
@@ -213,27 +214,5 @@ public class TokenController {
         // 저장합니다.
         refreshRepository.save(refreshEntity);
     }
-
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60 ); // 1일
-        cookie.setHttpOnly(true);
-//        cookie.setSecure(true); // HTTPS에서만 쿠키 전송
-        cookie.setPath("/"); // 필요에 따라 설정
-        return cookie;
-    }
-
-
-    private String fetchTokenFromAuthorizationHeader(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-
-        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Authorization header must be provided and should start with 'Bearer '");
-        }
-
-        // Subtract 'Bearer ' part of token
-        return bearerToken.substring(7);
-    }
-
 
 }
