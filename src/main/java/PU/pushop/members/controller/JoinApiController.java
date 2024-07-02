@@ -138,7 +138,6 @@ public class JoinApiController {
     public ResponseEntity<?> logout(@CookieValue(name = "refreshAuthorization", required = false) String refreshAuthorization, HttpServletRequest request,
                                     HttpServletResponse response) {
         String refreshToken = refreshAuthorization.substring(7);
-        log.info(refreshToken);
         if (!refreshToken.isEmpty()) {
             Optional<Refresh> optionalRefresh = refreshRepository.findByRefreshToken(refreshToken);
             if (optionalRefresh.isPresent()) {
