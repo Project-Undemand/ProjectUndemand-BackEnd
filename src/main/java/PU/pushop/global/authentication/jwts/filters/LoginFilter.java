@@ -89,7 +89,7 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
             // Principal(인증-유저이메일), Credentials(권한), Authenticated 등의 정보
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
-            log.info(String.valueOf(authToken.toString()));
+//            log.info(String.valueOf(authToken.toString()));
             return this.getAuthenticationManager().authenticate(authToken);
         } catch (AuthenticationServiceException e) {
             log.info("로그인에 실패했습니다. 원인: " + e.getMessage());
@@ -102,12 +102,12 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
     // 로그인 성공 시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
         // 개발 단계에서 로그확인. 배포 후 : 없앨 예정
-        log.warn("개발 단계에서 유저에 대한 정보를 확인하는 로그입니다. 배포 시 삭제해야 합니다 ! [24.04.06 김성우]");
-        log.info("로그인에 성공했습니다.");
-        log.info("유저 메일: " + authentication.getName());
-        log.info("유저 권한: " + authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
+//        log.warn("개발 단계에서 유저에 대한 정보를 확인하는 로그입니다. 배포 시 삭제해야 합니다 ! [24.04.06 김성우]");
+//        log.info("로그인에 성공했습니다.");
+//        log.info("유저 메일: " + authentication.getName());
+//        log.info("유저 권한: " + authentication.getAuthorities().stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .collect(Collectors.toList()));
         String email = authentication.getName();
         Member memberByEmail = memberService.validateDuplicatedEmail(email);
         String memberId = memberByEmail.getId().toString(); // 토큰에 넣을때, 문자열로 넣습니다.
