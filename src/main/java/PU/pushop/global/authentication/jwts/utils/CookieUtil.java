@@ -11,7 +11,7 @@ public class CookieUtil {
         Cookie cookie = new Cookie(key, value);
         // 만료 기간을 설정하지 않음으로써 세션 쿠키를 사용. 퍼시스턴트 쿠키를 사용하지 않음.
         // cookie.setMaxAge(60*60*60);
-        // cookie.setSecure(true);
+         cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
 
