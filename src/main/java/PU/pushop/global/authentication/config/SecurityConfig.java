@@ -143,49 +143,11 @@ public class SecurityConfig {
         http
                 .logout(logout -> logout.disable());
 
-        /*
-        // 경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth
-                // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
-                .requestMatchers("/login", "/logout",  "/", "/join", "/auth/**", "/login/oauth2/code/**").permitAll()
-                // 상품 카테고리, 상품
-                .requestMatchers("/api/v1/categorys/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.GET, "/api/v1/products/**")).permitAll()
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.POST, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.PUT, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.DELETE, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-                // 상품 썸네일 이미지
-                .requestMatchers("/api/v1/thumbnail/**").permitAll()
-                .requestMatchers(antMatcher(
-                        HttpMethod.POST, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.PUT, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.DELETE, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                // 관리자 페이지 권한: 관리자
-//                .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
-                // access, refresh token 만료시 재발행: ALL
-                .requestMatchers("/api/v1/reissue/access", "/api/v1/reissue/refresh").permitAll()
-                // 문의
-                .requestMatchers("/api/v1/inquiry/**").permitAll()
-                // 문의 답변
-                .requestMatchers("/api/v1/inquiry/reply/**").hasRole("ADMIN, SELLER")
-                // 나머지 페이지 권한: 로그인 멤버
-                .anyRequest().permitAll());
-        */
+
         // 경로별 인가 작업: 모든 요청에 대해 허용
         http.authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll());
 
-        /**
-         * Logout Api 를 사용할 것이기에, CustomLogoutFilter 를 사용하지 않을 것임.
-          */
-//        http
-//                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         /**
          순차적으로 등록할 Filter 들을 등록.
