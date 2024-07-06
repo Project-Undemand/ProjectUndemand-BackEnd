@@ -32,8 +32,4 @@ public interface ProductRepositoryV1 extends JpaRepository<Product, Long> {
     Page<Product> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDateTime date, Pageable pageable);
     Page<Product> findByWishListCountGreaterThanOrderByWishListCountDesc(int count, Pageable pageable);
 
-
-
-
-
 }

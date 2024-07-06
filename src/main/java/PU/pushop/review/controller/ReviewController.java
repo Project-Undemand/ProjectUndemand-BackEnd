@@ -1,5 +1,6 @@
 package PU.pushop.review.controller;
 
+import PU.pushop.review.entity.Review;
 import PU.pushop.review.model.ReviewCreateDto;
 import PU.pushop.review.model.ReviewDto;
 import PU.pushop.review.service.ReviewService;
@@ -25,16 +26,26 @@ public class ReviewController {
 
     /**
      * 리뷰 작성
-     * @param request   reviewTitle, reviewContent, rating
+     * @param images 5개 이하의 리뷰 이미지
+     * @param reviewContent 리뷰 내용
+     * @param rating 별점 1개 ~ 5개
      * @param paymentId 리뷰 작성할 상품
      * @return 작성 완료 메시지
      */
     @PostMapping("/new/{paymentId}")
-    public ResponseEntity<String> createReview(@RequestParam(value = "images", required = false) List<MultipartFile> images, @ModelAttribute ReviewCreateDto request, @PathVariable Long paymentId) {
+    public ResponseEntity<String> createReview(
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestPart(value = "rating") String rating,
+            @RequestPart(value = "reviewContent") String reviewContent,
+            @PathVariable Long paymentId) {
 
-        reviewService.createReview(request, images,paymentId);
+        ReviewCreateDto request = new ReviewCreateDto();
+        request.setReviewContent(reviewContent);
+        request.setRating(Integer.parseInt(rating));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("리뷰 작성 완료");
+        Review createdReview = reviewService.createReview(request, images, paymentId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdReview.getReviewId() + " 번 , 구매후기가 작성 되었습니다. ");
     }
 
     /**

@@ -2,12 +2,16 @@ package PU.pushop.global.authentication.jwts.utils;
 
 import PU.pushop.members.entity.enums.MemberRole;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
 
 
@@ -15,19 +19,29 @@ import java.util.Date;
 @Slf4j
 public class JWTUtil {
 
-    private final SecretKey secretKey;
+    private SecretKey secretKey; // 'final' 제거
+    @Value("${spring.jwt.secret}")
+    private String jwtSecret;
     private static final String MEMBERPK_CLAIM_KEY = "memberId";
     private static final String CATEGORY_CLAIM_KEY = "category";
     private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
     private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
 
+//    public JWTUtil() {
+//        this.secretKey = Jwts.SIG.HS256.key().build();
+//    }
 
-    public JWTUtil() {
-        this.secretKey = Jwts.SIG.HS256.key().build();
-//        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     private Claims parseToken(String token) {
+        // Check if token is null or empty
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
         try {
             return Jwts.parser()
                     .verifyWith(secretKey)
@@ -51,6 +65,17 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
+        // Check if token is null or empty
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
+
+        // Validate token structure
+        if (!validateToken(token)) {
+            throw new IllegalArgumentException("Token is not valid");
+        }
+
+        // Check expiration
         return parseToken(token).getExpiration().before(new Date());
     }
 
@@ -66,48 +91,45 @@ public class JWTUtil {
     }
 
     public String createAccessToken(String category, String memberId, String role) {
-        // 10분
+        // 30 분
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(accessTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);
     }
 
     public String createRefreshToken(String category, String memberId, String role) {
-        // 24시간
+        // 7 일
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
         Date expirationDate = Date.from(expirationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         return createToken(category, memberId, role, expirationDate);
     }
 
-    // 액세스 토큰 파싱 후, 토큰형태로 반환합니다.
-    public String parseAccessToken(String accessToken) {
-        Claims claims = parseToken(accessToken);
-
-        // 토큰에서 category, memberId, role을 추출
-        String category = claims.get(CATEGORY_CLAIM_KEY, String.class);
-        String memberId = claims.get(MEMBERPK_CLAIM_KEY, String.class);
-        String role = claims.get("role", String.class);
-
-        // AccessToken의 만료 시간을 가져옴
-        Date expirationDate = claims.getExpiration();
-
-        // 새로운 AccessToken 생성
-        return createToken(category, memberId, role, expirationDate);
-    }
-
     /**
-     * 토큰 유효성 체크
+     * Validates a JWT token.
      *
-     * @param token
-     * @return
+     * @param token The JWT token to validate.
+     * @return true if the token is valid, false otherwise.
      */
     public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
             return true;
-        } catch (JwtException e) {
-            log.error("JWT 유효성 검사에 실패했습니다.", e);
+        } catch (MalformedJwtException ex) {
+            log.error("Malformed JWT token", ex);
+            return false;
+        } catch (ExpiredJwtException ex) {
+            log.error("Expired JWT token", ex);
+            return false;
+        } catch (UnsupportedJwtException ex) {
+            log.error("Unsupported JWT token", ex);
+            return false;
+        } catch (IllegalArgumentException ex) {
+            log.error("Empty JWT token", ex);
+            return false;
+        } catch (JwtException ex) {
+            log.error("Failed to validate JWT token", ex);
+            return false;
         }
-        return false;
     }
+
 }

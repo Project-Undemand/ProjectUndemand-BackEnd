@@ -58,7 +58,7 @@ public class JWTFilterV0 extends OncePerRequestFilter {
             // 멤버 엔터티 생성
             CustomMemberDto customMemberDto = CustomMemberDto.createCustomMember(Long.valueOf(memberId), member, role, true);
 
-            // 멤버 엔터티를 CustomUserDetails 로 변환
+            // 멤버 엔터티를 -> CustomUserDetails 로 변환
             CustomUserDetails customUserDetails = new CustomUserDetails(customMemberDto);
 
             // 인증 토큰 생성 및 설정

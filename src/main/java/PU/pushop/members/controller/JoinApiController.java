@@ -2,13 +2,11 @@ package PU.pushop.members.controller;
 
 import PU.pushop.global.mail.service.EmailMemberService;
 import PU.pushop.members.entity.Member;
-import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
 import PU.pushop.profile.entity.Profiles;
 import PU.pushop.profile.repository.ProfileRepository;
-import PU.pushop.profile.service.ProfileService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -21,9 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.CredentialNotFoundException;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -89,14 +84,14 @@ public class JoinApiController {
         if (member == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유효하지 않은 토큰입니다.");
         }
-        log.info(String.valueOf("isCertifyByMail ? "+ member.isCertifyByMail()));
+//        log.info(String.valueOf("isCertifyByMail ? "+ member.isCertifyByMail()));
         return ResponseEntity.ok("이메일 인증이 성공적으로 완료되었습니다.");
     }
 
     private void validateExistedMemberByEmail(String email) {
         boolean isExistMember = memberRepositoryV1.existsByEmail(email);
         if (isExistMember) {
-            log.error("이미 등록된 이메일입니다.");
+//            log.error("이미 등록된 이메일입니다.");
             throw new MemberService.ExistingMemberException();
         }
     }
@@ -112,49 +107,10 @@ public class JoinApiController {
         }
     }
 
-
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
-
-        Member member = memberService.memberLogin(loginRequest);
-        if (member != null) {
-            log.info("멤버 이메일 인증 여부 : " + member.isCertifyByMail());
-        }
-        if (member == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("가입되지 않는 email 이거나 비밀번호가 일치하지 않습니다. ");
-        }
-        if (!member.isCertifyByMail()) {
-            return ResponseEntity.badRequest().body("이메일 인증이 되지 않은 회원입니다.");
-        } else {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("PU에 오신 것을 환영합니다. ");
-        }
-
-    }
-
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletRequest request,
+    public ResponseEntity<?> logout(@CookieValue(name = "refreshAuthorization", required = false) String refreshAuthorization, HttpServletRequest request,
                                     HttpServletResponse response) {
-        System.out.println(refreshToken);
-        if (refreshToken != null) {
-            Optional<Member> optionalMember = memberRepositoryV1.findByToken(refreshToken);
-            if (optionalMember.isPresent()) {
-                Member existMember = optionalMember.get();
-                // refreshToken을 이용하여 DB에 있는 해당 토큰을 삭제
-                refreshRepository.deleteByRefreshToken(refreshToken);
-
-                // 로그아웃 시 , 멤버의 이메일을 String으로 반환
-                return ResponseEntity.status(HttpStatus.OK).body(existMember.getEmail() + " 로그아웃 되었습니다");
-            } else {
-                log.info("optionalMember" + "is not Present");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("쿠키에 저장된 리프레쉬토큰의 유저가 존재하지 않습니다.");
-            }
-
-        } else {
-            log.info("이미 로그아웃 된 유저에 대한 로그아웃 시도입니다. ");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저에 대한 로그아웃 시도입니다. ");
-        }
+        return memberService.memberLogout(refreshAuthorization, request, response);
     }
 
 
@@ -201,20 +157,28 @@ public class JoinApiController {
     }
 
     private Member createMemberFromRequest(JoinMemberRequest request, String token) {
+        // Generate a UUID for socialId
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String socialId = "general-" + uuid.substring(0, 12);
         return Member.createGeneralMember(
                 request.email,
                 request.nickname,
                 passwordEncoder.encode(request.password),
-                token
+                token,
+                socialId
         );
     }
 
     private Member createAdminFromRequest(JoinMemberRequest request, String token) {
+        // Generate a UUID for socialId
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String socialId = "general-" + uuid.substring(0, 12);
         return Member.createAdminMember(
                 request.email,
                 request.nickname,
                 passwordEncoder.encode(request.password),
-                token
+                token,
+                socialId
         );
     }
 

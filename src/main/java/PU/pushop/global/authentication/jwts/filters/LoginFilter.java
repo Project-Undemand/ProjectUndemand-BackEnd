@@ -4,14 +4,13 @@ import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.model.RefreshDto;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
+import PU.pushop.members.service.MemberService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -22,42 +21,37 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StreamUtils;
 
+import javax.security.auth.login.CredentialNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static PU.pushop.global.authentication.jwts.utils.CookieUtil.createCookie;
 
 @Slf4j
 public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
-    private Long accessTokenExpirationPeriod = 3600L;
+    private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
+    private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
 
-    private Long refreshTokenExpirationPeriod = 1209600L;
-
-    private final MemberRepositoryV1 memberRepositoryV1;
+    private final MemberService memberService;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final ObjectMapper objectMapper;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     private static final String CONTENT_TYPE = "application/json"; // JSON 타입의 데이터로 오는 로그인 요청만 처리
 
-    public LoginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper1, MemberRepositoryV1 memberRepositoryV1, BCryptPasswordEncoder passwordEncoder) {
+    public LoginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, MemberService memberService, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper1) {
         super(authenticationManager, objectMapper);
+        this.memberService = memberService;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
         this.objectMapper = objectMapper1;
-        this.memberRepositoryV1 = memberRepositoryV1;
-        this.passwordEncoder = passwordEncoder;
     }
-
-
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
@@ -76,15 +70,8 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
             String password = usernamePasswordMap.get("password");
 
             // 사용자 정보에서 isCertifyByMail 필드 확인
-            Member member = memberRepositoryV1.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+            Member member = memberService.memberLogin(email, password);
 
-//                Member member = byEmail.get();
-//                if (!passwordEncoder.matches(password, member.getPassword())) {
-//                    throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
-//                }
-//                boolean isCertifyByMail = member.isCertifyByMail();
-//                log.info("[LoginFilter] 회원 이메일인증 여부 = " + isCertifyByMail);
             boolean isCertifyByMail = member.isCertifyByMail();
             if (!isCertifyByMail) {
                 // 이메일이 인증되지 않은 경우 로그인 실패 처리
@@ -93,47 +80,40 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
             // Principal(인증-유저이메일), Credentials(권한), Authenticated 등의 정보
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
-            log.info(String.valueOf(authToken.toString()));
+//            log.info(String.valueOf(authToken.toString()));
             return this.getAuthenticationManager().authenticate(authToken);
         } catch (AuthenticationServiceException e) {
-            log.info("로그인에 실패했습니다. 원인: " + e.getMessage());
+//            log.info("로그인에 실패했습니다. 원인: " + e.getMessage());
             throw e;
+        } catch (CredentialNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
-
 
     @Override
     // 로그인 성공 시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
-        // 개발 단계에서 로그확인. 배포 후 : 없앨 예정
-        log.warn("개발 단계에서 유저에 대한 정보를 확인하는 로그입니다. 배포 시 삭제해야 합니다 ! [24.04.06 김성우]");
-        log.info("로그인에 성공했습니다.");
-        log.info("유저 메일: " + authentication.getName());
-        log.info("유저 권한: " + authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
         String email = authentication.getName();
-        Member memberByEmail = memberRepositoryV1.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
-        String memberId = memberByEmail.getId().toString(); // 토큰에 넣을때, 문자열로 넣습니다.
-        // 권한을 문자열로 변환
-        String role = extractAuthority(authentication);
+        Member member = memberService.findUniqueMemberByEmail(email);
+        // 액세스, 리프레쉬 토큰 생성 시 id, role 필요
+        String memberId = member.getId().toString();
+        String role = member.getMemberRole().toString();
 
         // 토큰 종류(카테고리), 유저이름, 역할 등을 페이로드에 담는다.
         String newAccess = jwtUtil.createAccessToken("access", memberId, role);
         String newRefresh = jwtUtil.createRefreshToken("refresh", memberId, role);
 
         // [Refresh 토큰 - DB 에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
-        saveOrUpdateRefreshEntity(memberByEmail, newRefresh);
+        saveOrUpdateRefreshEntity(member, newRefresh);
 
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
-        addResponseDataV2(response, newAccess, newRefresh, email);
+        addResponseDataV3(response, newAccess, newRefresh, email);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 
-        log.info("로그인에 실패했습니다. ");
+//        log.info("로그인에 실패했습니다. ");
         //로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
         response.getWriter().write("로그인에 실패했습니다! ");
@@ -163,18 +143,35 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
     }
 
     /**
-     * [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
+     * [response.data] 에 Json 형태로 accessToken 을 넣어주고, 쿠키에 refreshToken 을 넣어주는 방식
      */
     private void addResponseDataV2(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
         // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
-        JsonObject responseData = new JsonObject();
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        // response.data 에 accessToken, refreshToken 두값 설정
+        // response.data 에 accessToken, refreshToken 담아주기.
+        JsonObject responseData = new JsonObject();
         responseData.addProperty("accessToken", accessToken);
         responseData.addProperty("refreshToken", refreshToken);
-        responseData.addProperty("email", email);
         response.getWriter().write(responseData.toString());
+        // HttpStatus 200 OK
+        response.setStatus(HttpStatus.OK.value());
+    }
+
+    /**
+     *
+     * 쿠키에 refreshToken 을 넣어주는 방식
+     */
+    private void addResponseDataV3(HttpServletResponse response, String accessToken, String refreshToken, String email) throws IOException {
+        // 액세스 토큰을 JsonObject 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        // JSON 객체를 생성하고 액세스 토큰을 추가
+        JsonObject responseData = new JsonObject();
+        responseData.addProperty("accessToken", accessToken);
+        response.getWriter().write(responseData.toString());
+        // 리프레시 토큰을 쿠키에 저장
+        response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());
     }
@@ -206,15 +203,5 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         }
 
     }
-
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24 * 60 * 60 ); // 1일
-        cookie.setHttpOnly(true);
-//        cookie.setSecure(true); // HTTPS에서만 쿠키 전송
-        cookie.setPath("/"); // 필요에 따라 설정
-        return cookie;
-    }
-
 
 }
