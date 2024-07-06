@@ -1,10 +1,7 @@
 package PU.pushop.members.controller;
 
-import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.global.mail.service.EmailMemberService;
 import PU.pushop.members.entity.Member;
-import PU.pushop.members.entity.Refresh;
-import PU.pushop.members.model.LoginRequest;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
@@ -22,9 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.CredentialNotFoundException;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -90,14 +84,14 @@ public class JoinApiController {
         if (member == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유효하지 않은 토큰입니다.");
         }
-        log.info(String.valueOf("isCertifyByMail ? "+ member.isCertifyByMail()));
+//        log.info(String.valueOf("isCertifyByMail ? "+ member.isCertifyByMail()));
         return ResponseEntity.ok("이메일 인증이 성공적으로 완료되었습니다.");
     }
 
     private void validateExistedMemberByEmail(String email) {
         boolean isExistMember = memberRepositoryV1.existsByEmail(email);
         if (isExistMember) {
-            log.error("이미 등록된 이메일입니다.");
+//            log.error("이미 등록된 이메일입니다.");
             throw new MemberService.ExistingMemberException();
         }
     }
@@ -113,49 +107,10 @@ public class JoinApiController {
         }
     }
 
-
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
-
-        Member member = memberService.memberLogin(loginRequest);
-        if (member != null) {
-            log.info("멤버 이메일 인증 여부 : " + member.isCertifyByMail());
-        }
-        if (member == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("가입되지 않는 email 이거나 비밀번호가 일치하지 않습니다. ");
-        }
-        if (!member.isCertifyByMail()) {
-            return ResponseEntity.badRequest().body("이메일 인증이 되지 않은 회원입니다.");
-        } else {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("PU에 오신 것을 환영합니다. ");
-        }
-
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@CookieValue(name = "refreshAuthorization", required = false) String refreshAuthorization, HttpServletRequest request,
                                     HttpServletResponse response) {
-        String refreshToken = refreshAuthorization.substring(7);
-        if (!refreshToken.isEmpty()) {
-            Optional<Refresh> optionalRefresh = refreshRepository.findByRefreshToken(refreshToken);
-            if (optionalRefresh.isPresent()) {
-                Refresh refreshEntity = optionalRefresh.get();
-                CookieUtil.deleteCookie(response, "refreshAuthorization");
-
-                log.info("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
-                // 로그아웃 시 , 멤버의 이메일을 String으로 반환
-                return ResponseEntity.status(HttpStatus.OK).body("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
-            } else {
-                log.info("Refresh is not Present.");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh is not Present.");
-            }
-
-        } else {
-            log.info("이미 로그아웃 된 유저입니다. ");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 로그아웃 된 유저입니다. ");
-        }
+        return memberService.memberLogout(refreshAuthorization, request, response);
     }
 
 

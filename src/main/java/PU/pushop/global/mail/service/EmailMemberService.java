@@ -49,18 +49,16 @@ public class EmailMemberService {
     public Member updateByVerifyToken(String token) {
         Optional<Member> optionalMember = memberRepositoryV1.findByToken(token);
 
-        // 검색된 회원이 있을 경우, 업데이트 수행
+        // 검색된 회원이 있을 경우, 업데이트 수행.
         if (optionalMember.isPresent()) {
             // 회원 정보를 업데이트합니다.
             Member member = optionalMember.get();
-            log.info("member email token = " + member.getToken());
-            // 회원의 이메일 인증 여부를 True 로 반환
+            // 회원의 이메일 인증 여부를 True 로 반환.
             member.certifyByEmail();
-            // 변경된 이메일 인증 여부, 이메일 토큰을 DB에 반영
+            // 변경된 이메일 인증 여부, 이메일 토큰을 DB에 반영.
             return memberRepositoryV1.save(member);
         } else {
             throw new UsernameNotFoundException("해당 토큰을 가진 멤버가 존재하지 않습니다!");
         }
-        // 업데이트된 또는 검색된 회원을 반환합니다.
     }
 }
