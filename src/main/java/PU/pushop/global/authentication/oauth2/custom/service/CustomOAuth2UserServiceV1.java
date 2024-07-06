@@ -10,12 +10,11 @@ import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
 import PU.pushop.members.model.OAuthUserDTO;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.service.MemberService;
 import PU.pushop.profile.entity.Profiles;
 import PU.pushop.profile.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -32,6 +31,7 @@ public class CustomOAuth2UserServiceV1 extends DefaultOAuth2UserService {
 
     private final MemberRepositoryV1 memberRepositoryV1;
     private final ProfileRepository profileRepository;
+    private final MemberService memberService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -43,18 +43,7 @@ public class CustomOAuth2UserServiceV1 extends DefaultOAuth2UserService {
         if (oAuth2Response == null) {
             return null;
         }
-//        log.info("=================== getAttributes() 시작 ================== 개발단계 ====");
-//        log.info("1.getAttributes : {}", oAuth2User.getAttributes());
-//        log.info("2.registrationType : {}", registrationType);
-//        log.info("3.oAuth2Response : {}", oAuth2Response);
-//        log.info("=================== getAttributes() 끝  ================== 개발단계 ====");
-        // 인증 정보에 대해 확인
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication != null) {
-//            log.info("Is authenticated: {}", authentication.isAuthenticated());
-//        } else {
-//            log.info("Authentication object is null.");
-//        }
+
         /*
           1. email, username, role, socialType, socialId 를 oAuth2Response 로부터 받아서
           2. memberRepository 에 저장하고
@@ -86,6 +75,8 @@ public class CustomOAuth2UserServiceV1 extends DefaultOAuth2UserService {
         // getEmail 과 getName 을 통해서 이메일과 실제 사용자명을 받아옵니다.
         String email = oAuth2Response.getEmail();
         String username = oAuth2Response.getName();
+        // 소셜 로그인을 통해 로그인 한 유저의 이름은, 실제 이름이기 때문에 보안상 마스킹 처리를 해주었습니다.
+        String maskedName = memberService.maskName(username);
         // 식별자 socialId 값으로 멤버를 가져옵니다. 있으면 덮어씌우고, 없으면 새로 생성합니다.
         Optional<Member> OptionalMember = memberRepositoryV1.findBySocialId(SocialId);
         // registrationType 을 SocialType 으로 변환
@@ -101,7 +92,7 @@ public class CustomOAuth2UserServiceV1 extends DefaultOAuth2UserService {
                 return joinMember;
             }
         } else {
-            Member newOAuth2Member = Member.createSocialMember(email, username, MemberRole.USER, SocialType, SocialId);
+            Member newOAuth2Member = Member.createSocialMember(email, maskedName, MemberRole.USER, SocialType, SocialId);
             memberRepositoryV1.save(newOAuth2Member);
             // 멤버 데이터로, 마이 프로필 생성
             Profiles profile = Profiles.createMemberProfile(newOAuth2Member);

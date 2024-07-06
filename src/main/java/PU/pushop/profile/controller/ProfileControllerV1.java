@@ -3,6 +3,7 @@ package PU.pushop.profile.controller;
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.service.MemberService;
 import PU.pushop.profile.entity.Profiles;
 import PU.pushop.profile.entity.enums.MemberAges;
 import PU.pushop.profile.entity.enums.MemberGender;
@@ -32,6 +33,7 @@ public class ProfileControllerV1 {
     private final ProfileRepository profileRepository;
     private final ObjectMapper objectMapper;
     private final MemberRepositoryV1 memberRepositoryV1;
+    private final MemberService memberService;
 
     @GetMapping("/{memberId}")
     public ResponseEntity<MemberProfileDto> getProfile(@PathVariable Long memberId) {
@@ -91,15 +93,16 @@ public class ProfileControllerV1 {
     public ResponseEntity<String> updateMemberUsername(@PathVariable Long memberId, @RequestBody String newUsername) {
         // RequestBody 로 건너온 Nickname 을 enum 타입으로 변경
         newUsername = newUsername.replace("\"", "");
+        String maskedUsername = memberService.maskName(newUsername);
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
         Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
         if(optionalMember.isPresent()) {
             Member existingMember = optionalMember.get();
-            existingMember.updateUsername(newUsername);
+            existingMember.updateUsername(maskedUsername);
             memberRepositoryV1.save(existingMember);
-            return ResponseEntity.ok("Member Nickname updated successfully.");
+            return ResponseEntity.ok("Member Username updated successfully.");
         }
         else{
             return ResponseEntity.notFound().build();

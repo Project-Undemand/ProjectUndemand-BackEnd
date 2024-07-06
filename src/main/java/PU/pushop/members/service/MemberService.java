@@ -91,7 +91,7 @@ public class MemberService {
         }
     }
 
-    public static String maskName(String name) {
+    public String maskName(String name) {
         int length = name.length();
         if (length == 2) {
             return name.charAt(0) + "*";
