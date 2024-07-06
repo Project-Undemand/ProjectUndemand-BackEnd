@@ -9,6 +9,7 @@ import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
+import PU.pushop.profile.repository.ProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,10 +42,9 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CookieService cookieService;
     private final RefreshRepository refreshRepository;
-    // [MemberService] Bean 등록
     private final MemberRepositoryV1 memberRepositoryV1;
+    private final ProfileRepository profileRepository;
     // [Social 로그인] 을 위한 생성자 주입
-    private final CustomOAuth2UserServiceV1 customOAuth2UserServiceV1;
     private final CustomLoginSuccessHandlerV1 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
@@ -74,6 +74,16 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CustomOAuth2UserServiceV1 customOAuth2UserService() {
+        return new CustomOAuth2UserServiceV1(memberRepositoryV1, profileRepository, memberService());
+    }
+
+    @Bean
+    public MemberService memberService() {
+        return new MemberService(memberRepositoryV1, passwordEncoder(), refreshRepository);
+    }
+
+    @Bean
     public AuthenticationSuccessHandler loginSuccessHandler() {
         return customLoginSuccessHandler;
     }
@@ -88,13 +98,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public MemberService memberService() {
-        return new MemberService(memberRepositoryV1, passwordEncoder());
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
         return configuration.getAuthenticationManager();
     }
 
@@ -168,7 +172,7 @@ public class SecurityConfig {
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint(
                                 (userInfoEndpointConfig -> userInfoEndpointConfig
-                                        .userService(customOAuth2UserServiceV1)
+                                        .userService(customOAuth2UserService())
                                 )
                         )
                         .successHandler(loginSuccessHandler())
