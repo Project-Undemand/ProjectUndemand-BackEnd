@@ -82,6 +82,32 @@ public class ProfileControllerV1 {
 
     /**
      * 1. request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
+     * 2. 회원의 username 을 변경하고 저장
+     * @param memberId
+     * @param newUsername
+     * @return
+     */
+    @PutMapping("/{memberId}/username")
+    public ResponseEntity<String> updateMemberUsername(@PathVariable Long memberId, @RequestBody String newUsername) {
+        // RequestBody 로 건너온 Nickname 을 enum 타입으로 변경
+        newUsername = newUsername.replace("\"", "");
+        // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
+        // memberId 를 통해 member 조회
+        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
+        if(optionalMember.isPresent()) {
+            Member existingMember = optionalMember.get();
+            existingMember.updateUsername(newUsername);
+            memberRepositoryV1.save(existingMember);
+            return ResponseEntity.ok("Member Nickname updated successfully.");
+        }
+        else{
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * 1. request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
      * 2. 회원의 nickname 을 변경하고 저장
      * @param memberId
      * @param newNickname
@@ -91,7 +117,6 @@ public class ProfileControllerV1 {
     public ResponseEntity<String> updateMemberNickname(@PathVariable Long memberId, @RequestBody String newNickname) {
         // RequestBody 로 건너온 Nickname 을 enum 타입으로 변경
         newNickname = newNickname.replace("\"", "");
-        log.info(newNickname);
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
@@ -111,7 +136,6 @@ public class ProfileControllerV1 {
     public ResponseEntity<String> updateMemberAge(@PathVariable Long memberId, @RequestBody String newAge) {
         // RequestBody 로 건너온 newAge 이 어떻게 넘어오는지 체크
         newAge = newAge.replace("\"", "");
-        log.info(newAge);
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
@@ -132,7 +156,6 @@ public class ProfileControllerV1 {
     public ResponseEntity<String> updateMemberGender(@PathVariable Long memberId, @RequestBody String newGender) {
         // RequestBody 로 건너온 newGender 이 어떻게 넘어오는지 체크
         newGender = newGender.replace("\"", "");
-        log.info(newGender);
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
