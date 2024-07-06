@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.security.auth.login.CredentialNotFoundException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -42,28 +43,24 @@ public class MemberService {
     }
 
     @Transactional
-    public Member memberLogin(LoginRequest loginRequest) throws UserPrincipalNotFoundException, CredentialNotFoundException {
-        List<Member> members = memberRepositoryV1.findAllByEmail(loginRequest.getEmail());
+    public Member memberLogin(String email, String password) throws CredentialNotFoundException {
+        Member member = findUniqueMemberByEmail(email);
 
-        if (members.size() > 1) {
-            log.info("Multiple users found with email:" + loginRequest.getEmail());
-            throw new IllegalStateException("Multiple users found with email:" + loginRequest.getEmail());
-        } else if (members.size() == 1) {
-            Member member = members.get(0);
-            if (passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
-                return member;
-            } else {
-                log.info("Invalid password.");
-                throw new CredentialNotFoundException("Invalid password");
-            }
+        if (passwordEncoder.matches(password, member.getPassword())) {
+            updateLastLoginAt(member);
+            return member;
         } else {
-            log.info("User not found with email: " + loginRequest.getEmail());
-            throw new UserPrincipalNotFoundException("User not found with email: " + loginRequest.getEmail());
+            throw new CredentialNotFoundException("Invalid password");
         }
     }
 
+    private void updateLastLoginAt(Member member) {
+        member.setLastLoginDate(LocalDateTime.now());
+        memberRepositoryV1.save(member);
+    }
+
     @Transactional
-    public Member validateDuplicatedEmail(String email) {
+    public Member findUniqueMemberByEmail(String email) {
         List<Member> members = memberRepositoryV1.findAllByEmail(email);
 
         if (members.size() > 1) {
@@ -92,5 +89,23 @@ public class MemberService {
         public UserNotFoundByEmailException(String message) {
             super(message);
         }
+    }
+
+    public static String maskName(String name) {
+        int length = name.length();
+        if (length == 2) {
+            return name.charAt(0) + "*";
+        } else if (length == 3) {
+            return name.charAt(0) + "*" + name.charAt(2);
+        } else if (length >= 4) {
+            StringBuilder maskedName = new StringBuilder();
+            maskedName.append(name.charAt(0));
+            for (int i = 1; i < length - 1; i++) {
+                maskedName.append("*");
+            }
+            maskedName.append(name.charAt(length - 1));
+            return maskedName.toString();
+        }
+        return name;
     }
 }
