@@ -50,8 +50,8 @@ public class JWTFilterV3 extends OncePerRequestFilter {
         // refreshAuthorization 쿠키 검증
         if(!refreshAuthorization.startsWith("Bearer+")){
 
-            log.info("로그인 하지 않은 상태이거나, refreshAuthorization 을 Request Header에 담아주지 않았습니다. ");
-            log.info(" now : " + currentDate);
+            log.warn(" 로그인 하지 않은 상태이거나, refreshAuthorization 을 Request Header에 담아주지 않았습니다. ");
+            log.warn(" now : " + currentDate);
             // 토큰이 유효하지 않으므로 request와 response를 다음 필터로 넘겨줌
             filterChain.doFilter(request, response);
             // 메서드 종료
@@ -66,9 +66,9 @@ public class JWTFilterV3 extends OncePerRequestFilter {
             if(jwtUtil.isExpired(accessToken)){
                 String memberId = jwtUtil.getMemberId(accessToken);
 
-                log.info("access token 이 만료되었습니다.");
+                log.warn("access token 이 만료되었습니다.");
                 if (memberId != null) {
-                    log.info("memberId : " + memberId + " now : " + currentDate);
+                    log.warn("memberId : " + memberId + " now : " + currentDate);
                 }
                 filterChain.doFilter(request, response);
                 // 메서드 종료
