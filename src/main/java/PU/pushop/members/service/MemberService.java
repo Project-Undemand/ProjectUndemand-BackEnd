@@ -1,21 +1,25 @@
 package PU.pushop.members.service;
 
+import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.members.entity.Member;
-import PU.pushop.members.model.LoginRequest;
+import PU.pushop.members.entity.Refresh;
 import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.repository.RefreshRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.security.auth.login.CredentialNotFoundException;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.Optional;
 
 
 @Service
@@ -26,6 +30,7 @@ public class MemberService {
 
     private final MemberRepositoryV1 memberRepositoryV1;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final RefreshRepository refreshRepository;
 
     @Transactional
     public Member joinMember(Member member) {
@@ -54,9 +59,40 @@ public class MemberService {
         }
     }
 
-    private void updateLastLoginAt(Member member) {
-        member.setLastLoginDate(LocalDateTime.now());
-        memberRepositoryV1.save(member);
+    @Transactional
+    public ResponseEntity<?> memberLogout(String refreshAuthorization, HttpServletRequest request, HttpServletResponse response) {
+        // refreshAuthorization 쿠키가 null 이거나 비어 있는지 확인
+        if (refreshAuthorization == null || refreshAuthorization.isEmpty()) {
+            log.warn("로그아웃 요청에 refreshAuthorization 쿠키가 없습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그아웃 요청에 refreshAuthorization 쿠키가 없습니다.");
+        }
+
+        // refreshAuthorization 쿠키가 올바른 형식을 갖추었는지 확인
+        if (!refreshAuthorization.startsWith("Bearer+")) {
+            log.warn("잘못된 형식의 refreshAuthorization 쿠키입니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 형식의 refreshAuthorization 쿠키입니다.");
+        }
+
+        String refreshToken = refreshAuthorization.substring(7);
+
+        // refreshToken 이 비어 있는지 확인
+        if (refreshToken.isEmpty()) {
+            log.warn("refreshToken is Empty.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("refreshToken is Empty.");
+        }
+
+        Optional<Refresh> optionalRefresh = refreshRepository.findByRefreshToken(refreshToken);
+        if (optionalRefresh.isPresent()) {
+            Refresh refreshEntity = optionalRefresh.get();
+            CookieUtil.deleteCookie(response, "refreshAuthorization");
+            refreshRepository.delete(refreshEntity);
+
+            log.info("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
+            return ResponseEntity.status(HttpStatus.OK).body("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
+        } else {
+            log.warn("DB 에 존재하지 않은 잘못된 Refresh token 입니다. 다른 유저의 토큰입니다. Refresh token : " + refreshToken);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("DB 에 존재하지 않은 잘못된 Refresh token 입니다. 다른 유저의 토큰입니다.");
+        }
     }
 
     @Transactional
@@ -70,6 +106,11 @@ public class MemberService {
         } else {
             throw new UserNotFoundByEmailException("No user found with this email: " + email);
         }
+    }
+
+    private void updateLastLoginAt(Member member) {
+        member.setLastLoginDate(LocalDateTime.now());
+        memberRepositoryV1.save(member);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -100,9 +141,7 @@ public class MemberService {
         } else if (length >= 4) {
             StringBuilder maskedName = new StringBuilder();
             maskedName.append(name.charAt(0));
-            for (int i = 1; i < length - 1; i++) {
-                maskedName.append("*");
-            }
+            maskedName.append("*".repeat(length - 2));
             maskedName.append(name.charAt(length - 1));
             return maskedName.toString();
         }
