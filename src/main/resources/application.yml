@@ -15,7 +15,7 @@ spring:
   datasource:
     # MySQL
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/pushop?&serverTimezone=Asia/Seoul
+    url: ${SPRING_DATASOURCE_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     # H2
@@ -53,7 +53,7 @@ spring:
     cache-names: profileImages
   data:
     redis:
-      host: 127.0.0.1
+      host: ${REDIS_HOST}
       port: 6379
       time-to-live: 600000 # 캐시 TTL 설정 (60분). 이미지 캐싱을 위한 설정 [24.05.30 ksw]
   web:
@@ -61,6 +61,10 @@ spring:
       static-locations: classpath:/static/,file:/static/
 
 #    open-in-view: false
+  backend:
+    url: ${BACKEND_URL}
+  frontend:
+    url: ${FRONTEND_URL}
 
 # iamport
 imp:
