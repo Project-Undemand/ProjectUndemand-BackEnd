@@ -42,6 +42,7 @@ public class MemberDTO {
     }
 
     public static MemberDTO createMemberDto(Member member) {
-        return new MemberDTO(member.getId(), member.getEmail(), member.getUsername(), member.getNickname(), member.getPhone(), member.getMemberRole(), member.getSocialType(), member.getIsActive(), member.isAdmin(), member.isSeller(), member.getManufacturer(), member.isCertifyByMail(), member.getJoinedAt().toString(), member.getLastLoginAt().toString());
+        return new MemberDTO(member.getId(), member.getEmail(), member.getUsername(), member.getNickname(), member.getPhone(), member.getMemberRole(), member.getSocialType(), member.getIsActive(), member.isAdmin(), member.isSeller(), member.getManufacturer(), member.isCertifyByMail(), member.getJoinedAt() != null ? member.getJoinedAt().toString() : "",
+                member.getLastLoginAt() != null ? member.getLastLoginAt().toString() : "");
     }
 }

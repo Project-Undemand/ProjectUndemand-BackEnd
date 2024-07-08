@@ -3,7 +3,6 @@ package PU.pushop.members.entity;
 import PU.pushop.address.entity.Addresses;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;

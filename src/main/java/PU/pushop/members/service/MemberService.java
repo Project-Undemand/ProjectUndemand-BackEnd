@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,11 +85,15 @@ public class MemberService {
         Optional<Refresh> optionalRefresh = refreshRepository.findByRefreshToken(refreshToken);
         if (optionalRefresh.isPresent()) {
             Refresh refreshEntity = optionalRefresh.get();
+            Member member = memberRepositoryV1.findById(refreshEntity.getMember().getId())
+                    .orElseThrow(() -> new UsernameNotFoundException("id에 맞는 해당 회원이 존재하지 않습니다."));
+            // Response refresh Cookie 삭제
             CookieUtil.deleteCookie(response, "refreshAuthorization");
+            // DB 에 있는 refresh 삭제
             refreshRepository.delete(refreshEntity);
 
-            log.info("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
-            return ResponseEntity.status(HttpStatus.OK).body("멤버 Id : " + refreshEntity.getMember().getId() + " 님이 로그아웃 하셨습니다.");
+            log.info("멤버 Id : " + member.getId() + " 님이 로그아웃 하셨습니다.");
+            return ResponseEntity.status(HttpStatus.OK).body("멤버 Id : " + member.getId() + " 님이 로그아웃 하셨습니다.");
         } else {
             log.warn("DB 에 존재하지 않은 잘못된 Refresh token 입니다. 다른 유저의 토큰입니다. Refresh token : " + refreshToken);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("DB 에 존재하지 않은 잘못된 Refresh token 입니다. 다른 유저의 토큰입니다.");
