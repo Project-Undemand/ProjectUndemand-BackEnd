@@ -2,10 +2,8 @@ package PU.pushop.global.authentication.jwts.filters;
 
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
-import PU.pushop.members.entity.Refresh;
-import PU.pushop.members.model.RefreshDto;
-import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
+import PU.pushop.members.service.RefreshService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
@@ -26,30 +24,25 @@ import org.springframework.util.StreamUtils;
 import javax.security.auth.login.CredentialNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 
 import static PU.pushop.global.authentication.jwts.utils.CookieUtil.createCookie;
 
 @Slf4j
 public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
-    private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
-    private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
-
     private final MemberService memberService;
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final RefreshService refreshService;
     private final ObjectMapper objectMapper;
 
     private static final String CONTENT_TYPE = "application/json"; // JSON 타입의 데이터로 오는 로그인 요청만 처리
 
-    public LoginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, MemberService memberService, JWTUtil jwtUtil, RefreshRepository refreshRepository, ObjectMapper objectMapper1) {
+    public LoginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, MemberService memberService, JWTUtil jwtUtil, RefreshService refreshService, ObjectMapper objectMapper1) {
         super(authenticationManager, objectMapper);
         this.memberService = memberService;
         this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
+        this.refreshService = refreshService;
         this.objectMapper = objectMapper1;
     }
 
@@ -104,7 +97,7 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         String newRefresh = jwtUtil.createRefreshToken("refresh", memberId, role);
 
         // [Refresh 토큰 - DB 에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
-        saveOrUpdateRefreshEntity(member, newRefresh);
+        refreshService.saveOrUpdateRefreshEntity(member, newRefresh);
 
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
         addResponseDataV3(response, newAccess, newRefresh, email);
@@ -113,8 +106,8 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 
-//        log.info("로그인에 실패했습니다. ");
-        //로그인 실패시 401 응답 코드 반환
+        log.info("로그인에 실패했습니다. ");
+        // 로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
         response.getWriter().write("로그인에 실패했습니다! ");
         super.unsuccessfulAuthentication(request, response, failed);
@@ -174,34 +167,6 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());
-    }
-
-    /**
-     * [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
-     * 로그인에 성공했을 때, 이미 가지고 있던 리프레쉬 토큰 or 처음 로그인한 유저에 대해 리프레쉬 토큰을 DB에 업데이트합니다.
-     * @param member 회원의 PK로, member의 refresh Token를 조회.
-     * @param newRefreshToken
-     */
-    private void saveOrUpdateRefreshEntity(Member member, String newRefreshToken) {
-        // 멤버의 PK 식별자로, refresh 토큰을 가져옵니다.
-        Optional<Refresh> existedRefresh = refreshRepository.findById(member.getId());
-        LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(refreshTokenExpirationPeriod);
-        if (existedRefresh.isPresent()) {
-            // 로그인 이메일과 같은 이메일을 가지고 있는 Refresh 엔티티에 대해서, refresh 값을 새롭게 업데이트해줌
-            Refresh refreshEntity = existedRefresh.get();
-            // Dto 를 통해서, 새롭게 생성한 RefreshToken 값, 유효기간 등을 받아줍니다.
-            // 2024.04.11 Dto 에서 member 를 생성할 필요는 없어서 삭제했습니다.
-            RefreshDto refreshDto = RefreshDto.createRefreshDto(newRefreshToken, expirationDateTime);
-            // Dto 정보들로 기존에 있던 Refresh 엔티티를 업데이트합니다.
-            refreshEntity.updateRefreshToken(refreshDto);
-            // 저장합니다.
-            refreshRepository.save(refreshEntity);
-        } else {
-            // 완전히 새로운 리프레시 토큰을 생성 후 저장
-            Refresh newRefreshEntity = new Refresh(member, newRefreshToken, expirationDateTime);
-            refreshRepository.save(newRefreshEntity);
-        }
-
     }
 
 }

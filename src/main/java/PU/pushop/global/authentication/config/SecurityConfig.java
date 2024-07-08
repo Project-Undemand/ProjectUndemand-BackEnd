@@ -9,6 +9,7 @@ import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
+import PU.pushop.members.service.RefreshService;
 import PU.pushop.profile.repository.ProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,6 +43,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CookieService cookieService;
     private final RefreshRepository refreshRepository;
+    private final RefreshService refreshService;
     private final MemberRepositoryV1 memberRepositoryV1;
     private final ProfileRepository profileRepository;
     // [Social 로그인] 을 위한 생성자 주입
@@ -68,7 +70,7 @@ public class SecurityConfig {
                 objectMapper,
                 memberService(),
                 jwtUtil,
-                refreshRepository,
+                refreshService,
                 objectMapper
         );
     }
