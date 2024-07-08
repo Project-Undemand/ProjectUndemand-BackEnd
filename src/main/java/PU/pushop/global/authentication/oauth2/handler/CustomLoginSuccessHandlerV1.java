@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -36,6 +37,9 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
 
     private Long accessTokenExpirationPeriod = 60L * 30; // 30 분
     private Long refreshTokenExpirationPeriod = 3600L * 24 * 7; // 7일
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -58,7 +62,9 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
         // 리프레시 토큰을 쿠키에 저장합니다.
         response.addCookie(createCookie("refreshAuthorization", "Bearer+" +refreshToken));
         response.setStatus(HttpStatus.OK.value());
-        response.sendRedirect("http://localhost:3000?redirectedFromSocialLogin=true");
+
+        // frontendUrl을 사용하여 리디렉션 URL을 구성
+        response.sendRedirect(frontendUrl + "?redirectedFromSocialLogin=true");
     }
 
     private static String extractOAuthRole(Authentication authentication) {
