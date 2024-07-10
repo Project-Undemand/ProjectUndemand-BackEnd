@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
 
@@ -49,6 +50,9 @@ public class SecurityConfig {
     // [Social 로그인] 을 위한 생성자 주입
     private final CustomLoginSuccessHandlerV1 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
+
+        @Value("${frontend.url}")
+        private String frontendUrl;
 
     @Bean
     @Primary
@@ -120,7 +124,7 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        configuration.setAllowedOrigins(Collections.singletonList(frontendUrl));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
