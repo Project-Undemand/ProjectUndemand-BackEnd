@@ -15,10 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,9 +63,9 @@ public class ProfileService {
         try {
             long start = System.currentTimeMillis();
             String resizedFileName = ImageUtil.resizeImageFile(imageFile, filePath, "jpeg");
-
             String resizedFilePath = uploadsDir + resizedFileName;
             Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
+
             if (memberProfileOpt.isPresent()) {
                 Profiles memberProfile = memberProfileOpt.get();
                 memberProfile.setProfileImgName(resizedFileName);

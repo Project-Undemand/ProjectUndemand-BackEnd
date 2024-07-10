@@ -9,6 +9,8 @@ import PU.pushop.global.authentication.oauth2.handler.CustomLoginSuccessHandlerV
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.repository.RefreshRepository;
 import PU.pushop.members.service.MemberService;
+import PU.pushop.members.service.RefreshService;
+import PU.pushop.profile.repository.ProfileRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -42,10 +44,10 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CookieService cookieService;
     private final RefreshRepository refreshRepository;
-    // [MemberService] Bean 등록
+    private final RefreshService refreshService;
     private final MemberRepositoryV1 memberRepositoryV1;
+    private final ProfileRepository profileRepository;
     // [Social 로그인] 을 위한 생성자 주입
-    private final CustomOAuth2UserServiceV1 customOAuth2UserServiceV1;
     private final CustomLoginSuccessHandlerV1 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
@@ -72,9 +74,19 @@ public class SecurityConfig {
                 objectMapper,
                 memberService(),
                 jwtUtil,
-                refreshRepository,
+                refreshService,
                 objectMapper
         );
+    }
+
+    @Bean
+    public CustomOAuth2UserServiceV1 customOAuth2UserService() {
+        return new CustomOAuth2UserServiceV1(memberRepositoryV1, profileRepository, memberService());
+    }
+
+    @Bean
+    public MemberService memberService() {
+        return new MemberService(memberRepositoryV1, passwordEncoder(), refreshRepository);
     }
 
     @Bean
@@ -92,13 +104,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public MemberService memberService() {
-        return new MemberService(memberRepositoryV1, passwordEncoder());
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
         return configuration.getAuthenticationManager();
     }
 
@@ -147,49 +153,11 @@ public class SecurityConfig {
         http
                 .logout(logout -> logout.disable());
 
-        /*
-        // 경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth
-                // 메인 페이지, 로그인, 회원가입 페이지에 대한 권한: ALL
-                .requestMatchers("/login", "/logout",  "/", "/join", "/auth/**", "/login/oauth2/code/**").permitAll()
-                // 상품 카테고리, 상품
-                .requestMatchers("/api/v1/categorys/**", "/api/v1/thumbnail/**", "/api/v1/members/**").permitAll()
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.GET, "/api/v1/products/**")).permitAll()
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.POST, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.PUT, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-//                .requestMatchers(antMatcher(
-//                        HttpMethod.DELETE, "/api/v1/products/**")).hasRole("ADMIN, SELLER")
-                // 상품 썸네일 이미지
-                .requestMatchers("/api/v1/thumbnail/**").permitAll()
-                .requestMatchers(antMatcher(
-                        HttpMethod.POST, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.PUT, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                .requestMatchers(antMatcher(
-                        HttpMethod.DELETE, "/api/v1/thumbnail/**")).hasRole("ADMIN, SELLER")
-                // 관리자 페이지 권한: 관리자
-//                .requestMatchers("/admin", "/api/v1/inventory/**").hasRole("ADMIN")
-                // access, refresh token 만료시 재발행: ALL
-                .requestMatchers("/api/v1/reissue/access", "/api/v1/reissue/refresh").permitAll()
-                // 문의
-                .requestMatchers("/api/v1/inquiry/**").permitAll()
-                // 문의 답변
-                .requestMatchers("/api/v1/inquiry/reply/**").hasRole("ADMIN, SELLER")
-                // 나머지 페이지 권한: 로그인 멤버
-                .anyRequest().permitAll());
-        */
+
         // 경로별 인가 작업: 모든 요청에 대해 허용
         http.authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll());
 
-        /**
-         * Logout Api 를 사용할 것이기에, CustomLogoutFilter 를 사용하지 않을 것임.
-          */
-//        http
-//                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         /**
          순차적으로 등록할 Filter 들을 등록.
@@ -210,7 +178,7 @@ public class SecurityConfig {
                 .oauth2Login((oauth2) -> oauth2
                         .userInfoEndpoint(
                                 (userInfoEndpointConfig -> userInfoEndpointConfig
-                                        .userService(customOAuth2UserServiceV1)
+                                        .userService(customOAuth2UserService())
                                 )
                         )
                         .successHandler(loginSuccessHandler())

@@ -3,7 +3,6 @@ package PU.pushop.members.entity;
 import PU.pushop.address.entity.Addresses;
 import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.entity.enums.SocialType;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.wishList.entity.WishList;
 import jakarta.persistence.*;
@@ -39,24 +38,20 @@ public class Member {
 
     private String phone;
 
+    @Column(nullable = true)
+    private String manufacturer;
+
     @Enumerated(value = EnumType.STRING)
     @Column(name = "member_role")
-    @JsonProperty("member_role")
     private MemberRole memberRole;
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "social_type")
-    @JsonProperty("social_type")
     private SocialType socialType;
 
     @Column(name = "social_id", unique = true)
     @NotBlank
-    @JsonProperty("social_id")
     private String socialId; // Provider + prividerId 형식
-
-    @Column(name = "joined_at")
-    @JsonProperty("joined_at")
-    private LocalDateTime joinedAt = LocalDateTime.now();
 
     @Column(name = "is_active")
     private boolean isActive = true;
@@ -64,8 +59,10 @@ public class Member {
     @Column(name = "is_admin")
     private boolean isAdmin = false;
 
+    @Column(name = "is_seller")
+    private boolean isSeller = false;
+
     @Column(name = "email_token")
-    @JsonProperty("email_token")
     private String token;
 
     @Column(name = "is_certified_email")
@@ -79,6 +76,12 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Addresses> addresses = new ArrayList<>();
+
+    @Column(name = "joined_at")
+    private LocalDateTime joinedAt = LocalDateTime.now();
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
 
     // 1. 생성자를 통해 멤버 생성
     public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, String token, boolean isCertifyByMail) {
@@ -194,5 +197,12 @@ public class Member {
         this.nickname = newNickname;
     }
 
+    public void updateUsername(String newUsername) {
+        this.username = newUsername;
+    }
+
+    public void setLastLoginDate(LocalDateTime now) {
+        this.lastLoginAt = now;
+    }
 
 }

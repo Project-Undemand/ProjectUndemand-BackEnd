@@ -32,13 +32,13 @@ public class ImageUtil {
         // 입력된 이미지 정보를 가져옴
         BufferedImage inputImage = ImageIO.read(file.getInputStream());
         long initialSize = file.getSize();
-        log.info("Initial file size: " + initialSize + " bytes");
         int originWidth = inputImage.getWidth();
         int originHeight = inputImage.getHeight();
 
         int newWidth = 400; // 새로운 너비 정의
         File outputFile = new File(filePath); // 출력될 파일 경로
 
+        // 임시 파일에 이미지를 저장하고 파일 크기를 확인
         // 원본 이미지가 새로 정의된 너비보다 크다면, 크기 조정
         if (originWidth > newWidth) {
             int newHeight = (originHeight * newWidth) / originWidth;
@@ -48,52 +48,58 @@ public class ImageUtil {
             g2d.drawImage(resizeImage, 0, 0, null);
             g2d.dispose();
 
-            // 임시 파일에 이미지를 저장하고 파일 크기를 확인
             ImageIO.write(newImage, formatName, outputFile);
 
             // 초기 파일 크기가 2MB를 초과했다면, 이미지 압축을 고려
             if (outputFile.length() > 2 * 1024 * 1024) {
-                log.info("Initial file size is larger than 2MB, compressing...");
-
-                // JPEG 이미지일 경우 품질을 조절하여 기본적으로 50% 압축해봄
-                if (formatName.equalsIgnoreCase("jpeg") || formatName.equalsIgnoreCase("jpg")) {
-                    Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
-                    if (writers.hasNext()) {
-                        ImageWriter writer = writers.next();
-                        ImageWriteParam param = writer.getDefaultWriteParam();
-                        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                        param.setCompressionQuality(0.5f); // 초기 품질은 50%
-
-                        try (ImageOutputStream ios = ImageIO.createImageOutputStream(outputFile)) {
-                            writer.setOutput(ios);
-                            writer.write(null, new IIOImage(newImage, null, null), param);
-
-                            // 파일 크기를 확인하며 추가로 압축. 최종 파일 크기가 1MB 이하가 되도록 반복
-                            float quality = 0.5f;
-                            while (outputFile.length() > 1024 * 1024 && quality > 0.2f) {
-                                quality -= 0.2f;
-                                param.setCompressionQuality(quality);
-                                writer.write(null, new IIOImage(newImage, null, null), param);
-                            }
-                        }
-                        writer.dispose();
-                    }
-                } else {
-                    ImageIO.write(newImage, formatName, outputFile);
-                }
+                compressImage(newImage, outputFile, formatName);
             }
         } else {
+            // 초기 파일 크기가 2MB를 초과했다면, 이미지 압축을 고려
+            if (outputFile.length() > 2 * 1024 * 1024) {
+                BufferedImage newImage = new BufferedImage(newWidth, originHeight, BufferedImage.TYPE_INT_RGB);
+                compressImage(newImage, outputFile, formatName);
+            }
             // 원본 이미지가 새로운 너비보다 작다면, 원본 그대로 저장
-            file.transferTo(outputFile);
+            ImageIO.write(inputImage, formatName, outputFile);
         }
 
         long endTime = System.currentTimeMillis(); // 작업 종료 시간
         long duration = endTime - startTime; // 작업 시간 계산
-
-        log.info("Final file size: " + outputFile.length() + " bytes");
-        log.info("Final file name: " + outputFile.getName() );
-        log.info("Total time taken: " + duration + " ms");
+//        log.info("Initial file size: " + initialSize + " bytes");
+//        log.info("Final file size: " + outputFile.length() + " bytes");
+//        log.info("Final file name: " + outputFile.getName() );
+//        log.info("Total time taken: " + duration + " ms");
         return outputFile.getName();
+    }
+
+    private static void compressImage(BufferedImage newImage, File outputFile, String formatName) throws IOException {
+        // JPEG 이미지일 경우 품질을 조절하여 기본적으로 50% 압축해봄
+        if (formatName.equalsIgnoreCase("jpeg") || formatName.equalsIgnoreCase("jpg")) {
+            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
+            if (writers.hasNext()) {
+                ImageWriter writer = writers.next();
+                ImageWriteParam param = writer.getDefaultWriteParam();
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality(0.5f); // 초기 품질은 50%
+
+                try (ImageOutputStream ios = ImageIO.createImageOutputStream(outputFile)) {
+                    writer.setOutput(ios);
+                    writer.write(null, new IIOImage(newImage, null, null), param);
+
+                    // 파일 크기를 확인하며 추가로 압축. 최종 파일 크기가 1MB 이하가 되도록 반복
+                    float quality = 0.5f;
+                    while (outputFile.length() > 1024 * 1024 && quality > 0.2f) {
+                        quality -= 0.2f;
+                        param.setCompressionQuality(quality);
+                        writer.write(null, new IIOImage(newImage, null, null), param);
+                    }
+                }
+                writer.dispose();
+            }
+        } else {
+            ImageIO.write(newImage, formatName, outputFile);
+        }
     }
 }
 
