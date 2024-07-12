@@ -65,13 +65,6 @@ spring:
   frontend:
     url: ${FRONTEND_URL}
 
-
-#    open-in-view: false
-  backend:
-    url: ${BACKEND_URL}
-  frontend:
-    url: ${FRONTEND_URL}
-
 # iamport
 imp:
   api:

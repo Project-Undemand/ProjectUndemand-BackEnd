@@ -51,7 +51,7 @@ public class Member {
 
     @Column(name = "social_id", unique = true)
     @NotBlank
-    private String socialId; // Provider + prividerId 형식
+    private String socialId; // Provider + provider Id 형식
 
     @Column(name = "is_active")
     private boolean isActive = true;
@@ -83,7 +83,7 @@ public class Member {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
-    // 1. 생성자를 통해 멤버 생성
+    // 1. 일반 멤버에 대한 생성자.
     public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, String token, boolean isCertifyByMail) {
         this.email = email;
         this.password = password;
@@ -106,6 +106,23 @@ public class Member {
         this.isCertifyByMail = isCertifyByMail;
     }
 
+    // 3. 더미데이터 멤버 생성
+    public Member(String email, String password, String username, String nickname, MemberRole memberRole, SocialType socialType, String socialId, String token, boolean isCertifyByMail, boolean isActive, boolean isSeller, boolean isAdmin, String manufacturer) {
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.nickname = nickname;
+        this.memberRole = memberRole;
+        this.socialType = socialType;
+        this.socialId = socialId;
+        this.token = token;
+        this.isCertifyByMail = isCertifyByMail;
+        this.isActive = isActive;
+        this.isSeller = isSeller;
+        this.isAdmin = isAdmin;
+        this.manufacturer = manufacturer;
+    }
+
     // Social Member 생성
     public static Member createSocialMember(String email, String username, MemberRole memberRole, SocialType socialType, String socialId) {
         return new Member(email, null, username, null, memberRole, socialType, socialId, null, true);
@@ -121,9 +138,19 @@ public class Member {
         return new Member(email, password, null, nickname, MemberRole.USER, SocialType.GENERAL, socialId, token, false);
     }
 
-    // Admin Member 생성
+    // 더미데이터 일반 Member 생성
+    public static Member createUserMember(String email, String nickname, String password, String token, String socialId) {
+        return new Member(email, password, null, nickname, MemberRole.USER, SocialType.GENERAL, socialId, token, true, true, false, false, null);
+    }
+
+    // 더미데이터 Seller Member 생성
+    public static Member createSellerMember(String email, String nickname, String password, String token, String manufacturer, String socialId) {
+        return new Member(email, password, null, nickname, MemberRole.SELLER, SocialType.GENERAL, socialId, token, true, true, true, false, manufacturer);
+    }
+
+    // 더미데이터 Admin Member 생성
     public static Member createAdminMember(String email, String nickname, String password, String token, String socialId) {
-        return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, socialId, token, true);
+        return new Member(email, password, null, nickname, MemberRole.ADMIN, SocialType.GENERAL, socialId, token, true, true, false, true, null);
     }
 
     public static Member createProfileMember(Member member) {
