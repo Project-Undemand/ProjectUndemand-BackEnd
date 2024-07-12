@@ -82,6 +82,32 @@ public class ProfileControllerV1 {
         }
     }
 
+
+    /**
+     * 1. request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
+     * 2. 회원의 introduction 을 변경하고 저장
+     * @param memberId
+     * @param newIntroduction
+     * @return
+     */
+    @PutMapping("/{memberId}/introduction")
+    public ResponseEntity<String> updateMemberIntroduction(@PathVariable Long memberId, @RequestBody String newIntroduction) {
+        // RequestBody 로 건너온 introduction 값을 정리
+        newIntroduction = newIntroduction.replace("\"", "");
+
+        // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
+        MemberAuthorizationUtil.verifyUserIdMatch(memberId);
+
+        // memberId 를 통해 Profiles 조회
+        boolean updateSuccess = profileService.updateIntroduction(memberId, newIntroduction);
+        if (updateSuccess) {
+            return ResponseEntity.ok("Member Introduction updated successfully.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     /**
      * 1. request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
      * 2. 회원의 username 을 변경하고 저장
@@ -97,14 +123,10 @@ public class ProfileControllerV1 {
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
-        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
-        if(optionalMember.isPresent()) {
-            Member existingMember = optionalMember.get();
-            existingMember.updateUsername(maskedUsername);
-            memberRepositoryV1.save(existingMember);
+        boolean updateSuccess = profileService.updateUsername(memberId, maskedUsername);
+        if (updateSuccess) {
             return ResponseEntity.ok("Member Username updated successfully.");
-        }
-        else{
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
@@ -123,14 +145,10 @@ public class ProfileControllerV1 {
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
-        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
-        if(optionalMember.isPresent()) {
-            Member existingMember = optionalMember.get();
-            existingMember.updateNickname(newNickname);
-            memberRepositoryV1.save(existingMember);
+        boolean updateSuccess = profileService.updateNickname(memberId, newNickname);
+        if (updateSuccess) {
             return ResponseEntity.ok("Member Nickname updated successfully.");
-        }
-        else{
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
@@ -142,15 +160,11 @@ public class ProfileControllerV1 {
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
-        Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
-        MemberAges newMemberAges = MemberAges.valueOf(newAge);
-        if(memberProfileOpt.isPresent()) {
-            Profiles profiles = memberProfileOpt.get();
-            profiles.updateMemberAge(newMemberAges);
-            profileRepository.save(profiles);
+        MemberAges memberAges = MemberAges.valueOf(newAge);
+        boolean updateSuccess = profileService.updateAge(memberId, memberAges);
+        if (updateSuccess) {
             return ResponseEntity.ok("Member Age updated successfully.");
-        }
-        else{
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
@@ -162,15 +176,11 @@ public class ProfileControllerV1 {
         // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
         // memberId 를 통해 member 조회
-        Optional<Profiles> memberProfileOpt = profileRepository.findByMemberId(memberId);
-        MemberGender newMemberGender = MemberGender.valueOf(newGender);
-        if(memberProfileOpt.isPresent()) {
-            Profiles profiles = memberProfileOpt.get();
-            profiles.updateMemberGender(newMemberGender);
-            profileRepository.save(profiles);
-            return ResponseEntity.ok("Member Age updated successfully.");
-        }
-        else{
+        MemberGender memberGender = MemberGender.valueOf(newGender);
+        boolean updateSuccess = profileService.updateGender(memberId, memberGender);
+        if (updateSuccess) {
+            return ResponseEntity.ok("Member Gender updated successfully.");
+        } else {
             return ResponseEntity.notFound().build();
         }
     }

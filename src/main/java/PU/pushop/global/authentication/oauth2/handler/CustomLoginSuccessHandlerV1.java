@@ -76,18 +76,4 @@ public class CustomLoginSuccessHandlerV1 extends SimpleUrlAuthenticationSuccessH
         return role;
     }
 
-    private void addResponseDataV2(HttpServletResponse response, String accessToken, String refreshToken) throws IOException {
-        // 액세스 토큰을 JSON 형식으로 응답 데이터에 포함하여 클라이언트에게 반환
-        JsonObject responseData = new JsonObject();
-        responseData.addProperty("accessToken", accessToken);
-        responseData.addProperty("refreshToken", refreshToken);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(responseData.toString());
-        // HttpStatus 200 OK
-        response.setStatus(HttpStatus.OK.value());
-        // 클라이언트 콘솔에 응답 로그 출력
-        log.info("Response sent to client: " + responseData.toString());
-    }
-
 }

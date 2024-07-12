@@ -3,7 +3,12 @@ package PU.pushop.profile.service;
 
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.global.image.ImageUtil;
+import PU.pushop.members.entity.Member;
+import PU.pushop.members.repository.MemberRepositoryV1;
+import PU.pushop.members.service.MemberService;
 import PU.pushop.profile.entity.Profiles;
+import PU.pushop.profile.entity.enums.MemberAges;
+import PU.pushop.profile.entity.enums.MemberGender;
 import PU.pushop.profile.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +35,8 @@ import java.util.UUID;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final MemberRepositoryV1 memberRepositoryV1;
+    private final MemberService memberService;
 
     // create, update, getMyProfile
     @Transactional
@@ -107,6 +114,71 @@ public class ProfileService {
         } catch (IOException e) {
             // Exception handling in case of file deletion error
             e.printStackTrace();
+        }
+    }
+
+    @Transactional
+    public boolean updateIntroduction(Long memberId, String newIntroduction) {
+        Optional<Profiles> optionalProfiles = profileRepository.findByMemberId(memberId);
+        if (optionalProfiles.isPresent()) {
+            Profiles profiles = optionalProfiles.get();
+            profiles.updateIntroduction(newIntroduction);
+            profileRepository.save(profiles);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean updateUsername(Long memberId, String newUsername) {
+        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
+        if (optionalMember.isPresent()) {
+            Member existingMember = optionalMember.get();
+            String maskedUsername = memberService.maskName(newUsername);
+            existingMember.updateUsername(maskedUsername);
+            memberRepositoryV1.save(existingMember);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean updateNickname(Long memberId, String newNickname) {
+        Optional<Member> optionalMember = memberRepositoryV1.findById(memberId);
+        if (optionalMember.isPresent()) {
+            Member existingMember = optionalMember.get();
+            existingMember.updateNickname(newNickname);
+            memberRepositoryV1.save(existingMember);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean updateAge(Long memberId, MemberAges newAge) {
+        Optional<Profiles> optionalProfiles = profileRepository.findByMemberId(memberId);
+        if (optionalProfiles.isPresent()) {
+            Profiles profiles = optionalProfiles.get();
+            profiles.updateMemberAge(newAge);
+            profileRepository.save(profiles);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean updateGender(Long memberId, MemberGender newGender) {
+        Optional<Profiles> optionalProfiles = profileRepository.findByMemberId(memberId);
+        if (optionalProfiles.isPresent()) {
+            Profiles profiles = optionalProfiles.get();
+            profiles.updateMemberGender(newGender);
+            profileRepository.save(profiles);
+            return true;
+        } else {
+            return false;
         }
     }
 
