@@ -1,5 +1,6 @@
 package PU.pushop.members.controller;
 
+import PU.pushop.global.authentication.jwts.service.CookieService;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
@@ -25,19 +26,20 @@ public class MemberApiController {
 
     private final MemberRepositoryV1 memberRepositoryV1;
     private final JWTUtil jwtUtil;
+    private final CookieService cookieService;
 
     /**
      * 관리자 페이지에서 회원에 대한 모든 데이터를 확인할 때 사용하는 목적. 서비스 목적이 아닙니다.
      * ADMIN 관리자가 아니면 실행할 수 없는 api
      */
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<?> getMemberList(HttpServletRequest request) {
         // Request Header 에 담아준 Authorization 을 가져와서
-        String authorization = request.getHeader("Authorization");
+        String refreshAuthorization = cookieService.getRefreshAuthorization(request);
         // accessToken 을 꺼내주는 방식
-        String accessToken = authorization.substring(7);
+        String refreshToken = refreshAuthorization.substring(7);
         // accessToken 에 있는 유저 권한을 파싱해서 가져옴
-        MemberRole userRole = jwtUtil.getRole(accessToken);
+        MemberRole userRole = jwtUtil.getRole(refreshToken);
 
         // ADMIN 관리자가 아니면 실행할 수 없는 api
         if (userRole == MemberRole.ADMIN) {
