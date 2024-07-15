@@ -21,6 +21,7 @@ public class PaymentHistoryDto {
     private String productName;
     private String imagePath;
     private Integer productPrice;
+    private String manufacturer;
     private Long productQuantity;
     private String option;
     // Order 관련 field
@@ -49,6 +50,7 @@ public class PaymentHistoryDto {
                 paymentHistory.getProduct().getProductName(),
                 paymentHistory.getFirstThumbnailImagePath(),
                 paymentHistory.getProduct().getPrice(),
+                paymentHistory.getProduct().getManufacturer(),
                 paymentHistory.getQuantity(),
                 paymentHistory.getProductOption(),
                 // payment field
