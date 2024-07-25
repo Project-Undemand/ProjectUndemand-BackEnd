@@ -26,4 +26,5 @@ public interface MemberRepositoryV1 extends JpaRepository<Member, Long> {
 
     Optional<Member> findByToken(String token);
 
+    Long countByEmail(String email);
 }

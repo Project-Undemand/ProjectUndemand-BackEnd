@@ -1,5 +1,6 @@
 package PU.pushop.members.service;
 
+import PU.pushop.global.authentication.jwts.filters.LoginFilter;
 import PU.pushop.global.authentication.jwts.utils.CookieUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.entity.Refresh;
@@ -51,10 +52,20 @@ public class MemberService {
 
     @Transactional // 회원의 LastLoginAt 를 수정하기 때문에, readOnly 로 설정하면 안됩니다.
     public Member memberLogin(String email) throws BadCredentialsException {
-        Member member = findUniqueMemberByEmail(email);
-        updateLastLoginAt(member);
-        return member;
+        Long countedMembersByEmail = countMembersByEmail(email);
+        if (countedMembersByEmail == 1) {
+            Member member = findUniqueMemberByEmail(email);
+            updateLastLoginAt(member);
+            return member;
+        } else {
+            throw new BadCredentialsException("There are multiple users associated with this email");
+        }
+    }
 
+    public boolean checkPassword(String email, String password) {
+        Member requestMember = memberRepositoryV1.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+        return passwordEncoder.matches(password, requestMember.getPassword());
     }
 
     @Transactional
@@ -105,10 +116,13 @@ public class MemberService {
         } else if (members.size() == 1) {
             return members.get(0);
         } else {
-            throw new UsernameNotFoundException("No user found with this email: " + email);
+            throw new LoginFilter.EmailNotFoundException("No user found with this email: " + email); // 변경된 부분
         }
     }
 
+    public Long countMembersByEmail(String email) {
+        return memberRepositoryV1.countByEmail(email);
+    }
 
     private void updateLastLoginAt(Member member) {
         member.setLastLoginDate(LocalDateTime.now());
