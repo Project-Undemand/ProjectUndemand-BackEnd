@@ -26,6 +26,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 import static PU.pushop.global.authentication.jwts.utils.CookieUtil.createCookie;
@@ -50,7 +51,6 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
-
         if(request.getContentType() == null || !request.getContentType().equals(CONTENT_TYPE)  ) {
             throw new AuthenticationServiceException("Authentication Content-Type not supported: " + request.getContentType());
         }
@@ -63,11 +63,23 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         String email = usernamePasswordMap.get("email");
         String password = usernamePasswordMap.get("password");
 
+        Long memberCount = memberService.countMembersByEmail(email);
+        log.info("memberCount = {}", memberCount);
+        if (memberCount == 0) {
+            log.info("존재하지 않는 이메일입니다: {}", email);
+            throw new EmailNotFoundException("No user found with this email");
+        } else if (memberCount > 1) {
+            throw new AuthenticationServiceException("There are multiple users associated with this email: " + email);
+        }
+
+        boolean isPasswordAuthenticated = memberService.checkPassword(email, password);
+        if (!isPasswordAuthenticated) {
+            throw new BadCredentialsException("Invalid password");
+        }
         // Principal(인증-유저이메일), Credentials(권한), Authenticated 등의 정보
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
 //            log.info(String.valueOf(authToken.toString()));
         return this.getAuthenticationManager().authenticate(authToken);
-
     }
 
     @Override
@@ -88,32 +100,32 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
         // [response.data] 에 Json 형태로 accessToken 과 refreshToken 을 넣어주는 방식
         addResponseDataV3(response, newAccess, newRefresh, email);
-
-        // Set the authentication to the SecurityContextHolder
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        log.info("로그인에 실패했습니다. 실패 원인: " + failed.getMessage());
+        log.info("로그인에 실패했습니다. 실패 원인: {}", failed.getMessage());
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        JsonObject responseData = new JsonObject();
+
+        Map<String, String> responseData = new HashMap<>();
 
         if (failed instanceof BadCredentialsException) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            responseData.addProperty("error", "Invalid password");
-        } else if (failed instanceof UsernameNotFoundException) {
+            responseData.put("error", "Invalid password");
+        } else if (failed instanceof EmailNotFoundException) {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
-            responseData.addProperty("error", "No user found with this email");
+            responseData.put("error", "No user found with this email");
         } else {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            responseData.addProperty("error", "Authentication failed");
+            responseData.put("error", "Authentication failed");
         }
 
-        response.getWriter().write(responseData.toString());
-        super.unsuccessfulAuthentication(request, response, failed);
+//        response.getWriter().write(responseData.toString());
+        response.getWriter().write(objectMapper.writeValueAsString(responseData));
+
+//        super.unsuccessfulAuthentication(request, response, failed);
     }
 
     /**
@@ -133,6 +145,13 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         // HttpStatus 200 OK
         response.setStatus(HttpStatus.OK.value());
     }
+
+    public static class EmailNotFoundException extends AuthenticationException {
+        public EmailNotFoundException(String message) {
+            super(message);
+        }
+    }
+
 
     // 사용자의 권한 정보를 가져옴
     private String extractAuthority(Authentication authentication) {

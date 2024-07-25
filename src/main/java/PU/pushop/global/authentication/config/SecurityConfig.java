@@ -1,5 +1,6 @@
 package PU.pushop.global.authentication.config;
 
+import PU.pushop.global.authentication.jwts.exception.CustomAuthenticationEntryPoint;
 import PU.pushop.global.authentication.jwts.filters.*;
 import PU.pushop.global.authentication.jwts.service.CookieService;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
@@ -51,8 +52,8 @@ public class SecurityConfig {
     private final CustomLoginSuccessHandlerV1 customLoginSuccessHandler;
     private final CustomLoginFailureHandler customLoginFailureHandler;
 
-        @Value("${frontend.url}")
-        private String frontendUrl;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @Bean
     @Primary
@@ -114,6 +115,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CustomAuthenticationEntryPoint customAuthenticationEntryPoint() {
+        return new CustomAuthenticationEntryPoint(objectMapper);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // 소셜 로그인 성공 시, 메인 도메인으로 Redirect 해주기 위해, CorsConfiguration 를 등록합니다.
         http
@@ -154,10 +160,19 @@ public class SecurityConfig {
                 .logout(logout -> logout.disable());
 
 
-        // 경로별 인가 작업: 모든 요청에 대해 허용
+        // 경로별 인가 작업: 모든 요청에 대해 허용. 인가에 대한 처리는 컨트롤러에서 직접 담당합니다.
         http.authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll());
-
+        // 커스텀 인증 예외 처리를 위한 인증 엔드포인트 등록
+        http
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(customAuthenticationEntryPoint()));
+        /*
+          세션 설정 : STATELESS .
+          */
+        http
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         /**
          순차적으로 등록할 Filter 들을 등록.
@@ -184,13 +199,6 @@ public class SecurityConfig {
                         .successHandler(loginSuccessHandler())
                         .failureHandler(loginFailureHandler())
                 );
-
-        /*
-          세션 설정 : STATELESS .
-          */
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
 

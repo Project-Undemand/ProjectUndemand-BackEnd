@@ -79,6 +79,11 @@ imp:
 logging.level.org:
   hibernate:
     SQL: debug
+logging:
+  level:
+    root: INFO
+    com.your.package: DEBUG
+
 #  springframework: debug
 #  org.hibernate.type: trace
 #  jdbc:h2:~/pushop
