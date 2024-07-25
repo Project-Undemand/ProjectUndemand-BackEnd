@@ -11,13 +11,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.security.auth.login.CredentialNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -48,16 +49,12 @@ public class MemberService {
         return memberRepositoryV1.save(newMember);
     }
 
-    @Transactional
-    public Member memberLogin(String email, String password) throws CredentialNotFoundException {
+    @Transactional // 회원의 LastLoginAt 를 수정하기 때문에, readOnly 로 설정하면 안됩니다.
+    public Member memberLogin(String email) throws BadCredentialsException {
         Member member = findUniqueMemberByEmail(email);
+        updateLastLoginAt(member);
+        return member;
 
-        if (passwordEncoder.matches(password, member.getPassword())) {
-            updateLastLoginAt(member);
-            return member;
-        } else {
-            throw new CredentialNotFoundException("Invalid password");
-        }
     }
 
     @Transactional
@@ -100,18 +97,18 @@ public class MemberService {
         }
     }
 
-    @Transactional
     public Member findUniqueMemberByEmail(String email) {
         List<Member> members = memberRepositoryV1.findAllByEmail(email);
 
         if (members.size() > 1) {
-            throw new MultipleUsersFoundException("There are multiple users associated with this email: " + email);
+            throw new AuthenticationServiceException("There are multiple users associated with this email: " + email);
         } else if (members.size() == 1) {
             return members.get(0);
         } else {
-            throw new UserNotFoundByEmailException("No user found with this email: " + email);
+            throw new UsernameNotFoundException("No user found with this email: " + email);
         }
     }
+
 
     private void updateLastLoginAt(Member member) {
         member.setLastLoginDate(LocalDateTime.now());
