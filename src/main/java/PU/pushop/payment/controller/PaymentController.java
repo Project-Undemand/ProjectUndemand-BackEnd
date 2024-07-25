@@ -3,6 +3,9 @@ package PU.pushop.payment.controller;
 import PU.pushop.cart.entity.Cart;
 import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.global.Exception.PaymentCancelFailureException;
+import PU.pushop.global.authentication.jwts.service.CookieService;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.order.repository.OrderRepository;
 import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.payment.entity.PaymentRefund;
@@ -17,18 +20,23 @@ import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
 
@@ -42,6 +50,8 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final CartRepository cartRepository;
     private IamportClient iamportClient;
+    private final CookieService cookieService;
+    private final JWTUtil jwtUtil;
 
     @Value("${IMP_API_KEY}")
     private String apiKey;
@@ -114,6 +124,40 @@ public class PaymentController {
         PaymentRefund refund = paymentService.setRefundInfo(requestDto, paymentHistory, refundInfo);
 
         return cancelResponse;
+    }
+
+    @GetMapping("/paymenthistory/admin")
+    public ResponseEntity<?> paymentListByAdmin(HttpServletRequest request, HttpServletResponse response) {
+        String refreshAuthorization = cookieService.getRefreshAuthorization(request);
+        if (refreshAuthorization == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Unauthorized: You are not logged in.");
+        }
+        String refreshToken = Objects.requireNonNull(refreshAuthorization).substring(7);
+
+        try {
+            List<PaymentHistoryDto> paymentHistories = paymentService.paymentHistoryListByAdmin(refreshToken);
+            return ResponseEntity.status(HttpStatus.OK).body(paymentHistories);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/paymenthistory/seller")
+    public ResponseEntity<?> paymentListBySeller(HttpServletRequest request, HttpServletResponse response) {
+        String refreshAuthorization = cookieService.getRefreshAuthorization(request);
+        if (refreshAuthorization == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Unauthorized: You are not logged in.");
+        }
+        String refreshToken = Objects.requireNonNull(refreshAuthorization).substring(7);
+
+        try {
+            List<PaymentHistoryDto> paymentHistories = paymentService.paymentHistoryListBySeller(refreshToken);
+            return ResponseEntity.status(HttpStatus.OK).body(paymentHistories);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
 }

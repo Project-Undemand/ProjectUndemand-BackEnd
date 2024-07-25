@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
   servlet:
     multipart:
       max-file-size: 5MB
@@ -73,8 +76,10 @@ imp:
     key: ${IMP_API_KEY}
     secretkey: ${IMP_SECRET_KEY}
 
-logging.level.org.hibernate:
-  SQL: debug
+logging.level.org:
+  hibernate:
+    SQL: debug
+#  springframework: debug
 #  org.hibernate.type: trace
 #  jdbc:h2:~/pushop
 

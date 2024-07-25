@@ -2,7 +2,9 @@ package PU.pushop.payment.service;
 
 import PU.pushop.cart.repository.CartRepository;
 import PU.pushop.global.ResponseMessageConstants;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.order.entity.Orders;
 import PU.pushop.order.entity.enums.PayMethod;
@@ -21,6 +23,7 @@ import PU.pushop.productManagement.entity.ProductManagement;
 import PU.pushop.productManagement.repository.ProductManagementRepository;
 import com.siot.IamportRestClient.response.Payment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static PU.pushop.global.ResponseMessageConstants.MEMBER_NOT_FOUND;
 import static PU.pushop.global.authorization.MemberAuthorizationUtil.verifyUserIdMatch;
 
 @Service
@@ -42,6 +46,8 @@ public class PaymentService {
     private final ProductManagementRepository productMgtRepository;
     private final PaymentRefundRepository paymentRefundRepository;
     private final CartRepository cartRepository;
+    private final JWTUtil jwtUtil;
+    private final MemberRepositoryV1 memberRepositoryV1;
 
     public void processPaymentDone(Payment response, PaymentRequestDto request) {
 
@@ -179,7 +185,55 @@ public class PaymentService {
         return paymentRefund;
     }
 
+    public List<PaymentHistoryDto> paymentHistoryListByAdmin(String refreshToken) {
+        MemberRole memberRole = jwtUtil.getRole(refreshToken);
+        String memberId = jwtUtil.getMemberId(refreshToken);
 
+        if (memberRole != MemberRole.ADMIN) {
+            throw new AccessDeniedException("Forbidden: Non-admin users cannot view all payment histories.");
+        }
 
+        return getPaymentHistoryListByAdmin(Long.valueOf(memberId));
+    }
+
+    private List<PaymentHistoryDto> getPaymentHistoryListByAdmin(Long memberId) {
+        verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
+
+        List<PaymentHistory> paymentRepositoryAll = paymentRepository.findAll();
+        List<PaymentHistoryDto> paymentHistoryDtos = new ArrayList<>();
+
+        for (PaymentHistory paymentHistory : paymentRepositoryAll) {
+            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(paymentHistory);
+            paymentHistoryDtos.add(paymentHistoryDto);
+        }
+        return paymentHistoryDtos;
+    }
+
+    public List<PaymentHistoryDto> paymentHistoryListBySeller(String refreshToken) {
+        MemberRole memberRole = jwtUtil.getRole(refreshToken);
+        String memberId = jwtUtil.getMemberId(refreshToken);
+
+        if (memberRole != MemberRole.SELLER) {
+            throw new AccessDeniedException("Forbidden: Non-seller users cannot view all payment histories.");
+        }
+
+        return getPaymentHistoryListBySeller(Long.valueOf(memberId));
+    }
+
+    private List<PaymentHistoryDto> getPaymentHistoryListBySeller(Long memberId) {
+        verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
+
+        Member member = memberRepositoryV1.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND));
+
+        List<PaymentHistory> paymentHistoriesByManufacturer = paymentRepository.findByProductManufacturer(member.getManufacturer());
+        List<PaymentHistoryDto> paymentHistoryDtos = new ArrayList<>();
+
+        for (PaymentHistory paymentHistory : paymentHistoriesByManufacturer) {
+            PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(paymentHistory);
+            paymentHistoryDtos.add(paymentHistoryDto);
+        }
+        return paymentHistoryDtos;
+    }
 }
 

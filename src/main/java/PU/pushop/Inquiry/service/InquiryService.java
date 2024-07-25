@@ -7,7 +7,6 @@ import PU.pushop.Inquiry.model.InquiryDto;
 import PU.pushop.Inquiry.model.InquiryUpdateDto;
 import PU.pushop.Inquiry.repository.InquiryRepository;
 import PU.pushop.global.ResponseMessageConstants;
-import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
 import PU.pushop.members.entity.Member;
 import PU.pushop.members.repository.MemberRepositoryV1;
@@ -33,7 +32,6 @@ public class InquiryService {
     public final InquiryRepository inquiryRepository;
     public final MemberRepositoryV1 memberRepository;
     public final ProductRepositoryV1 productRepository;
-    private final JWTUtil jwtUtil;
     public final ModelMapper modelMapper;
 
     /**
