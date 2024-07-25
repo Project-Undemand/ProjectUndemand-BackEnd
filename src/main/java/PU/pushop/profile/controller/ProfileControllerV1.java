@@ -1,8 +1,6 @@
 package PU.pushop.profile.controller;
 
 import PU.pushop.global.authorization.MemberAuthorizationUtil;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.repository.MemberRepositoryV1;
 import PU.pushop.members.service.MemberService;
 import PU.pushop.profile.entity.Profiles;
 import PU.pushop.profile.entity.enums.MemberAges;
@@ -11,7 +9,6 @@ import PU.pushop.profile.model.MemberDTO;
 import PU.pushop.profile.model.MemberProfileDto;
 import PU.pushop.profile.repository.ProfileRepository;
 import PU.pushop.profile.service.ProfileService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -31,8 +28,6 @@ public class ProfileControllerV1 {
 
     private final ProfileService profileService;
     private final ProfileRepository profileRepository;
-    private final ObjectMapper objectMapper;
-    private final MemberRepositoryV1 memberRepositoryV1;
     private final MemberService memberService;
 
     @GetMapping("/{memberId}")
