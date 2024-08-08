@@ -1,6 +1,7 @@
 package PU.pushop.global.authentication.oauth2.handler;
 
 
+import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
 import PU.pushop.members.entity.Member;
@@ -55,7 +56,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
         log.info("============= memberId 를 가져오기 위해, DB 조회 시작 ==============");
         Member requestMember = memberRepositoryV1.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException(ResponseMessageConstants.MEMBER_NOT_FOUND));
         log.info("============= memberId 를 가져오기 위해, DB 조회 끝 ==============");
         log.info("requestMember = " + requestMember);
         // 액세스 토큰을 생성합니다.
