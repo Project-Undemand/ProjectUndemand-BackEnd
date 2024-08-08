@@ -1,4 +1,6 @@
-package PU.pushop.InventoryProduct.entity;
+package PU.pushop.InventoryProduct.entity.enums;
 
-public class MovementType {
+public enum MovementType {
+    INCOMING,
+    OUTGOING
 }
