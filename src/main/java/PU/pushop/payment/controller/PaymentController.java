@@ -136,7 +136,7 @@ public class PaymentController {
         String refreshToken = Objects.requireNonNull(refreshAuthorization).substring(7);
 
         try {
-            List<PaymentHistoryDto> paymentHistories = paymentService.paymentHistoryListByAdmin(refreshToken);
+            List<PaymentHistoryDto> paymentHistories = paymentService.getAdminPaymentHistoryList(refreshToken);
             return ResponseEntity.status(HttpStatus.OK).body(paymentHistories);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
@@ -153,7 +153,7 @@ public class PaymentController {
         String refreshToken = Objects.requireNonNull(refreshAuthorization).substring(7);
 
         try {
-            List<PaymentHistoryDto> paymentHistories = paymentService.paymentHistoryListBySeller(refreshToken);
+            List<PaymentHistoryDto> paymentHistories = paymentService.getSellerPaymentHistoryList(refreshToken);
             return ResponseEntity.status(HttpStatus.OK).body(paymentHistories);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());

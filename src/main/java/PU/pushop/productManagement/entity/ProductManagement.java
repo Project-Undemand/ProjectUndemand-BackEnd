@@ -33,7 +33,7 @@ public class ProductManagement {
     @Column(name = "inventory_id" )
     private Long inventoryId; // ProductManagement 테이블의 pk
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inventory_product_id", nullable = false)
     private InventoryProduct inventoryProduct;
 

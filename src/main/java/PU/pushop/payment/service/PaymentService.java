@@ -185,7 +185,7 @@ public class PaymentService {
         return paymentRefund;
     }
 
-    public List<PaymentHistoryDto> paymentHistoryListByAdmin(String refreshToken) {
+    public List<PaymentHistoryDto> getAdminPaymentHistoryList(String refreshToken) {
         MemberRole memberRole = jwtUtil.getRole(refreshToken);
         String memberId = jwtUtil.getMemberId(refreshToken);
 
@@ -193,23 +193,23 @@ public class PaymentService {
             throw new AccessDeniedException("Forbidden: Non-admin users cannot view all payment histories.");
         }
 
-        return getPaymentHistoryListByAdmin(Long.valueOf(memberId));
+        return fetchPaymentHistoryListForAdmin(Long.valueOf(memberId));
     }
 
-    private List<PaymentHistoryDto> getPaymentHistoryListByAdmin(Long memberId) {
+    private List<PaymentHistoryDto> fetchPaymentHistoryListForAdmin(Long memberId) {
         verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
 
-        List<PaymentHistory> paymentRepositoryAll = paymentRepository.findAll();
+        List<PaymentHistory> allPaymentHistories = paymentRepository.findAll();
         List<PaymentHistoryDto> paymentHistoryDtos = new ArrayList<>();
 
-        for (PaymentHistory paymentHistory : paymentRepositoryAll) {
+        for (PaymentHistory paymentHistory : allPaymentHistories) {
             PaymentHistoryDto paymentHistoryDto = new PaymentHistoryDto(paymentHistory);
             paymentHistoryDtos.add(paymentHistoryDto);
         }
         return paymentHistoryDtos;
     }
 
-    public List<PaymentHistoryDto> paymentHistoryListBySeller(String refreshToken) {
+    public List<PaymentHistoryDto> getSellerPaymentHistoryList(String refreshToken) {
         MemberRole memberRole = jwtUtil.getRole(refreshToken);
         String memberId = jwtUtil.getMemberId(refreshToken);
 
@@ -217,10 +217,10 @@ public class PaymentService {
             throw new AccessDeniedException("Forbidden: Non-seller users cannot view all payment histories.");
         }
 
-        return getPaymentHistoryListBySeller(Long.valueOf(memberId));
+        return fetchPaymentHistoryListForSeller(Long.valueOf(memberId));
     }
 
-    private List<PaymentHistoryDto> getPaymentHistoryListBySeller(Long memberId) {
+    private List<PaymentHistoryDto> fetchPaymentHistoryListForSeller(Long memberId) {
         verifyUserIdMatch(memberId); // 로그인 된 사용자와 요청 사용자 비교
 
         Member member = memberRepositoryV1.findById(memberId)
@@ -235,5 +235,6 @@ public class PaymentService {
         }
         return paymentHistoryDtos;
     }
+
 }
 
