@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -173,6 +174,10 @@ public class Product {
         this.discountRate = Boolean.TRUE.equals(productCreateDto.getIsDiscount()) ? productCreateDto.getDiscountRate() : null;
         this.isRecommend = productCreateDto.getIsRecommend();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public BigDecimal getPriceToBigDecimal() {
+        return BigDecimal.valueOf(price);
     }
 
     public Product(Long productId) {
