@@ -48,7 +48,7 @@ spring:
     properties:
       hibernate:
 #        show_sql: true
-        format_sql: true
+        format_sql: false
         default_batch_fetch_size: 1000 #최적화 옵션
 
   cache:
@@ -76,7 +76,7 @@ imp:
 
 logging.level.org:
   hibernate:
-    SQL: debug
+    SQL: error
 logging:
   level:
     root: INFO
@@ -89,3 +89,6 @@ logging:
 custom:
   requires-role:
     enabled: false
+
+spring.jpa:
+  open-in-view: true
