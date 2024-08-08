@@ -7,7 +7,6 @@ import PU.pushop.payment.entity.PaymentHistory;
 import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -50,7 +49,7 @@ public class Orders {
     @Column(name = "order_name", nullable = false)
     private String ordererName;
 
-    @Column(name = "product_names", nullable = false)
+    @Column(name = "product_names", nullable = false, length = 255)
     private String productName;
 
     @Enumerated(EnumType.STRING)
@@ -97,7 +96,6 @@ public class Orders {
         this.phoneNumber = phoneNumber;
     }
 
-
     public void orderConfirm(String merchantUid, OrderDto orderDto) {
         this.merchantUid = merchantUid;
         this.postCode = orderDto.getPostCode();
@@ -107,7 +105,24 @@ public class Orders {
         this.phoneNumber = orderDto.getPhoneNumber();
         this.payMethod = orderDto.getPayMethod();
         this.orderDay = LocalDateTime.now();
+    }
 
+    // Order 더미데이터 생성 시 사용되는 생성자.
+    public Orders(Member member, List<ProductManagement> productManagements, String ordererName, String productName, BigDecimal totalPrice, String phoneNumber,
+                  String address, String detailAddress, String postCode, String merchantUid, PayMethod payMethod, Boolean paymentStatus) {
+        this.member = member;
+        this.productManagements = productManagements;
+        this.ordererName = ordererName;
+        this.productName = productName;
+        this.totalPrice = totalPrice;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.detailAddress = detailAddress;
+        this.postCode = postCode;
+        this.merchantUid = merchantUid;
+        this.payMethod = payMethod;
+        this.paymentStatus = paymentStatus;
+        this.orderDay = LocalDateTime.now();
     }
 
 /*    public void setMember(Member member) {
@@ -121,10 +136,5 @@ public class Orders {
     public void setAddress(String address) {
         this.address = address;
     }*/
-
-    public void setPaymentStatus(Boolean paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
 
 }
