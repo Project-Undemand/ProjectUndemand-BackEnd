@@ -1,6 +1,5 @@
 package PU.pushop.global.authentication.oauth2.handler;
 
-
 import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.global.authentication.oauth2.custom.entity.CustomOAuth2User;
@@ -51,20 +50,19 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         String email = oAuth2User.getName();
         String role = extractOAuthRole(authentication);
         log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
-        log.info("email = " + email);
-        log.info("role = " + role);
-        log.info("=============소셜 로그인 성공, 유저 데이터 시작 ==============");
+        log.info("email = {}", email);
+        log.info("role = {}", role);
         log.info("============= memberId 를 가져오기 위해, DB 조회 시작 ==============");
         Member requestMember = memberRepositoryV1.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(ResponseMessageConstants.MEMBER_NOT_FOUND));
         log.info("============= memberId 를 가져오기 위해, DB 조회 끝 ==============");
-        log.info("requestMember = " + requestMember);
+        log.info("requestMember = {}", requestMember);
         // 액세스 토큰을 생성합니다.
         String newAccess = jwtUtil.createAccessToken("access", String.valueOf(requestMember.getId()), role);
         // 리프레시 토큰을 생성합니다.
         String newRefresh = jwtUtil.createRefreshToken("refresh", String.valueOf(requestMember.getId()), role);
-        log.info("newAccess : " + newAccess);
-        log.info("newRefresh : " + newRefresh);
+        log.info("newAccess : {}", newAccess);
+        log.info("newRefresh : {}", newRefresh);
 
         // [Refresh 토큰 - DB에서 관리합니다.] 리프레쉬 토큰 관리권한이 서버에 있습니다.
         saveOrUpdateRefreshEntity(requestMember, newRefresh);
@@ -80,8 +78,7 @@ public class CustomLoginSuccessHandlerV2 extends SimpleUrlAuthenticationSuccessH
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
 
-        String role = auth.getAuthority();
-        return role;
+        return auth.getAuthority();
     }
 
     private Cookie createCookie(String key, String value) {
