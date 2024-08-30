@@ -25,12 +25,12 @@ https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-91
 
 ### Stacks
 
-|Category|Stacks|
-|---|---|
-| Backend | <img src="https://img.shields.io/badge/java 17 -007396?style=for-the-badge&logo=java&logoColor=white">  <img src="https://img.shields.io/badge/Spring Boot 3.2.3 -6DB33F?style=for-the-badge&logo=springboot&logoColor=white">  <img src="https://img.shields.io/badge/Spring Security 6.2.2 -6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">  <img src="https://img.shields.io/badge/gradle -02303A?style=for-the-badge&logo=gradle&logoColor=white">  <img src="https://img.shields.io/badge/junit5 -25A162?style=for-the-badge&logo=junit5&logoColor=white">  <img src="https://img.shields.io/badge/Redis 3.0.504 -DC382D?style=for-the-badge&logo=redis&logoColor=white">  <img src="https://img.shields.io/badge/JPA -007396?style=for-the-badge&logo=java&logoColor=white">  <img src="https://img.shields.io/badge/QueryDsl 5.0.0 -007396?style=for-the-badge&logo=java&logoColor=white">  |
-| Frontend | <img src="https://img.shields.io/badge/react -61DAFB?style=for-the-badge&logo=amazonec2&logoColor=white">  <img src="https://img.shields.io/badge/axios -5A29E4?style=for-the-badge&logo=axios&logoColor=white"> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> 
-| Server | <img src="https://img.shields.io/badge/amazonec2 -FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">  
-| Database | <img src="https://img.shields.io/badge/mysql 8.0.33 -4479A1?style=for-the-badge&logo=mysql&logoColor=white">  
+|Category| Stacks                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|---|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Backend | <img src="https://img.shields.io/badge/java 17 -007396?style=for-the-badge&logo=java&logoColor=white">  <img src="https://img.shields.io/badge/Spring Boot 3.2.3 -6DB33F?style=for-the-badge&logo=springboot&logoColor=white">  <img src="https://img.shields.io/badge/Spring Security 6.2.3 -6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"> <img src="https://img.shields.io/badge/OAuth2 Client 6.2.3 -6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"> <img src="https://img.shields.io/badge/gradle -02303A?style=for-the-badge&logo=gradle&logoColor=white">  <img src="https://img.shields.io/badge/junit5 -25A162?style=for-the-badge&logo=junit5&logoColor=white">  <img src="https://img.shields.io/badge/Redis 3.0.504 -DC382D?style=for-the-badge&logo=redis&logoColor=white">  <img src="https://img.shields.io/badge/JPA -007396?style=for-the-badge&logo=java&logoColor=white">  <img src="https://img.shields.io/badge/QueryDsl 5.0.0 -007396?style=for-the-badge&logo=java&logoColor=white"> |
+| Frontend | <img src="https://img.shields.io/badge/react -61DAFB?style=for-the-badge&logo=react&logoColor=white">  <img src="https://img.shields.io/badge/axios -5A29E4?style=for-the-badge&logo=axios&logoColor=white"> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> <img src="https://img.shields.io/badge/redux -764ABC?style=for-the-badge&logo=redux&logoColor=white"> <img src="https://img.shields.io/badge/react_router -CA4245?style=for-the-badge&logo=react-router&logoColor=white"> <img src="https://img.shields.io/badge/sweetalert -FFB84D?style=for-the-badge&logo=javascript&logoColor=black"> <img src="https://img.shields.io/badge/react_image_crop -FF8700?style=for-the-badge&logo=react&logoColor=white"> <img src="https://img.shields.io/badge/swiper -6332F6?style=for-the-badge&logo=swiper&logoColor=white"> <img src="https://img.shields.io/badge/concurrently -000000?style=for-the-badge&logo=concurrently&logoColor=white"> <img src="https://img.shields.io/badge/popperjs -F7DF1E?style=for-the-badge&logo=popperjs&logoColor=black"> |
+| Server | <img src="https://img.shields.io/badge/amazonec2 -FF9900?style=for-the-badge&logo=amazonec2&logoColor=white"> <img src="https://img.shields.io/badge/nginx -009639?style=for-the-badge&logo=nginx&logoColor=white"> <img src="https://img.shields.io/badge/docker -2496ED?style=for-the-badge&logo=docker&logoColor=white"> <img src="https://img.shields.io/badge/redis -DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/mysql -4479A1?style=for-the-badge&logo=mysql&logoColor=white"> <img src="https://img.shields.io/badge/amazonrds -527FFF?style=for-the-badge&logo=amazonrds&logoColor=white"> |
+| Database | <img src="https://img.shields.io/badge/mysql 8.0.33 -4479A1?style=for-the-badge&logo=mysql&logoColor=white">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 
 
 
@@ -43,13 +43,26 @@ https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-91
 
 - Spring Security JWT
 
+<img src="https://i.postimg.cc/XvM6H7N2/JWT.png" />
+
+- Spring OAuth2 Client
+
+<img src="https://i.postimg.cc/mrQf0ftT/JWT-OAuth2.png" />
+
 #### 마이페이지
 
-- 
-
-
+- 나의 찜 상품 목록
+- 결제 내역
+- 구매 후기
+- 배송지 등록 및 목록
 
 ### 관리자 페이지
+
+- 회원 관리
+- 상품 재고 관리
+- 판매 상품 관리
+- 후기 관리
+- 문의 관리
 
 #### 상품 관리
 
@@ -85,6 +98,7 @@ https://documenter.getpostman.com/view/26963254/2sA3JJ7hks#15a6dae6-2464-42c7-91
 <div markdown='1'></div>
 
 https://rhetorical-cilantro-7e4.notion.site/5a4c766d6c144bb1bc02697b7f98484f?v=23410d6a397d4e35b63ffd42a86848aa&pvs=74
+
 
 </details>
 
