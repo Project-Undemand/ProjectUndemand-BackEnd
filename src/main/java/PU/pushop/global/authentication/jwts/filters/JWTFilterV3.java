@@ -41,7 +41,7 @@ public class JWTFilterV3 extends OncePerRequestFilter {
             return;
         }
         String refreshToken = Objects.requireNonNull(refreshAuthorization).substring(7);
-        log.info("Id : " + jwtUtil.getMemberId(refreshToken) + " 유저가 로그인 했습니다.");
+        log.info("Id : {} 유저가 로그인 했습니다.", jwtUtil.getMemberId(refreshToken));
 
         // 현재 시각을 "년-월-일"으로
         LocalDateTime now = LocalDateTime.now();
@@ -53,7 +53,7 @@ public class JWTFilterV3 extends OncePerRequestFilter {
             log.warn(" 로그인 하지 않은 상태이거나, refreshAuthorization 을 Request Header에 담아주지 않았습니다. ");
             log.warn(" now : " + currentDate);
             // 토큰이 유효하지 않으므로 request와 response를 다음 필터로 넘겨줌
-            filterChain.doFilter(request, response);
+            handleUnauthorizedRedirect(response);
             // 메서드 종료
             return;
         }
@@ -62,15 +62,14 @@ public class JWTFilterV3 extends OncePerRequestFilter {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String accessToken = authorization.split(" ")[1];
 
-
             if(jwtUtil.isExpired(accessToken)){
                 String memberId = jwtUtil.getMemberId(accessToken);
 
                 log.warn("access token 이 만료되었습니다.");
                 if (memberId != null) {
-                    log.warn("memberId : " + memberId + " now : " + currentDate);
+                    log.warn("memberId : {} now : {}", memberId, currentDate);
                 }
-                filterChain.doFilter(request, response);
+                handleUnauthorizedRedirect(response);
                 // 메서드 종료
                 return;
             }
@@ -95,6 +94,10 @@ public class JWTFilterV3 extends OncePerRequestFilter {
 
         CustomUserDetails customOAuth2User = new CustomUserDetails(customMemberDto);
         return new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+    }
+
+    private void handleUnauthorizedRedirect(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/login?unauthorizedRedirect=true");
     }
 
 }
