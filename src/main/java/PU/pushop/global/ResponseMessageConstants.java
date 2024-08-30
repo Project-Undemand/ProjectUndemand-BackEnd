@@ -10,4 +10,7 @@ public class ResponseMessageConstants {
     public static final String ACCESS_DENIED_NO_AUTHENTICATION = "접근 권한이 없습니다. : 로그인 정보 찾을 수 없음";
     public static final String ADDRESS_NOT_FOUND = "해당 주소를 찾을 수 없습니다.";
     public static final String ADDRESS_DELETE_SUCCESS = "해당 주소가 삭제되었습니다";
+    public static final String AUTHENTICATION_NOT_FOUND_EMAIL = "No user found with this email";
+    public static final String AUTHENTICATION_INVALID_PASSWORD = "Invalid password";
+    public static final String AUTHENTICATION_FAILED = "Authentication failed";
 }

@@ -1,7 +1,9 @@
 package PU.pushop.global.authentication.jwts.filters;
 
+import PU.pushop.global.ResponseMessageConstants;
 import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.Member;
+import PU.pushop.members.entity.enums.SocialType;
 import PU.pushop.members.service.MemberService;
 import PU.pushop.members.service.RefreshService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,13 +22,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static PU.pushop.global.authentication.jwts.utils.CookieUtil.createCookie;
@@ -63,18 +64,27 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
         String email = usernamePasswordMap.get("email");
         String password = usernamePasswordMap.get("password");
 
-        Long memberCount = memberService.countMembersByEmail(email);
-        log.info("memberCount = {}", memberCount);
-        if (memberCount == 0) {
+        // 이메일로 모든 회원을 조회
+        List<Member> members = memberService.findMembersByEmail(email);
+        log.info("members found with email {}: {}", email, members.size());
+
+        // GENERAL 타입의 회원만 필터링
+        List<Member> generalMembers = members.stream()
+                .filter(member -> member.getSocialType() == SocialType.GENERAL)
+                .toList();
+
+        if (generalMembers.isEmpty()) {
             log.info("존재하지 않는 이메일입니다: {}", email);
-            throw new EmailNotFoundException("No user found with this email");
-        } else if (memberCount > 1) {
+            throw new EmailNotFoundException(ResponseMessageConstants.AUTHENTICATION_NOT_FOUND_EMAIL);
+        } else if (generalMembers.size() > 1) {
             throw new AuthenticationServiceException("There are multiple users associated with this email: " + email);
         }
 
-        boolean isPasswordAuthenticated = memberService.checkPassword(email, password);
+        Member generalMember = generalMembers.get(0);
+
+        boolean isPasswordAuthenticated = memberService.checkPassword(generalMember.getEmail(), password);
         if (!isPasswordAuthenticated) {
-            throw new BadCredentialsException("Invalid password");
+            throw new BadCredentialsException(ResponseMessageConstants.AUTHENTICATION_INVALID_PASSWORD);
         }
         // Principal(인증-유저이메일), Credentials(권한), Authenticated 등의 정보
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
@@ -113,13 +123,13 @@ public class LoginFilter extends CustomJsonEmailPasswordAuthenticationFilter {
 
         if (failed instanceof BadCredentialsException) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            responseData.put("error", "Invalid password");
+            responseData.put("error", ResponseMessageConstants.AUTHENTICATION_INVALID_PASSWORD);
         } else if (failed instanceof EmailNotFoundException) {
             response.setStatus(HttpStatus.BAD_REQUEST.value());
-            responseData.put("error", "No user found with this email");
+            responseData.put("error", ResponseMessageConstants.AUTHENTICATION_NOT_FOUND_EMAIL);
         } else {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            responseData.put("error", "Authentication failed");
+            responseData.put("error", ResponseMessageConstants.AUTHENTICATION_FAILED);
         }
 
 //        response.getWriter().write(responseData.toString());
