@@ -1,7 +1,9 @@
 package PU.pushop.global.authorization;
 
 import PU.pushop.global.authentication.jwts.entity.CustomUserDetails;
+import PU.pushop.global.authentication.jwts.utils.JWTUtil;
 import PU.pushop.members.entity.enums.MemberRole;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,6 +12,8 @@ import static PU.pushop.global.ResponseMessageConstants.*;
 
 @Slf4j
 public class MemberAuthorizationUtil {
+
+    private static JWTUtil jwtUtil;
 
     private MemberAuthorizationUtil() {
         throw new AssertionError();
@@ -51,4 +55,11 @@ public class MemberAuthorizationUtil {
                 throw new SecurityException(ACCESS_DENIED+" : 요청 사용자와 로그인 사용자 불일치");
         }
     }
+
+    public static boolean verifyAdminRole(String refreshToken) {
+        MemberRole memberRole = jwtUtil.getRole(refreshToken);
+
+        return memberRole == MemberRole.ADMIN;
+    }
+
 }
