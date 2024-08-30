@@ -129,6 +129,10 @@ public class MemberService {
         memberRepositoryV1.save(member);
     }
 
+    public List<Member> findMembersByEmail(String email) {
+        return memberRepositoryV1.findAllByEmail(email);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public static class ExistingMemberException extends IllegalStateException {
         public ExistingMemberException() {
