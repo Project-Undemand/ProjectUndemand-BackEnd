@@ -181,9 +181,9 @@ public class SecurityConfig {
          3. CustomLogoutFilter 에서는
          */
         http
-                .addFilterBefore(new JWTFilterV3(jwtUtil, cookieService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTFilterV4(jwtUtil, cookieService), UsernamePasswordAuthenticationFilter.class);
         http
-                .addFilterBefore(loginFilter(), JWTFilterV3.class);
+                .addFilterBefore(loginFilter(), JWTFilterV4.class);
 
         /**
          * CustomOAuth2Login 이후 , 클라이언트에 access, refresh 토큰을 전달할 방법을 잘 몰라서 주석처리.
