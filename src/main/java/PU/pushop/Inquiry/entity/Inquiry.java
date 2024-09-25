@@ -1,21 +1,21 @@
 package PU.pushop.Inquiry.entity;
 
+import PU.pushop.Inquiry.validation.EnumConstraint;
 import PU.pushop.members.entity.Member;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.enums.InquiryType;
+import PU.pushop.Inquiry.entity.enums.InquiryType;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Setter
 @Entity
-@Table(name = "inquiry")
+@Table(name = "inquiry_table")
 public class Inquiry {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "inquiry_sequence",
             sequenceName = "inquiry_sequence",
@@ -24,7 +24,9 @@ public class Inquiry {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "inquiry_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inquiry_id")
     private Long inquiryId;
 
@@ -43,6 +45,8 @@ public class Inquiry {
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "inquiry_type", nullable = false)
+    @EnumConstraint
     private InquiryType inquiryType;
 
     @Column(name = "inquiry_title",nullable = false)
@@ -54,8 +58,8 @@ public class Inquiry {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    private LocalDate createdAt;
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
 
     @Column(name = "is_secret")
     private Boolean isSecret = true;
@@ -67,6 +71,47 @@ public class Inquiry {
     private List<InquiryReply> replies;
 
     public Inquiry() {
-        this.createdAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
     }
+
+    @Builder
+    public Inquiry(Member member, Product product, String name, String email, InquiryType inquiryType, String inquiryTitle, String inquiryContent, String password) {
+        this.member = member;
+        this.product = product;
+        this.name = name;
+        this.email = email;
+        this.inquiryType = inquiryType;
+        this.inquiryTitle = inquiryTitle;
+        this.inquiryContent = inquiryContent;
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
+
+    }
+
+    public void createInquiryWriter(Member member, String name, String email) {
+        this.member = member;
+        this.name = name;
+        this.email = email;
+    }
+
+/*    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }*/
+
+    public void setResponse(Boolean response) {
+        isResponse = response;
+    }
+
 }

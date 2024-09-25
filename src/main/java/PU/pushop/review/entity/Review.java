@@ -1,20 +1,25 @@
 package PU.pushop.review.entity;
 
 import PU.pushop.payment.entity.PaymentHistory;
+import PU.pushop.reviewImg.ReviewImg;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
-@Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review")
 public class Review {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "review_sequence",
             sequenceName = "review_sequence",
@@ -23,35 +28,51 @@ public class Review {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "review_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
     private Long reviewId;
 
-//    @PrimaryKeyJoinColumn(name = "payment")
+    //    @PrimaryKeyJoinColumn(name = "payment")
     @OneToOne
     @JoinColumn(name = "payment_history_id")
     private PaymentHistory paymentHistory;
-
-    @Column(name = "title", nullable = false)
-    private String reviewTitle;
 
     @Column(name = "content", nullable = false)
     private String reviewContent;
 
     @Column(name = "rating", nullable = false)
-    @Min(value = 1)
-    @Max(value = 5)
+    @Min(value = 1, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
+    @Max(value = 5, message = "별점은 1 이상 5 이하의 정수만 가능합니다.")
     private int rating;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    private LocalDate createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_DATE ON UPDATE CURRENT_DATE")
-    private LocalDate updatedAt;
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
 
-    public Review() {
-        this.createdAt = LocalDate.now();
-        this.updatedAt = LocalDate.now();
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewImg> reviewImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "review")
+    private List<ReviewReply> replies;
+
+
+    public Review(PaymentHistory paymentHistory, String reviewContent, int rating) {
+        this.paymentHistory = paymentHistory;
+        this.reviewContent = reviewContent;
+        this.rating = rating;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateReview(String reviewContent, int rating) {
+        this.reviewContent = reviewContent;
+        this.rating = rating;
+        this.updatedAt = LocalDateTime.now();
     }
 
 

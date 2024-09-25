@@ -1,38 +1,36 @@
 package PU.pushop.cart.controller;
 
+import PU.pushop.cart.entity.Cart;
 import PU.pushop.cart.model.CartDto;
 import PU.pushop.cart.model.CartRequestDto;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.cart.entity.Cart;
+import PU.pushop.cart.model.CartUpdateDto;
 import PU.pushop.cart.service.CartService;
-import PU.pushop.product.entity.Product;
-import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.global.ResponseMessageConstants;
 import jakarta.validation.Valid;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
+    private final ModelMapper modelMapper;
 
     /**
      * 장바구니 담기
      * @param request
-     * @param productId
+     * @param productMgtId
      * @return
      */
-    @PostMapping("/add/{productId}")
-    public ResponseEntity<?> addCart(@Valid @RequestBody CartRequestDto request, @PathVariable Long productId) {
+    @PostMapping("/add/{productMgtId}")
+    public ResponseEntity<String> addCart(@Valid @RequestBody CartRequestDto request, @PathVariable Long productMgtId) {
 
-        Long createdId = cartService.addCart(request, productId);
+        Long createdId = cartService.addCart(request, productMgtId);
 
         return ResponseEntity.ok("장바구니에 등록되었습니다. cart_id : " + createdId);
     }
@@ -54,25 +52,17 @@ public class CartController {
      * @return
      */
     @PutMapping("/{cartId}")
-    public ResponseEntity<?> updateCart(@PathVariable Long cartId, @Valid @RequestBody CartRequestDto request) {
-        Cart updatedCart = CartRequestDto.updateRequestForm(request);
+    public ResponseEntity<CartDto> updateCart(@PathVariable Long cartId, @Valid @RequestBody CartUpdateDto request) {
+        Cart updatedCart = modelMapper.map(request, Cart.class);
         CartDto updatedCartDto = new CartDto(cartService.updateCart(cartId, updatedCart));
 
         return ResponseEntity.ok(updatedCartDto);
     }
 
     @DeleteMapping("/{cartId}")
-    public ResponseEntity<?> deleteCart(@PathVariable Long cartId) {
+    public ResponseEntity<String> deleteCart(@PathVariable Long cartId) {
         cartService.deleteCart(cartId);
-        return ResponseEntity.ok("삭제되었습니다");
+        return ResponseEntity.ok(ResponseMessageConstants.DELETE_SUCCESS);
     }
-
-/*    @PostMapping("")
-    public ResponseEntity<?> deleteCartList(@RequestBody Map<String, Object> payload) {
-        List<Long> cartIds = (List<Long>) payload.get("cartIds");
-        cartService.deleteCartList(cartIds);
-        return ResponseEntity.ok().build();
-
-    }*/
 
 }

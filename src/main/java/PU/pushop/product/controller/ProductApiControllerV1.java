@@ -1,22 +1,26 @@
 package PU.pushop.product.controller;
 
+import PU.pushop.global.queries.Condition;
+import PU.pushop.global.queries.OrderBy;
 import PU.pushop.product.entity.Product;
-import PU.pushop.product.entity.ProductColor;
-import PU.pushop.product.entity.enums.ProductType;
-import PU.pushop.product.model.ProductCreateDto;
-import PU.pushop.product.model.ProductDto;
+import PU.pushop.product.model.*;
+import PU.pushop.product.service.ProductOrderService;
+import PU.pushop.product.service.ProductRankingService;
 import PU.pushop.product.service.ProductServiceV1;
 import jakarta.validation.Valid;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static PU.pushop.global.ResponseMessageConstants.DELETE_SUCCESS;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -24,50 +28,44 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProductApiControllerV1 {
 
-    private final ProductServiceV1 productServiceV1;
+    public final ModelMapper modelMapper;
+    private final ProductServiceV1 productService;
+    private final ProductOrderService productOrderService;
+    private final ProductRankingService productRankingService;
 
-    // Response Data
-    @Data
-    private class ProductResponse {
-        private Long productId;
-        private String productName;
-        private Integer price;
-
-        public ProductResponse(Long productId, String productName, Integer price) {
-            this.productId = productId;
-            this.productName = productName;
-            this.price = price;
-        }
-    }
 
     /**
-     * 전체 상품 조회
-     *
+     * 상품 목록 (카테고리/조건별 필터링, 조건별 정렬, 검색 통합)
+     * @param page
+     * @param size
+     * @param condition
+     * @param category
+     * @param order
+     * @param keyword
      * @return
      */
     @GetMapping("/products")
-    public ResponseEntity<List<ProductDto>> productList() {
-        List<Product> productList = productServiceV1.allProducts();
-        List<ProductDto> collect = productList.stream()
-                .map(ProductDto::new)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(collect, HttpStatus.OK);
+    public Page<ProductListDto> getFilteredAndSortedProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Condition condition,
+            @RequestParam(required = false) Long category,
+            @RequestParam(required = false) OrderBy order,
+            @RequestParam(required = false) String keyword
+    ) {
+        return productOrderService.getFilteredAndSortedProducts(page, size, condition, order, category, keyword);
     }
 
     /**
      * 상품 등록
-     *
-     * @param request
-     * @return productId, productName, price (테스트용)
+     * @param requestDto
+     * @return productId, productName, price
      */
     @PostMapping("/products/new")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductCreateDto request) {
-        Product product = ProductCreateDto.requestForm(request);
+    public ResponseEntity<String> createProduct(@Valid @RequestParam(value = "thumbnail_images", required = false) List<MultipartFile> thumbnailImgs, @RequestParam(value = "content_images", required = false) List<MultipartFile> contentImgs, @ModelAttribute ProductCreateDto requestDto) {
+        Long productId = productService.createProduct(requestDto, thumbnailImgs,contentImgs); // 저장한 상품의 pk
 
-        Long createProductId = productServiceV1.createProduct(product);
-
-        ProductResponse response = new ProductResponse(createProductId, product.getProductName(), product.getPrice());
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body("상품 등록 완료. Id : " + productId);
     }
 
     /**
@@ -77,10 +75,19 @@ public class ProductApiControllerV1 {
      * @return
      */
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable Long productId) {
-        Product productDetail = productServiceV1.productDetail(productId);
-        ProductDto productDto = new ProductDto(productDetail);
-        return new ResponseEntity<>(productDto, HttpStatus.OK);
+    public ResponseEntity<ProductDetailDto> getProductById(@PathVariable Long productId) {
+        ProductDetailDto productDetail = productService.productDetail(productId);
+        return new ResponseEntity<>(productDetail, HttpStatus.OK);
+    }
+
+    /**
+     * 랭킹보드
+     * @param limit
+     * @return
+     */
+    @GetMapping("/products/ranking")
+    public List<ProductRankResponseDto> getTopProducts(@RequestParam(name = "limit", defaultValue = "10") int limit) {
+        return productRankingService.getProductListByRanking(limit);
     }
 
     /**
@@ -91,13 +98,13 @@ public class ProductApiControllerV1 {
      * @return
      */
     @PutMapping("/products/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductCreateDto request) {
-        Product updatedProduct = ProductCreateDto.requestForm(request);
-        Product updated = productServiceV1.updateProduct(productId, updatedProduct);
-        ProductResponse response = new ProductResponse(updated.getProductId(), updated.getProductName(), updated.getPrice());
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductCreateDto request) {
+        // 상품 정보 업데이트
+        Product updated = productService.updateProduct(productId, request);
+
+        ProductResponseDto response = new ProductResponseDto(updated);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     /**
@@ -106,14 +113,9 @@ public class ProductApiControllerV1 {
      * @return
      */
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
-        productServiceV1.deleteProduct(productId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Data
-    static class ColorRequest {
-        private String color;
+    public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
     }
 
     /**
@@ -121,18 +123,11 @@ public class ProductApiControllerV1 {
      * @param request
      * @return
      */
-    private ProductColor ColorFormRequest(ColorRequest request) {
-        ProductColor productColor = new ProductColor();
-        productColor.setColor(request.getColor());
-        return productColor;
-    }
-
     @PostMapping("/color/new")
-    public ResponseEntity<?> createColor(@Valid @RequestBody ColorRequest request) {
-        ProductColor color = ColorFormRequest(request);
+    public ResponseEntity<String> createColor(@Valid @RequestBody ProductColorDto request) {
 
         try {
-            Long createdColorId = productServiceV1.createColor(color);
+            Long createdColorId = productService.createColor(request);
             return ResponseEntity.status(HttpStatus.CREATED).body("색상 등록 완료 " + createdColorId);
         } catch (DataIntegrityViolationException e) {
             // 중복된 이름에 대한 예외 처리
@@ -140,4 +135,15 @@ public class ProductApiControllerV1 {
         }
     }
 
+    /**
+     * 색상 삭제
+     * @param colorId
+     * @return
+     */
+    @DeleteMapping("/color/{colorId}")
+    public ResponseEntity<String> deleteColor(@PathVariable Long colorId) {
+        productService.deleteColor(colorId);
+
+        return ResponseEntity.ok().body(DELETE_SUCCESS);
+    }
 }

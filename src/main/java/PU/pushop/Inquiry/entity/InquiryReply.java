@@ -4,11 +4,12 @@ import PU.pushop.members.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "inquiry_reply")
 public class InquiryReply {
@@ -39,11 +40,22 @@ public class InquiryReply {
     @Column(name = "reply_content", nullable = false)
     private String replyContent;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    private LocalDate createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
 
     public InquiryReply() {
-        this.createdAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
 
     }
+
+    public InquiryReply(Inquiry inquiry, Member replyBy, String replyTitle, String replyContent) {
+        this.inquiry = inquiry;
+        this.replyBy = replyBy;
+        this.replyTitle = replyTitle;
+        this.replyContent = replyContent;
+        this.createdAt = LocalDateTime.now();
+
+    }
+
 }

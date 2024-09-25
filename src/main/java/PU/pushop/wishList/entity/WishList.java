@@ -7,11 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "wish_list")
 public class WishList {
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "wishlist_sequence",
             sequenceName = "wishlist_sequence",
@@ -20,15 +19,27 @@ public class WishList {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "wishlist_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "wishlist_id")
     private Long wishListId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    public WishList(Member member, Product product) {
+        this.member = member;
+        this.product = product;
+    }
+
+    public WishList() {
+
+    }
+
 }

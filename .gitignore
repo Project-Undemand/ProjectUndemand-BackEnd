@@ -1,3 +1,10 @@
+application-test.yml
+DummyDataLoader.java
+### environ-file ###
+environ-file.env
+.env
+.DS_Store
+
 HELP.md
 .gradle
 .yml
@@ -8,6 +15,7 @@ build/
 
 application-jwt.yml
 application-oauth2.yml
+application-mailsender.yml
 
 ### STS ###
 .apt_generated
@@ -42,3 +50,6 @@ out/
 
 ### gradlew.bat ###
 gradlew.bat
+
+### /dump.rdb ###
+/dump.rdb

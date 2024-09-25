@@ -11,12 +11,12 @@ public class PaymentRequestDto {
     private Long memberId;
     private Long orderId;
     private Long price;
-    private List<Long> productIdList;
+    private List<Long> inventoryIdList;
 
-    public PaymentRequestDto(Long memberId, Long orderId, Long price, List<Long> productIdList) {
+    public PaymentRequestDto(Long memberId, Long orderId, Long price, List<Long> inventoryIdList) {
         this.memberId = memberId;
         this.orderId = orderId;
         this.price = price;
-        this.productIdList = productIdList;
+        this.inventoryIdList = inventoryIdList;
     }
 }

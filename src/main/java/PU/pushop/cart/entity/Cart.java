@@ -1,19 +1,17 @@
 package PU.pushop.cart.entity;
 
 import PU.pushop.members.entity.Member;
-import PU.pushop.order.entity.Orders;
-import PU.pushop.product.entity.Product;
+import PU.pushop.productManagement.entity.ProductManagement;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "cart")
 public class Cart {
 
-    @Id
+    /*@Id
     @SequenceGenerator(
             name = "cart_sequence",
             sequenceName = "cart_sequence",
@@ -22,26 +20,44 @@ public class Cart {
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "cart_sequence"
-    )
+    )*/
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_id")
     private Long cartId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "Product_Mgt_id", nullable = false)
+    private ProductManagement productManagement;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity", nullable = false)
+    @Min(value = 0L)
     private Long quantity;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private Long price;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "order_id")
-//    private Orders order;
+
+    public Cart(Member member, ProductManagement productManagement, Long quantity, Long price) {
+        this.member = member;
+        this.productManagement = productManagement;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    public Cart() {
+
+    }
+
+    public void setQuantity(Long quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
 
 }

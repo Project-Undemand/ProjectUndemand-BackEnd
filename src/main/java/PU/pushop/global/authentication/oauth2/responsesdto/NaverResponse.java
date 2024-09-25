@@ -2,15 +2,24 @@ package PU.pushop.global.authentication.oauth2.responsesdto;
 
 import java.util.Map;
 
+
 public class NaverResponse implements OAuth2Response {
 
     private final Map<String, Object> attribute;
 
 
+    @SuppressWarnings("unchecked")
     public NaverResponse(Map<String, Object> attribute) {
-
-        this.attribute = (Map<String, Object>) attribute.get("response");
+        // "response" 키에 해당하는 값이 Map<String, Object> 타입인지 확인한 후 안전하게 형변환
+        Object responseObj = attribute.get("response");
+        if (responseObj instanceof Map) {
+            this.attribute = (Map<String, Object>) responseObj;
+        } else {
+            throw new IllegalArgumentException("'response' key must have a value of type Map<String, Object>");
+        }
     }
+
+
 
     @Override
     public String getProvider() {

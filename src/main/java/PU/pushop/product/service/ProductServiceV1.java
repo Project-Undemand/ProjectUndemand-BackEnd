@@ -1,100 +1,142 @@
 package PU.pushop.product.service;
 
 
+import PU.pushop.contentImgs.service.ContentImgService;
+import PU.pushop.global.authorization.RequiresRole;
+import PU.pushop.members.entity.enums.MemberRole;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.ProductColor;
+import PU.pushop.product.model.ProductColorDto;
+import PU.pushop.product.model.ProductCreateDto;
+import PU.pushop.product.model.ProductDetailDto;
 import PU.pushop.product.repository.ProductColorRepository;
 import PU.pushop.product.repository.ProductRepositoryV1;
+import PU.pushop.productThumbnail.service.ProductThumbnailServiceV1;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+
+import static PU.pushop.global.ResponseMessageConstants.PRODUCT_NOT_FOUND;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceV1 {
-    public final ProductRepositoryV1 productRepositoryV1;
-
+    public final ProductRepositoryV1 productRepository;
     public final ProductColorRepository productColorRepository;
-
-
-    public Product findProductById(Long productId) {
-        // TODO : null일경우 예외처리
-        return productRepositoryV1.findByProductId(productId)
-                .orElse(null); // productId에 해당하는 Product가 없을 경우 null 반환
-    }
+    public final ModelMapper modelMapper;
+    private final ProductThumbnailServiceV1 productThumbnailService;
+    private final ContentImgService contentImgService;
+    private final ProductRankingService productRankingService;
 
     /**
      * 상품 등록
-     * @param product
+     * @param requestDto
      * @return productId
      */
-    @Transactional
-    public Long createProduct(Product product) {
-        productRepositoryV1.save(product);
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
+    public Long createProduct(ProductCreateDto requestDto, @Nullable List<MultipartFile> thumbnailImgs, @Nullable List<MultipartFile> contentImgs) {
+
+        if (requestDto.getPrice() < 0) {
+            throw new IllegalArgumentException("가격은 0 이상이어야 합니다.");
+        }
+        Product product = new Product(requestDto);
+        productRepository.save(product);
+        // 추가 - 썸네일 저장 메서드 실행
+        if (thumbnailImgs != null && !Objects.equals(thumbnailImgs.get(0).getOriginalFilename(), "")) {
+            productThumbnailService.uploadThumbnail(product, thumbnailImgs);
+
+        }
+        if (contentImgs != null && !Objects.equals(contentImgs.get(0).getOriginalFilename(), "")) {
+            contentImgService.uploadContentImage(product,contentImgs);
+
+        }
+
         return product.getProductId();
     }
 
     /**
      * 상품 상세정보 - 상품 하나 찾기
+     *
      * @param productId
      * @return
      */
-    public Product productDetail(Long productId) {
-        return productRepositoryV1.findById(productId).get();
-    }
+    public ProductDetailDto productDetail(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
-    /**
-     * 전체 상품 리스트 - 전체 상품 찾기
-     */
-    public List<Product> allProducts() {
-        return productRepositoryV1.findAll();
+        // 상품 조회 시 조회수 증가
+        log.info("View Increment");
+        productRankingService.increaseProductViews(productId);
+
+        return modelMapper.map(product, ProductDetailDto.class);
     }
 
     /**
      * 상품 정보 수정
+     *
      * @param productId
-     * @param updatedProduct
+     * @param updatedDto
      * @return
      */
-    public Product updateProduct(Long productId, Product updatedProduct) {
-        Product existingProduct = productRepositoryV1.findById(productId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
+    public Product updateProduct(Long productId, ProductCreateDto updatedDto) {
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
-        // 기존 상품 정보 업데이트
-        existingProduct.setProductName(updatedProduct.getProductName());
-        existingProduct.setProductType(updatedProduct.getProductType());
-        existingProduct.setPrice(updatedProduct.getPrice());
-        existingProduct.setProductInfo(updatedProduct.getProductInfo());
-        existingProduct.setManufacturer(updatedProduct.getManufacturer());
+        existingProduct.updateProduct(updatedDto);
 
         // 수정된 상품 정보 저장 후 return
-        return productRepositoryV1.save(existingProduct);
-
+        return productRepository.save(existingProduct);
     }
 
     /**
      * 상품 삭제
+     *
      * @param productId
      */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
     public void deleteProduct(Long productId) {
-        Product existingProduct = productRepositoryV1.findById(productId)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException(PRODUCT_NOT_FOUND));
 
-        productRepositoryV1.delete(existingProduct);
+        productRepository.delete(existingProduct);
     }
 
     /**
      * 색상 등록
-     * @param color
+     *
+     * @param request
      * @return
      */
-    @Transactional
-    public Long createColor(ProductColor color) {
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
+    public Long createColor(ProductColorDto request) {
+        ProductColor color = modelMapper.map(request, ProductColor.class);
         productColorRepository.save(color);
         return color.getColorId();
     }
+
+    /**
+     * 색상 삭제
+     *
+     * @param colorId
+     */
+    @RequiresRole({MemberRole.ADMIN, MemberRole.SELLER})
+    public void deleteColor(Long colorId) {
+        ProductColor color = productColorRepository.findById(colorId)
+                .orElseThrow(() -> new NoSuchElementException("해당 색상을 찾을 수 없습니다. Id : " + colorId));
+        productColorRepository.delete(color);
+    }
+
+
 
 }

@@ -27,11 +27,15 @@ public class CartDto {
     private Long productId;
     private ProductType productType;
     private String productName;
+    private String color;
+    private String size;
     private Integer productPrice;
     private String productInfo;
-    private Boolean isSale;
+    private Boolean isDiscount;
+    private Boolean isSoldOut;
     private Long quantity;
     private Long totalPrice;
+    private String productThumbnail;
 
     public CartDto(Cart cart) {
         this(
@@ -41,14 +45,18 @@ public class CartDto {
                 cart.getMember().getPhone(),
                 cart.getMember().getJoinedAt(),
                 cart.getMember().getWishLists(),
-                cart.getProduct().getProductId(),
-                cart.getProduct().getProductType(),
-                cart.getProduct().getProductName(),
-                cart.getProduct().getPrice(),
-                cart.getProduct().getProductInfo(),
-                cart.getProduct().getIsSale(),
+                cart.getProductManagement().getProduct().getProductId(),
+                cart.getProductManagement().getProduct().getProductType(),
+                cart.getProductManagement().getProduct().getProductName(),
+                cart.getProductManagement().getColor().getColor(),
+                cart.getProductManagement().getSize().toString(),
+                cart.getProductManagement().getProduct().getPrice(),
+                cart.getProductManagement().getProduct().getProductInfo(),
+                cart.getProductManagement().getProduct().getIsDiscount(),
+                cart.getProductManagement().isSoldOut(),
                 cart.getQuantity(),
-                cart.getPrice()
+                cart.getPrice(),
+                cart.getProductManagement().getProduct().getProductThumbnails().get(0).getImagePath()
         );
     }
 
@@ -60,14 +68,18 @@ public class CartDto {
                 .memberPhone(cart.getMember().getPhone())
                 .memberJoinedAt(cart.getMember().getJoinedAt())
                 .wishLists(cart.getMember().getWishLists())
-                .productId(cart.getProduct().getProductId())
-                .productType(cart.getProduct().getProductType())
-                .productName(cart.getProduct().getProductName())
-                .productPrice(cart.getProduct().getPrice())
-                .productInfo(cart.getProduct().getProductInfo())
-                .isSale(cart.getProduct().getIsSale())
+                .productId(cart.getProductManagement().getProduct().getProductId())
+                .productType(cart.getProductManagement().getProduct().getProductType())
+                .productName(cart.getProductManagement().getProduct().getProductName())
+                .color(cart.getProductManagement().getColor().getColor())
+                .size(cart.getProductManagement().getSize().toString())
+                .productPrice(cart.getProductManagement().getProduct().getPrice())
+                .productInfo(cart.getProductManagement().getProduct().getProductInfo())
+                .isDiscount(cart.getProductManagement().getProduct().getIsDiscount())
+                .isSoldOut(cart.getProductManagement().isSoldOut())
                 .quantity(cart.getQuantity())
                 .totalPrice(cart.getPrice())
+                .productThumbnail(cart.getProductManagement().getProduct().getProductThumbnails().get(0).getImagePath())
                 .build();
     }
 

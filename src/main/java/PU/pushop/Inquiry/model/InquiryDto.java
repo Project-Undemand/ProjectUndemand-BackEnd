@@ -1,15 +1,12 @@
 package PU.pushop.Inquiry.model;
 
 import PU.pushop.Inquiry.entity.Inquiry;
-import PU.pushop.Inquiry.entity.InquiryReply;
-import PU.pushop.members.entity.Member;
-import PU.pushop.members.repository.MemberRepositoryV1;
-import PU.pushop.product.entity.enums.InquiryType;
+import PU.pushop.Inquiry.entity.enums.InquiryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +23,7 @@ public class InquiryDto {
     private String inquiryTitle;
     private String inquiryContent;
     private String password;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     private Boolean isSecret;
     private Boolean isResponse;
     private List<InquiryReplyDto> replies;

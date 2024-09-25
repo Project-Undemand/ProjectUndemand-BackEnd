@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,11 +23,12 @@ public class ProductDto {
     private String productName;
     private Integer price;
     private String productInfo;
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String manufacturer;
 
-    private boolean isSale;
+    private boolean isDiscount;
+    private Integer discountRate;
     private boolean isRecommend;
 
     private List<WishListDto> wishLists;
@@ -42,11 +45,11 @@ public class ProductDto {
                 product.getCreatedAt(),
                 product.getUpdatedAt(),
                 product.getManufacturer(),
-                product.getIsSale(),
+                product.getIsDiscount(),
+                product.getDiscountRate(),
                 product.getIsRecommend(),
-                product.getWishLists().stream().map(WishListDto::new)
-                        .collect(Collectors.toList()),
-                (long) product.getWishLists().size()
+                product.getWishLists() != null ? product.getWishLists().stream().map(WishListDto::new).collect(Collectors.toList()) : Collections.emptyList(),
+                product.getWishListCount()
         );
     }
 

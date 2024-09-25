@@ -19,8 +19,6 @@ public class KakaoResponse implements OAuth2Response {
         return new HashMap<>();
     }
 
-
-
     @Override
     public String getProvider() {
 
@@ -36,11 +34,14 @@ public class KakaoResponse implements OAuth2Response {
 
     @Override
     public String getEmail() {
-        // "email" 값 가져오기
         if (attribute != null && attribute.containsKey("kakao_account")) {
-            Map<String, Object> kakaoAccount = (Map<String, Object>) attribute.get("kakao_account");
-            if (kakaoAccount.containsKey("email")) {
-                return kakaoAccount.get("email").toString();
+            Object kakaoAccountObj = attribute.get("kakao_account");
+            if (kakaoAccountObj instanceof Map) {
+                Map<?, ?> kakaoAccount = (Map<?, ?>) kakaoAccountObj;
+                Object emailObj = kakaoAccount.get("email");
+                if (emailObj instanceof String) {
+                    return emailObj.toString();
+                }
             }
         }
         return null;
@@ -48,17 +49,23 @@ public class KakaoResponse implements OAuth2Response {
 
     @Override
     public String getName() {
-        // "nickname" 값 가져오기
         if (attribute != null && attribute.containsKey("kakao_account")) {
-            Map<String, Object> kakaoAccount = (Map<String, Object>) attribute.get("kakao_account");
-            if (kakaoAccount.containsKey("profile")) {
-                Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-                if (profile.containsKey("nickname")) {
-                    return profile.get("nickname").toString();
+            Object kakaoAccountObj = attribute.get("kakao_account");
+            if (kakaoAccountObj instanceof Map) {
+                Map<?, ?> kakaoAccount = (Map<?, ?>) kakaoAccountObj;
+                Object profileObj = kakaoAccount.get("profile");
+                if (profileObj instanceof Map) {
+                    Map<?, ?> profile = (Map<?, ?>) profileObj;
+                    // 실제 본명 : nickname
+                    Object nicknameObj = profile.get("nickname");
+                    if (nicknameObj instanceof String) {
+                        return nicknameObj.toString();
+                    }
                 }
             }
         }
         return null;
     }
+
 
 }

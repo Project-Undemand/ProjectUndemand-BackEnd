@@ -1,6 +1,7 @@
 package PU.pushop.category.model;
 
 import PU.pushop.category.entity.Category;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CategoryDto {
     private Long categoryId;
+    @NotNull(message = "카테고리 이름은 필수입니다.")
     private String name;
     private Long depth;
     private List<CategoryDto> children;

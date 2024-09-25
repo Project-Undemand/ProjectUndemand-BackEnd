@@ -1,7 +1,12 @@
 package PU.pushop.product.model;
 
+import PU.pushop.global.validation.ValidDiscountRate;
 import PU.pushop.product.entity.Product;
 import PU.pushop.product.entity.enums.ProductType;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,12 +14,21 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ValidDiscountRate // 커스텀 유효성 검사 애노테이션 적용
 public class ProductCreateDto {
+    @NotBlank(message = "상품 이름은 필수입니다.")
     private String productName;
     private ProductType productType;
+    @NotNull(message = "가격은 필수입니다.")
+    @Min(value = 0, message = "가격은 0 이상이어야 합니다.")
     private Integer price;
     private String productInfo;
     private String manufacturer;
+    private Boolean isDiscount = false;
+    @Max(value = 100, message = "할인율은 100을 초과할 수 없습니다.")
+    private Integer discountRate = null;
+    private Boolean isRecommend = false;
+
 
     public ProductCreateDto(Product product) {
         this(
@@ -22,19 +36,20 @@ public class ProductCreateDto {
                 product.getProductType(),
                 product.getPrice(),
                 product.getProductInfo(),
-                product.getManufacturer()
+                product.getManufacturer(),
+                product.getIsDiscount(),
+                product.getDiscountRate(),
+                product.getIsRecommend()
         );
     }
 
-    public static Product requestForm(ProductCreateDto request) {
-        Product product = new Product();
-
-        product.setProductName(request.getProductName());
-        product.setProductType(request.getProductType());
-        product.setPrice(request.getPrice());
-        product.setProductInfo(request.getProductInfo());
-        product.setManufacturer(request.getManufacturer());
-        return product;
+    // isDiscount가 false 라면 할인율 null
+    public void setIsDiscount(Boolean isDiscount) {
+        this.isDiscount = isDiscount;
+        if (Boolean.FALSE.equals(isDiscount)) {
+            this.discountRate = null;
+        }
     }
+
 
 }
