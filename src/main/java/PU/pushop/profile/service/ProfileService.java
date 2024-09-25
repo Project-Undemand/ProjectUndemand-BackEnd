@@ -170,12 +170,14 @@ public class ProfileService {
         }
     }
 
+    @Transactional
     public boolean updateGender(Long memberId, MemberGender newGender) {
         Optional<Profiles> optionalProfiles = profileRepository.findByMemberId(memberId);
         if (optionalProfiles.isPresent()) {
             Profiles profiles = optionalProfiles.get();
             profiles.updateMemberGender(newGender);
             profileRepository.save(profiles);
+            log.info("Saving profile with updated gender: {}", profiles.getMemberGender());
             return true;
         } else {
             return false;

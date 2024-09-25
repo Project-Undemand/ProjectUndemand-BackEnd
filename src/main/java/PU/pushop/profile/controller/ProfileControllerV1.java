@@ -166,17 +166,36 @@ public class ProfileControllerV1 {
 
     @PutMapping("/{memberId}/gender")
     public ResponseEntity<String> updateMemberGender(@PathVariable Long memberId, @RequestBody String newGender) {
-        // RequestBody 로 건너온 newGender 이 어떻게 넘어오는지 체크
+        // RequestBody 로 건너온 newGender 값에서 불필요한 따옴표 제거
         newGender = newGender.replace("\"", "");
-        // request.user.id 가 요구하는 프로필 정보의 id 과 같은지 체크
+        log.info("Received gender: " + newGender);
+
+        // request.user.id 가 요구하는 프로필 정보의 id와 같은지 확인
         MemberAuthorizationUtil.verifyUserIdMatch(memberId);
-        // memberId 를 통해 member 조회
-        MemberGender memberGender = MemberGender.valueOf(newGender);
-        boolean updateSuccess = profileService.updateGender(memberId, memberGender);
-        if (updateSuccess) {
-            return ResponseEntity.ok("Member Gender updated successfully.");
-        } else {
-            return ResponseEntity.notFound().build();
+
+        try {
+            // newGender를 MemberGender enum으로 변환 (MEN, WOMEN, ETC)
+            MemberGender memberGender;
+            try {
+                memberGender = MemberGender.valueOf(newGender.toUpperCase()); // 대문자로 변환하여 Enum과 일치하게 함
+            } catch (IllegalArgumentException e) {
+                // Enum에 없는 값일 때 처리
+                log.error("Invalid gender value: " + newGender);
+                return ResponseEntity.badRequest().body("Invalid gender value");
+            }
+            // memberId를 통해 member 조회 후 성별 정보 업데이트
+            boolean updateSuccess = profileService.updateGender(memberId, memberGender);
+
+            if (updateSuccess) {
+                return ResponseEntity.ok("Member Gender updated successfully.");
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IllegalArgumentException e) {
+            // newGender가 MemberGender enum에 없는 값이면 예외 처리
+            log.error("Invalid gender value: " + newGender);
+            return ResponseEntity.badRequest().body("Invalid gender value.");
         }
     }
+
 }
