@@ -36,12 +36,18 @@ public class OrderDataUtil {
         Member member = memberRepositoryV1.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(ResponseMessageConstants.MEMBER_NOT_FOUND));
 
-        for (int productId = startProductId; productId <= endProductId; productId++) {
-            ProductManagement productManagement = productManagementRepository.findById((long) productId)
-                    .orElseThrow(() -> new RuntimeException("ProductManagement not found"));
+        // 상품 ID 범위 내에서 3개의 상품을 고정적으로 선택
+        for (int productId = startProductId; productId <= endProductId; productId += 3) {
+            List<ProductManagement> productManagements = getProductManagements(productId, productId + 2);
 
-            Orders order = new Orders(member, List.of(productManagement), member.getNickname(),
-                    productManagement.getProduct().getProductName(), productManagement.getProduct().getPriceToBigDecimal(), member.getPhone(),
+            if (productManagements.size() < 3) {
+                continue; // 상품이 3개 미만인 경우 건너뜀
+            }
+
+            // 3개의 상품을 포함하는 주문 생성
+            Orders order = new Orders(member, productManagements, member.getNickname(),
+                    productManagements.get(0).getProduct().getProductName(),
+                    calculateTotalPrice(productManagements), member.getPhone(),
                     "123 Test Street", "Apartment 101", "38431", "testUid" + productId, PayMethod.card, true);
 
             orderRepository.save(order);
