@@ -19,7 +19,7 @@ public class StockMovement {
     @Column(name = "movement_id")
     private Long movementId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inventory_product_id", nullable = false)
     private InventoryProduct inventoryProduct;
 

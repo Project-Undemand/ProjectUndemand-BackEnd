@@ -37,15 +37,15 @@ public class ProductManagement {
     @JoinColumn(name = "inventory_product_id", nullable = false)
     private InventoryProduct inventoryProduct;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "color_id", unique = false, nullable = false)
     private ProductColor color;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", unique = false, nullable = false)
     private Category category;
 

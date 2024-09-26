@@ -26,11 +26,11 @@ public class Cart {
     @Column(name = "cart_id")
     private Long cartId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Product_Mgt_id", nullable = false)
     private ProductManagement productManagement;
 

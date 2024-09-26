@@ -18,7 +18,7 @@ public class ReviewImg {
     @Column(name = "review_image_path")
     private String reviewImgPath;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
 

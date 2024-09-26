@@ -22,7 +22,7 @@ public class ProductThumbnail {
     @Column(name = "image_path", nullable = false)
     private String imagePath;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
